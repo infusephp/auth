@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * @package infuse\framework
+ * @author Jared King <j@jaredtking.com>
+ * @link http://jaredtking.com
+ * @version 0.1.16
+ * @copyright 2013 Jared King
+ * @license MIT
+ */
+ 
+namespace app\auth\models;
+
+use infuse\Database;
+use infuse\Model;
+use infuse\Util;
+
+use app\auth\libs\Auth;
+
+if( !defined( 'USER_LINK_FORGOT_PASSWORD' ) )
+	define( 'USER_LINK_FORGOT_PASSWORD', 0 );
+if( !defined( 'USER_LINK_VERIFY_EMAIL' ) )
+	define( 'USER_LINK_VERIFY_EMAIL', 1 );
+if( !defined( 'USER_LINK_TEMPORARY' ) )
+	define( 'USER_LINK_TEMPORARY', 2 );
+
+class UserLink extends Model
+{
+	public static $scaffoldApi;
+	public static $autoTimestamps;
+
+	public static $properties = [
+		'uid' => [
+			'type' => 'id',
+			'mutable' => true,
+			'required' => true,
+			'auto_increment' => false,
+			'relation' => Auth::USER_MODEL
+		],
+		'link' => [
+			'type' => 'id',
+			'db_type' => 'varchar',
+			'length' => 32,
+			'required' => true,
+			'mutable' => true,
+			'validate' => 'string:32'
+		],
+		'link_type' => [
+			'type' => 'enum',
+			'mutable' => true,
+			'db_type' => 'tinyint',
+			'length' => 2,
+			'validate' => 'enum:0,1,2',
+			'required' => true,
+			'admin_type' => 'enum',
+			'admin_enum' => [
+				USER_LINK_FORGOT_PASSWORD => 'Forgot Password',
+				USER_LINK_VERIFY_EMAIL => 'Verify E-mail',
+				USER_LINK_TEMPORARY => 'Temporary'
+			],
+		]
+	];
+	
+	public static $verifyTimeWindow = 86400; // one day
+	
+	public static $forgotLinkTimeframe = 1800; // 30 minutes
+
+	static function idProperty()
+	{
+		return [ 'uid', 'link' ];
+	}
+	
+	protected function hasPermission( $permission, Model $requester )
+	{
+		if( $permission == 'create' )
+			return true;
+		
+		return $requester->isAdmin();
+	}
+	
+	protected function preCreateHook( &$data )
+	{
+		// can only create user links for the current user
+		$user = $this->app[ 'user' ];
+		if( $data[ 'uid' ] != $user->id() && !$this->can( 'create-with-mismatched-uid', $user ) )
+		{
+			$this->app[ 'errors' ]->push( ['error' => ERROR_NO_PERMISSION ] );
+			return false;
+		}
+
+		if( !isset( $data[ 'link' ] ) )
+			$data[ 'link' ] = Util::guid( false );
+	
+		return true;
+	}
+	
+	/**
+	 * Clears out expired user links
+	 */
+	static function garbageCollect()
+	{
+		return
+			Database::delete(
+				'UserLinks',
+				[
+					'created_at < ' . (time() - self::$forgotLinkTimeframe),
+					'link_type' => USER_LINK_FORGOT_PASSWORD ] );
+	}
+}

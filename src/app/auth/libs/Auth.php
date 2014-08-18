@@ -1,0 +1,670 @@
+<?php
+
+namespace app\auth\libs;
+
+use infuse\Database;
+use infuse\Model;
+use infuse\Util;
+use infuse\Validate;
+
+use App;
+use app\auth\models\PersistentSession;
+use app\auth\models\UserLink;
+use app\auth\models\UserLoginHistory;
+
+if( !defined( 'GUEST' ) )
+	define( 'GUEST', -1 );
+if( !defined( 'SUPER_USER' ) )
+	define( 'SUPER_USER', -2 );
+if( !defined( 'LOGIN_TYPE_TRADITIONAL' ) )
+	define( 'LOGIN_TYPE_TRADITIONAL', 0 );
+if( !defined( 'LOGIN_TYPE_PERSISTENT_SESSION' ) )
+	define( 'LOGIN_TYPE_PERSISTENT_SESSION', 1 );
+
+class Auth
+{
+	const USER_MODEL = '\\app\\users\\models\\User';
+
+	private static $usernameProperties = [ 'user_email' ];
+
+	private $app;
+
+	function __construct( App $app )
+	{
+		$this->app = $app;
+	}
+
+	/** 
+	 * Gets the currently authenticated user using the
+	 * available authentication strategies
+	 *
+	 * @return User
+	 */
+	function getAuthenticatedUser()
+	{
+		if( $user = $this->authenticateSession() )
+			return $user;
+		
+		if( $user = $this->authenticatePersistentSession() )
+			return $user;
+
+		// change session user id back to guest if we thought
+		// user was someone else
+		if( $this->app[ 'req' ]->session( 'user_id' ) != GUEST )
+			$this->changeSessionUserID( GUEST );
+		
+		$userModel = self::USER_MODEL;
+		return new $userModel( GUEST, false );
+	}
+
+	/////////////////////////
+	// LOGIN
+	/////////////////////////
+
+	/**
+	 * Performs a traditional username/password login and
+	 * creates a signed in user. 
+	 *
+	 * @param string $username username
+	 * @param string $password password
+	 * @param boolean $persistent make the session persistent
+	 *
+	 * @return boolean success
+	 */
+	function login( $username, $password, $persistent = false )
+	{
+		$this->app[ 'errors' ]->setCurrentContext( 'auth.login' );
+		
+		$user = $this->getUserWithCredentials( $username, $password );
+		if( $user )
+		{
+			$this->app[ 'user' ] = $this->signInUser( $user->id(), LOGIN_TYPE_TRADITIONAL );
+
+			if( $persistent )
+				self::storePersistentCookie( $user->id(), $user->user_email );
+			
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Logs the authenticated user out
+	 *
+	 * @return boolean success
+	 */
+	function logout()
+	{
+		$req = $this->app[ 'req' ];
+		
+		// empty the session cookie
+	    $sessionCookie = session_get_cookie_params();
+		$req->setCookie(
+			session_name(),
+			'',
+			time() - 86400,
+			$sessionCookie[ 'path' ],
+			$sessionCookie[ 'domain' ],
+			$sessionCookie[ 'secure' ],
+			$sessionCookie[ 'httponly' ] );
+
+		// destroy the session variables
+		$req->destroySession();
+
+		// actually destroy the session now
+		session_destroy();
+
+		// delete persistent session cookie
+		$req->setCookie(
+			'persistent',
+			'',
+			time() - 86400,
+			'/',
+			$req->host(),
+			$req->isSecure(),
+			true );
+		
+		$this->changeSessionUserID( GUEST );
+
+		$userModel = self::USER_MODEL;
+		$this->app[ 'user' ] = new $userModel( GUEST, false );
+		
+		return true;
+	}
+	
+	/**
+	 * Fetches the user for a given username/password combination
+	 *
+	 * @param string $username username
+	 * @param string $password password
+	 *
+	 * @return User|false matching user
+	 */
+	function getUserWithCredentials( $username, $password )
+	{
+		$errorStack = $this->app[ 'errors' ];
+
+		if( empty( $username ) )
+		{
+			$errorStack->push( [ 'error' => 'user_bad_username' ] );
+			return false;
+		}
+
+		if( empty( $password ) )
+		{
+			$errorStack->push( [ 'error' => 'user_bad_password' ] );
+			return false;
+		}
+		
+		// build the query string for the username
+		$usernameWhere = '(' . implode( ' OR ', array_map( function( $prop, $username ) {
+			return $prop . " = '" . $username . "'";
+		}, self::$usernameProperties, array_fill( 0, count( self::$usernameProperties ), addslashes( $username ) ) ) ) . ')';
+		
+		// look the user up 
+		$userModel = self::USER_MODEL;
+		$user = $userModel::findOne( [
+			'where' => [
+				$usernameWhere,
+				'user_password' => Util::encrypt_password( $password, $this->app[ 'config' ]->get( 'site.salt' ) ) ] ] );
+		
+		if( $user )
+		{
+			$user->load();
+			
+			if( $user->isTemporary() )
+			{
+				$errorStack->push( [ 'error' => 'user_login_temporary' ] );
+				return false;
+			}
+			else if( !$user->enabled )
+			{
+				$errorStack->push( [ 'error' => 'user_login_disabled' ] );
+				return false;
+			}
+			else if( !$user->isVerified() )
+			{
+				$errorStack->push( [ 'error' => 'user_login_unverified' ] );
+				return false;
+			}
+			
+			// success!
+			return $user;
+		}
+		else
+		{
+			$errorStack->push( [ 'error' => 'user_login_no_match' ] );
+			return false;
+		}
+	}
+
+	/**
+	 * Returns a logged in user for a given uid.
+	 * This method is used for signing in via any
+	 * provider (traditional, oauth, fb, twitter, etc.).
+	 *
+	 * @param int $uid
+	 * @param int $type an integer flag to denote the login type
+	 *
+	 * @return User authenticated user model
+	 */
+	function signInUser( $uid, $type = LOGIN_TYPE_TRADITIONAL )
+	{
+		$userModel = self::USER_MODEL;
+		$user = new $userModel( $uid, true );
+		
+		// update the session with the user's id
+		$this->changeSessionUserID( $uid );
+		
+		// create a login history entry
+		$history = new UserLoginHistory;
+		$history->grantAllPermissions();
+		$history->create( [
+			'uid' => $uid,
+			'type' => $type,
+			'ip' => $this->app[ 'req' ]->ip(),
+			'user_agent' => $this->app[ 'req' ]->agent() ] );
+		
+		return $user;
+	}
+
+	/////////////////////////
+	// TEMPORARY USERS
+	/////////////////////////
+
+	/**
+	 * Gets a temporary user from an e-mail address if one exists
+	 *
+	 * @param string $email e-mail address
+	 *
+	 * @return User|false
+	 */
+	function getTemporaryUser( $email )
+	{
+		if( !Validate::is( $email, 'email' ) )
+			return false;
+		
+		$userModel = self::USER_MODEL;
+		if( $user = $userModel::findOne( [
+			'where' => [
+				'user_email' => $email ] ] ) )
+		{
+			if( $user->isTemporary() )
+				return $user;
+		}
+		
+		return false;
+	}
+
+	/**
+ 	 * Upgrades the user from temporary to a fully registered account
+	 *
+	 * @param User $user user
+	 * @param array $data user data
+	 *
+	 * @return boolean true if successful
+	 */
+	function upgradeTemporaryAccount( Model $user, $data )
+	{
+		if( !$user->isTemporary() )
+			return true;
+		
+		$updateArray = array_replace( $data, [
+			'created_at' => time(),
+			'enabled' => 1 ] );
+		
+		$success = false;
+		
+		$user->grantAllPermissions();
+		if( $user->set( $updateArray ) )
+		{
+			// remove temporary and unverified links
+			Database::delete(
+				'UserLinks',
+				[
+					'uid' => $user->id(),
+					'link_type = ' . USER_LINK_TEMPORARY . ' OR link_type = ' . USER_LINK_VERIFY_EMAIL ] );
+			
+			// send the user a welcome message
+			$user->sendEmail( 'welcome' );
+
+			$success = true;
+		}
+		$user->enforcePermissions();
+
+		return $success;
+	}
+
+	/////////////////////////
+	// EMAIL VERIFICATION
+	/////////////////////////
+
+	function sendVerificationEmail( Model $user )
+	{
+		// delete previous verify links
+		Database::delete( 'UserLinks', [
+			'uid' => $user->id(),
+			'link_type' => USER_LINK_VERIFY_EMAIL ] );
+
+		// create new verification link
+		$link = new UserLink;
+		$link->grantAllPermissions();
+		if( !$link->create( [
+			'uid' => $user->id(),
+			'link_type' => USER_LINK_VERIFY_EMAIL ] ) )
+			return false;
+
+		// e-mail it
+		return $user->sendEmail( 'verify-email', [ 'verify' => $link->link ] );
+	}
+
+	/**
+	 * Processes a verify e-mail hash
+	 *
+	 * @param string $verifyLink verification hash
+	 *
+	 * @return User|false
+	*/
+	function verifyEmailWithLink( $verifyLink )
+	{
+		$this->app[ 'errors' ]->setCurrentContext( 'auth.verify' );
+		
+		$link = UserLink::findOne( [
+			'where' => [
+				'link' => $verifyLink,
+				'link_type' => USER_LINK_VERIFY_EMAIL ] ] );
+
+		if( $link )
+		{
+			$userModel = self::USER_MODEL;
+			$user = new $userModel( $link->uid );
+			
+			// enable the user
+			$user->grantAllPermissions();
+			$user->set( 'enabled', 1 );
+			$user->enforcePermissions();
+
+			// delete the verify link
+			$link->grantAllPermissions();
+			$link->delete();
+
+			// send a welcome e-mail
+			$user->sendEmail( 'welcome' );
+			
+			return $user;
+		}
+		
+		return false;
+	}
+
+	/////////////////////////
+	// FORGOT PASSWORD
+	/////////////////////////
+
+	/**
+	 * Looks up a user from a given forgot token
+	 *
+	 * @param string $token
+	 *
+	 * @return User|false
+	 */
+	function getUserFromForgotToken( $token )
+	{
+		$link = UserLink::findOne( [
+			'where' => [
+				'link' => $token,
+				'link_type' => USER_LINK_FORGOT_PASSWORD,
+				'created_at > ' . (time() - UserLink::$forgotLinkTimeframe) ] ] );
+
+		if( $link )
+		{
+			$userModel = self::USER_MODEL;
+			return new $userModel( $link->uid );
+		}
+		else
+			$this->app[ 'errors' ]->push( [ 'error' => 'user_forgot_expired_invalid' ] );
+
+		return false;
+	}
+
+	/**
+	 * The first step in the forgot password sequence
+	 *
+	 * @param string $email e-mail address
+	 * @param string $ip ip address making the request
+	 *
+	 * @return boolean success?
+	 */
+	function forgotStep1( $email, $ip )
+	{
+		$errorStack = $this->app[ 'errors' ];
+		$errorStack->setCurrentContext( 'auth.forgot' );
+		
+		if( !Validate::is( $email, 'email' ) )
+		{
+			$errorStack->push( [
+				'error' => VALIDATION_FAILED,
+				'params' => [
+					'field' => 'email',
+					'field_name' => 'Email' ] ] );
+			return false;
+		}
+
+		$userModel = self::USER_MODEL;
+		$user = $userModel::findOne( [
+			'where' => [
+				'user_email' => $email ] ] );
+
+		if( !$user )
+		{
+			$errorStack->push( [ 'error' => 'user_forgot_email_no_match' ] );
+			return false;
+		}
+
+		$user->load();
+		
+		// make sure there are no other forgot links
+		$oldLinks = UserLink::totalRecords( [
+			'link_type' => USER_LINK_FORGOT_PASSWORD,
+			'created_at > ' . (time() - UserLink::$forgotLinkTimeframe) ] );
+		
+		if( $oldLinks > 0 )
+			return true;
+		
+		$link = new UserLink;
+		$link->grantAllPermissions();
+		$success = $link->create( [
+			'uid' => $user->id(),
+			'link_type' => USER_LINK_FORGOT_PASSWORD ] );
+
+		// send the user the forgot link
+		if( $success )
+			$user->sendEmail(
+				'forgot-password',
+				[
+					'ip' => $ip,
+					'forgot' => $link->link ] );
+		
+		return $success;
+	}	
+	
+	/**
+	 * Step 2 in the forgot password process. Resets the password with a valid token.
+	 *
+	 * @param string $token token
+	 * @param array $password new password
+	 * 
+	 * @return boolean success
+	 */
+	function forgotStep2( $token, array $password )
+	{
+		$this->app[ 'errors' ]->setCurrentContext( 'auth.forgot' );
+
+		$user = $this->getUserFromForgotToken( $token );
+
+		if( $user )
+		{
+			// Update the password
+			$user->grantAllPermissions();
+			$success = $user->set( 'user_password', $password );
+			$user->enforcePermissions();
+			
+			if( $success )
+				Database::delete(
+					'UserLinks',
+					[
+						'uid' => $user->id(),
+						'link_type = ' . USER_LINK_FORGOT_PASSWORD ] );
+			
+			return $success;
+		}
+
+		return false;
+	}
+
+	/////////////////////////
+	// PRIVATE FUNCTIONS
+	/////////////////////////
+
+	/**
+	 * Attempts to authenticate the user
+	 * using the session strategy
+	 *
+	 * @return User
+	 */
+	private function authenticateSession()
+	{
+		$req = $this->app[ 'req' ];
+
+		// check if the user's session is already logged in and valid
+		if( $req->session( 'user_agent' ) == $req->agent() )
+		{
+			$userModel = self::USER_MODEL;
+			$user = new $userModel( $req->session( 'user_id' ), true );
+
+			if( $user->exists() )
+			{
+				$user->load();
+				return $user;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Attempts to authenticate the user
+	 * using the persistent session strategy
+	 */
+	private function authenticatePersistentSession()
+	{
+		$req = $this->app[ 'req' ];
+
+		// check for persistent sessions
+		if( $cookie = $req->cookies( 'persistent' ) )
+		{
+			// decode the cookie
+			$cookieParams = json_decode( base64_decode( $cookie ) );
+			
+			if( $cookieParams )
+			{
+				$userModel = self::USER_MODEL;
+				$user = $userModel::findOne( [
+					'where' => [
+						'user_email' => $cookieParams->user_email ] ] );
+				
+				if( $user )
+				{
+					// encrypt series and token for matching with the db
+					$seriesEnc = Util::encrypt_password( $cookieParams->series, $this->app[ 'config' ]->get( 'site.salt' ) );
+					$tokenEnc = Util::encrypt_password( $cookieParams->token, $this->app[ 'config' ]->get( 'site.salt' ) );
+					
+					// first, make sure all of the parameters match, except the token
+					// we match the token separately in case all of the other information matches,
+					// which means an older session is being used, and then we run away					
+					$tokenDB = Database::select(
+						'PersistentSessions',
+						'token',
+						[
+							'where' => [
+								'user_email' => $cookieParams->user_email,
+								'created_at > ' . (time() - PersistentSession::$sessionLength),
+								'series' => $seriesEnc ],
+								'single' => true ] );
+					
+					if( Database::numrows() == 1 && $cookieParams->agent == $req->agent() )
+					{
+						// if there is a match, sign the user in
+						if( $tokenDB == $tokenEnc )
+						{
+							// remove the token
+							Database::delete(
+								'PersistentSessions',
+								[
+									'user_email' => $cookieParams->user_email,
+									'series' => $seriesEnc,
+									'token' => $tokenEnc ] );
+
+							$user = $this->signInUser( $user->id(), LOGIN_TYPE_PERSISTENT_SESSION, $req );
+
+							// generate a new cookie for the next time
+							self::storePersistentCookie( $user->id(), $cookieParams->user_email, $cookieParams->series );
+							
+							// mark this session as persistent (useful for security checks)
+							$req->setSession( 'persistent', true );
+
+							$user->load();
+
+							return $user;
+						}
+						else
+						{
+							// same series, but different token.
+							// the user is trying to use an older token
+							// most likely an attack, so flush all sessions
+							Database::delete( 'PersistentSessions', [
+								'user_email' => $cookieParams->user_email ] );
+						}
+					}
+				}
+			}
+
+			// delete persistent session cookie
+			$req->setCookie(
+				'persistent',
+				'',
+				time() - 86400,
+				'/',
+				$req->host(),
+				$req->isSecure(),
+				true );
+		}
+	}
+	
+	private function changeSessionUserID( $uid )
+	{
+		if( !headers_sent() )
+		{
+			// regenerate session id to prevent session hijacking
+			session_regenerate_id( true );
+
+			// hang on to the new session id
+			$sid = session_id();
+
+			// close the old and new sessions
+			session_write_close();
+
+			// re-open the new session
+			session_id( $sid );
+			session_start();
+		}
+
+		// set the user id
+		$req = $this->app[ 'req' ];
+		$req->setSession( [
+			'user_id' => $uid,
+			'user_agent' => $req->agent() ] );
+	}
+
+	private function generateToken()
+	{
+		$str = '';
+		for ( $i=0; $i<16; $i++ )
+			$str .= base_convert( mt_rand( 1, 36 ), 10, 36 );
+		return $str;
+	}
+	
+	private function storePersistentCookie( $uid, $email, $series = null, $token = null )
+	{
+		if( !$series )
+			$series = $this->generateToken();
+		
+		if( !$token )
+			$token = $this->generateToken();
+
+		$req = $this->app[ 'req' ];
+
+		$req->setCookie(
+			'persistent',
+			base64_encode( json_encode( [
+				'user_email' => $email,
+				'series' => $series,
+				'token' => $token,
+				'agent' => $req->agent() ] ) ),
+			time() + PersistentSession::$sessionLength,
+			'/',
+			$req->host(),
+			$req->isSecure(),
+			true );
+		
+		$config = $this->app[ 'config' ];
+		$session = new PersistentSession;
+		$session->grantAllPermissions();
+		$session->create( [
+			'user_email' => $email,
+			'series' => Util::encrypt_password( $series, $config->get( 'site.salt' ) ),
+			'token' => Util::encrypt_password( $token, $config->get( 'site.salt' ) ),
+			'uid' => $uid ] );
+	}
+}

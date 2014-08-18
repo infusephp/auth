@@ -1,0 +1,30 @@
+{
+	"name": "idealistsoft/framework-auth",
+	"version": "1.0",
+	"description": "Auth module for Idealist Framework",
+	"type": "library",
+	"keywords": ["idealist","framework","auth","authentication","users"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "jaredtking",
+			"email": "j@jaredtking.com",
+			"homepage": "http://jaredtking.com"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/idealistsoft/framework-auth/issues",
+		"source": "https://github.com/idealistsoft/framework-auth"
+	},
+    "autoload": {
+        "psr-0": {"": "src"}
+    },
+	"require": {
+		"php": ">=5.4.0"
+	},
+	"require-dev": {
+		"satooshi/php-coveralls": "dev-master",
+		"idealistsoft/framework-bootstrap": "dev-master"
+	},
+	"minimum-stability": "dev"
+}
