@@ -1,8 +1,7 @@
-framework-auth
+framework-auth [![Build Status](https://travis-ci.org/idealistsoft/framework-auth.png?branch=master)](https://travis-ci.org/idealistsoft/framework-auth)
 =============
 
-[![Build Status](https://travis-ci.org/idealistsoft/framework-auth.png?branch=master)](https://travis-ci.org/idealistsoft/framework-auth) [![Coverage Status](https://coveralls.io/repos/idealistsoft/framework-auth/badge.png)](https://coveralls.io/r/idealistsoft/framework-auth)
-
+[![Coverage Status](https://coveralls.io/repos/idealistsoft/framework-auth/badge.png)](https://coveralls.io/r/idealistsoft/framework-auth)
 [![Latest Stable Version](https://poser.pugx.org/idealistsoft/framework-auth/v/stable.png)](https://packagist.org/packages/idealistsoft/framework-auth)
 [![Total Downloads](https://poser.pugx.org/idealistsoft/framework-auth/downloads.png)](https://packagist.org/packages/idealistsoft/framework-auth)
 
