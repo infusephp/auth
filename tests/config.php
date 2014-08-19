@@ -6,7 +6,8 @@ return  [
   ],
   'modules' => [
     'middleware' => [
-      'auth'
+      'auth',
+      'email'
     ],
     'all' => [
     	'auth'
