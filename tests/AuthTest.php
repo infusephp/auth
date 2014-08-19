@@ -77,7 +77,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_bad_username',
-			'message' => 'Please enter a valid username.',
+			'message' => 'user_bad_username',
 			'context' => '',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -89,7 +89,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_bad_password',
-			'message' => 'Please enter a valid password.',
+			'message' => 'user_bad_password',
 			'context' => '',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -113,7 +113,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_login_temporary',
-			'message' => 'It looks like your account has not been setup yet. Please go to sign up to finish creating your account.',
+			'message' => 'user_login_temporary',
 			'context' => '',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -133,7 +133,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_login_disabled',
-			'message' => 'Sorry, your account has been disabled.',
+			'message' => 'user_login_disabled',
 			'context' => '',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -159,7 +159,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_login_unverified',
-			'message' => 'You must verify your account with the e-mail that was sent to you before you can log in.',
+			'message' => 'user_login_unverified',
 			'context' => '',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -322,7 +322,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_forgot_expired_invalid',
-			'message' => 'This link has expired or is invalid.',
+			'message' => 'user_forgot_expired_invalid',
 			'context' => 'UserLink.set',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -342,7 +342,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'validation_failed',
-			'message' => 'Email is invalid',
+			'message' => 'validation_failed',
 			'context' => 'auth.forgot',
 			'params' => [ 'field' => 'email', 'field_name' => 'Email' ] ] ];
 		$this->assertEquals( $expected, $errors );
@@ -355,7 +355,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors();
 		$expected = [ [
 			'error' => 'user_forgot_email_no_match',
-			'message' => 'We could not find a match for that e-mail address.',
+			'message' => 'user_forgot_email_no_match',
 			'context' => 'auth.forgot',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
