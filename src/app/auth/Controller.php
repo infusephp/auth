@@ -44,6 +44,9 @@ class Controller
 		// app user is established
 		$userModel = Auth::USER_MODEL;
 
+		if( !class_exists( $userModel ) )
+			require_once 'UserShim.php';
+
 		Model::configure( [ 'requester' => new $userModel ] );
 
 		$this->app[ 'auth' ] = function( $app ) {
