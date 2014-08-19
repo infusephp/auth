@@ -13,6 +13,7 @@ matrix:
 before_script:
     - composer self-update
     - composer install
+    - mysql -e 'create database mydb;'
 
 script:
     - mkdir -p build/logs

@@ -1,14 +1,10 @@
-<phpunit colors="true">
-  <php>
-    <includePath>.</includePath>
-    <const name="INFUSE_BASE_DIR" value="." />
-  </php>
-  
+<phpunit colors="true" bootstrap="tests/bootstrap.php">
   <listeners>
     <listener file="vendor/autoload.php"></listener>
-    <listener class="\TestBootstrap">
+    <listener class="TestBootstrap">
       <arguments>
         <boolean>false</boolean>
+        <boolean>true</boolean>
       </arguments>
     </listener>
   </listeners>
