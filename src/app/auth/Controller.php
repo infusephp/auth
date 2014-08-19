@@ -43,7 +43,7 @@ class Controller
 		// interim user to serve as permissions requester until
 		// app user is established
 		$userModel = Auth::USER_MODEL;
-
+		
 		if( !class_exists( $userModel ) )
 			require_once 'UserShim.php';
 
