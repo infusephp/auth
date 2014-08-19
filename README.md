@@ -10,3 +10,7 @@ Auth module for Idealist Framework
 ## Installation
 
 Simply add the composer package in the require section of your app's `composer.json` and run `composer update`
+
+## Usage
+
+You can create your own User model located at `\app\users\models\User` for futher customization.
