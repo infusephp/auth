@@ -16,9 +16,6 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 	{
 		$userModel = Auth::USER_MODEL;
 
-		if( !class_exists( $userModel ) )
-			require_once 'src/app/auth/DefaultUser.php';
-
 		TestBootstrap::app( 'user' )->enableSU();
 
 		Database::delete( 'Users', [ 'user_email' => 'test@example.com' ] );

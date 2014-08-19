@@ -5,11 +5,7 @@ require_once 'vendor/autoload.php';
 define( 'INFUSE_BASE_DIR', __DIR__ );
 set_include_path( get_include_path() . PATH_SEPARATOR . INFUSE_BASE_DIR );
 
-/* Install DB Schema */
+require_once 'src/app/auth/DefaultUser.php';
 
-$config = @include 'config.php';
-$config[ 'modules' ][ 'middleware' ] = [];
-$config[ 'sessions' ][ 'enabled' ] = false;
-$app = new App( $config );
-
-$app->installSchema( true );
+// hack to ensure test user model schema is generated
+\app\auth\Controller::$properties[ 'models' ][] = 'User';

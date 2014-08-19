@@ -15,11 +15,6 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
 	static function setUpBeforeClass()
 	{
-		$userModel = Auth::USER_MODEL;
-
-		if( !class_exists( $userModel ) )
-			require_once 'src/app/auth/DefaultUser.php';
-
 		self::$ogUserId = TestBootstrap::app( 'user' )->id();
 
 		Database::delete( 'Users', [ 'user_email' => 'test@example.com' ] );
