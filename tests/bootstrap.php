@@ -7,5 +7,5 @@ set_include_path( get_include_path() . PATH_SEPARATOR . INFUSE_BASE_DIR );
 
 require_once 'src/app/auth/DefaultUser.php';
 
-// hack to ensure test user model schema is generated
+// This is a hack for the tests to generate a table for the users
 \app\auth\Controller::$properties[ 'models' ][] = 'User';
