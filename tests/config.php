@@ -20,7 +20,7 @@ return  [
     'name' => 'mydb',
   ],
   'sessions' => [
-    'enabled' => false,
+    'enabled' => true,
     'adapter' => 'database',
     'lifetime' => 86400
   ],
