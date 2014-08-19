@@ -28,7 +28,7 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
 		$errors = $errorStack->errors( 'UserLink.create' );
 		$expected = [ [
 			'error' => 'no_permission',
-			'message' => 'You do not have permission to do that',
+			'message' => 'no_permission',
 			'context' => 'UserLink.create',
 			'params' => [] ] ];
 		$this->assertEquals( $expected, $errors );
