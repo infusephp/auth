@@ -31,11 +31,11 @@ abstract class AbstractUser extends Model
 		],
 		'user_email' => [
 			'type' => 'text',
-			'filter' => '<a href="mailto:{user_email}">{user_email}</a>',
 			'validate' => 'email',
 			'required' => true,
 			'unique' => true,
-			'title' => 'E-mail'
+			'title' => 'E-mail',
+			'admin_html' => '<a href="mailto:{user_email}">{user_email}</a>',
 		],
 		'user_password' => [
 			'type' => 'password',
@@ -54,9 +54,9 @@ abstract class AbstractUser extends Model
 		],
 		'ip' => [
 			'type' => 'text',
-			'filter' => '<a href="http://www.infobyip.com/ip-{ip}.html" target="_blank">{ip}</a>',
 			'required' => true,
-			'length' => 16
+			'length' => 16,
+			'admin_html' => '<a href="http://www.infobyip.com/ip-{ip}.html" target="_blank">{ip}</a>'
 		],
 		'enabled' => [
 			'type' => 'boolean',
