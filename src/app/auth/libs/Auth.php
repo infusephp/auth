@@ -25,8 +25,6 @@ class Auth
 {
 	const USER_MODEL = '\\app\\users\\models\\User';
 
-	private static $usernameProperties = [ 'user_email' ];
-
 	private $app;
 
 	function __construct( App $app )
@@ -156,14 +154,15 @@ class Auth
 			$errorStack->push( [ 'error' => 'user_bad_password' ] );
 			return false;
 		}
+
+		$userModel = self::USER_MODEL;
 		
 		// build the query string for the username
 		$usernameWhere = '(' . implode( ' OR ', array_map( function( $prop, $username ) {
 			return $prop . " = '" . $username . "'";
-		}, self::$usernameProperties, array_fill( 0, count( self::$usernameProperties ), addslashes( $username ) ) ) ) . ')';
+		}, $userModel::$usernameProperties, array_fill( 0, count( $userModel::$usernameProperties ), addslashes( $username ) ) ) ) . ')';
 		
 		// look the user up 
-		$userModel = self::USER_MODEL;
 		$user = $userModel::findOne( [
 			'where' => [
 				$usernameWhere,

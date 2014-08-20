@@ -66,6 +66,8 @@ abstract class AbstractUser extends Model
 		]
 	];
 
+	static $usernameProperties = [ 'user_email' ];
+
 	/////////////////////////////////////
 	// Protected Class Variables
 	/////////////////////////////////////
