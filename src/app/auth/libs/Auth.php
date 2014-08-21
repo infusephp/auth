@@ -20,6 +20,12 @@ if( !defined( 'LOGIN_TYPE_TRADITIONAL' ) )
 	define( 'LOGIN_TYPE_TRADITIONAL', 0 );
 if( !defined( 'LOGIN_TYPE_PERSISTENT_SESSION' ) )
 	define( 'LOGIN_TYPE_PERSISTENT_SESSION', 1 );
+if( !defined( 'USER_LINK_FORGOT_PASSWORD' ) )
+	define( 'USER_LINK_FORGOT_PASSWORD', 0 );
+if( !defined( 'USER_LINK_VERIFY_EMAIL' ) )
+	define( 'USER_LINK_VERIFY_EMAIL', 1 );
+if( !defined( 'USER_LINK_TEMPORARY' ) )
+	define( 'USER_LINK_TEMPORARY', 2 );
 
 class Auth
 {
