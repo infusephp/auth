@@ -12,8 +12,7 @@ class User extends AbstractMigration
         if( !$this->hasTable( 'Users' ) )
         {
             $table = $this->table( 'Users', [ 'id' => 'uid' ] );
-            $table->addColumn( 'uid', 'integer' )
-                  ->addColumn( 'user_email', 'string' )
+            $table->addColumn( 'user_email', 'string' )
                   ->addColumn( 'user_password', 'string', [ 'length' => 128 ] )
                   ->addColumn( 'first_name', 'string' )
                   ->addColumn( 'last_name', 'string' )
