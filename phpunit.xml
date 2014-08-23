@@ -2,8 +2,7 @@
   <listeners>
     <listener class="TestBootstrap">
       <arguments>
-        <boolean>false</boolean>
-        <boolean>false</boolean>
+        <boolean>true</boolean>
       </arguments>
     </listener>
   </listeners>
