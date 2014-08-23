@@ -32,24 +32,18 @@ class UserLink extends Model
 	public static $properties = [
 		'uid' => [
 			'type' => 'id',
-			'mutable' => true,
 			'required' => true,
-			'auto_increment' => false,
+			'mutable' => true,
 			'relation' => Auth::USER_MODEL
 		],
 		'link' => [
 			'type' => 'id',
-			'db_type' => 'varchar',
-			'length' => 32,
 			'required' => true,
 			'mutable' => true,
 			'validate' => 'string:32'
 		],
 		'link_type' => [
-			'type' => 'enum',
-			'mutable' => true,
-			'db_type' => 'tinyint',
-			'length' => 2,
+			'type' => 'number',
 			'validate' => 'enum:0,1,2',
 			'required' => true,
 			'admin_type' => 'enum',

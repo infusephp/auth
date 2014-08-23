@@ -18,8 +18,8 @@ class User extends AbstractMigration
                   ->addColumn( 'last_name', 'string' )
                   ->addColumn( 'ip', 'string', [ 'length' => 16 ] )
                   ->addColumn( 'enabled', 'boolean', [ 'default' => true ] )
-                  ->addColumn( 'created_at', 'timestamp' )
-                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] )
+                  ->addColumn( 'created_at', 'integer' )
+                  ->addColumn( 'updated_at', 'integer', [ 'null' => true, 'default' => null ] )
                   ->addIndex( 'user_email', [ 'unique' => true ] )
                   ->create();
         }

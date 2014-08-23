@@ -28,7 +28,6 @@ class GroupMember extends Model
 		'uid' => [
 			'type' => 'id',
 			'mutable' => true,
-			'auto_increment' => false,
 			'relation' => Auth::USER_MODEL
 		]
 	];

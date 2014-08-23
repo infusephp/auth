@@ -38,8 +38,6 @@ class UserLoginHistory extends Model
 		],
 		'type' => [
 			'type' => 'enum',
-			'db_type' => 'tinyint',
-			'length' => 1,
 			'admin_type' => 'enum',
 			'admin_enum' => [
 				LOGIN_TYPE_TRADITIONAL => 'Regular',
@@ -51,7 +49,6 @@ class UserLoginHistory extends Model
 		],
 		'ip' => [
 			'type' => 'text',
-			'length' => 16,
 			'admin_hidden_property' => true
 		],
 		'user_agent' => [

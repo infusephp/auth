@@ -39,7 +39,6 @@ abstract class AbstractUser extends Model
 		],
 		'user_password' => [
 			'type' => 'password',
-			'length' => 128,
 			'validate' => 'matching|password:8',
 			'required' => true,
 			'title' => 'Password'
@@ -55,7 +54,6 @@ abstract class AbstractUser extends Model
 		'ip' => [
 			'type' => 'text',
 			'required' => true,
-			'length' => 16,
 			'admin_html' => '<a href="http://www.infobyip.com/ip-{ip}.html" target="_blank">{ip}</a>'
 		],
 		'enabled' => [

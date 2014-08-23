@@ -25,10 +25,7 @@ class PersistentSession extends Model
 		'token' => [
 			'type' => 'id',
 			'mutable' => true,
-			'required' => true,
-			'auto_increment' => false,
-			'db_type' => 'char',
-			'length' => 128
+			'required' => true
 		],
 		'user_email' => [
 			'type' => 'text',
@@ -36,15 +33,12 @@ class PersistentSession extends Model
 		],
 		'series' => [
 			'type' => 'text',
-			'db_type' => 'char',
-			'length' => 128,
 			'required' => true,
 			'validate' => 'string:128',
 			'admin_hidden_property' => true
 		],
 		'uid' => [
 			'type' => 'id',
-			'auto_increment' => false,
 			'relation' => Auth::USER_MODEL
 		],
 	];
