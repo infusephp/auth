@@ -13,14 +13,15 @@ class User extends AbstractMigration
         {
             $table = $this->table( 'Users', [ 'id' => 'uid' ] );
             $table->addColumn( 'uid', 'integer' )
-                  ->addColumn( 'user_email', 'string', [ 'unique' => true ] )
+                  ->addColumn( 'user_email', 'string' )
                   ->addColumn( 'user_password', 'string', [ 'length' => 128 ] )
                   ->addColumn( 'first_name', 'string' )
                   ->addColumn( 'last_name', 'string' )
                   ->addColumn( 'ip', 'string', [ 'length' => 16 ] )
                   ->addColumn( 'enabled', 'boolean', [ 'default' => true ] )
                   ->addColumn( 'created_at', 'timestamp' )
-                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] );
+                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] )
+                  ->addIndex( 'user_email', [ 'unique' => true ] );
         }
     }
     
