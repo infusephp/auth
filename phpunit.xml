@@ -5,11 +5,7 @@
   
   <listeners>
     <listener file="vendor/autoload.php"></listener>
-    <listener class="TestBootstrap">
-      <arguments>
-        <boolean>true</boolean>
-      </arguments>
-    </listener>
+    <listener class="TestBootstrap"></listener>
   </listeners>
 
   <testsuites>
