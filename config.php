@@ -1,5 +1,7 @@
 <?php
 
+/* This configuration is used to run the tests */
+
 return  [
   'site' => [
     'salt' => 'replacewithrandomstring',
@@ -8,14 +10,11 @@ return  [
     'middleware' => [
       'auth',
       'email'
-    ],
-    'all' => [
-    	'auth'
     ]
   ],
   'database' => [
     'type' => 'mysql',
-    'user' => 'travis',
+    'user' => 'root',
     'password' => '',
     'host' => '127.0.0.1',
     'name' => 'mydb',
