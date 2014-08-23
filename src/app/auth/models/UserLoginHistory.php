@@ -51,7 +51,7 @@ class UserLoginHistory extends Model
 		],
 		'ip' => [
 			'type' => 'text',
-			'length' => 15,
+			'length' => 16,
 			'admin_hidden_property' => true
 		],
 		'user_agent' => [

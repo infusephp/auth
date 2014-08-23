@@ -25,7 +25,8 @@
 	"require-dev": {
 		"satooshi/php-coveralls": "dev-master",
 		"idealistsoft/framework-bootstrap": "dev-master",
-		"idealistsoft/framework-email": "dev-master"
+		"idealistsoft/framework-email": "dev-master",
+		"robmorgan/phinx": "*"
 	},
 	"minimum-stability": "dev"
 }
