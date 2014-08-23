@@ -21,7 +21,8 @@ class User extends AbstractMigration
                   ->addColumn( 'enabled', 'boolean', [ 'default' => true ] )
                   ->addColumn( 'created_at', 'timestamp' )
                   ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] )
-                  ->addIndex( 'user_email', [ 'unique' => true ] );
+                  ->addIndex( 'user_email', [ 'unique' => true ] )
+                  ->create();
         }
     }
     

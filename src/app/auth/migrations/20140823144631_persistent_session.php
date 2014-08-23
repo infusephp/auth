@@ -17,7 +17,8 @@ class PersistentSession extends AbstractMigration
                   ->addColumn( 'series', 'string', [ 'length' => 128 ] )
                   ->addColumn( 'uid', 'integer' )
                   ->addColumn( 'created_at', 'timestamp' )
-                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] );
+                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] )
+                  ->create();
         }
     }
     

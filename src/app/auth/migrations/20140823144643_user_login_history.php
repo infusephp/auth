@@ -17,7 +17,8 @@ class UserLoginHistory extends AbstractMigration
                   ->addColumn( 'ip', 'string', [ 'length' => 16 ] )
                   ->addColumn( 'user_agent', 'string' )
                   ->addColumn( 'created_at', 'timestamp' )
-                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] );
+                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] )
+                  ->create();
         }
     }
     

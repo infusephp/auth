@@ -15,7 +15,8 @@ class GroupMember extends AbstractMigration
             $table->addColumn( 'group', 'string' )
                   ->addColumn( 'uid', 'integer' )
                   ->addColumn( 'created_at', 'timestamp' )
-                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] );
+                  ->addColumn( 'updated_at', 'timestamp', [ 'null' => true, 'default' => null ] )
+                  ->create();
         }
     }
     
