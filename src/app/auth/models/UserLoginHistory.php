@@ -28,16 +28,12 @@ class UserLoginHistory extends Model
 	public static $autoTimestamps;
 
 	public static $properties = [
-		'id' => [
-			'type' => 'id',
-			'admin_hidden_property' => true
-		],
 		'uid' => [
-			'type' => 'id',
+			'type' => 'number',
 			'relation' => Auth::USER_MODEL
 		],
 		'type' => [
-			'type' => 'enum',
+			'type' => 'number',
 			'admin_type' => 'enum',
 			'admin_enum' => [
 				LOGIN_TYPE_TRADITIONAL => 'Regular',
@@ -48,11 +44,11 @@ class UserLoginHistory extends Model
 			],
 		],
 		'ip' => [
-			'type' => 'text',
+			'type' => 'string',
 			'admin_hidden_property' => true
 		],
 		'user_agent' => [
-			'type' => 'text',
+			'type' => 'string',
 			'null' => true,
 			'admin_hidden_property' => true
 		]

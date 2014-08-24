@@ -27,10 +27,10 @@ abstract class AbstractUser extends Model
 		
 	public static $properties = [
 		'uid' =>  [
-			'type' => 'id'
+			'type' => 'number'
 		],
 		'user_email' => [
-			'type' => 'text',
+			'type' => 'string',
 			'validate' => 'email',
 			'required' => true,
 			'unique' => true,
@@ -38,21 +38,20 @@ abstract class AbstractUser extends Model
 			'admin_html' => '<a href="mailto:{user_email}">{user_email}</a>',
 		],
 		'user_password' => [
-			'type' => 'password',
+			'type' => 'string',
 			'validate' => 'matching|password:8',
 			'required' => true,
 			'title' => 'Password'
 		],
 		'first_name' => [
-			'type' => 'text',
+			'type' => 'string',
 			'validate' => 'string:1'
 		],
 		'last_name' => [
-			'name' => 'last_name',
-			'type' => 'text'
+			'type' => 'string'
 		],
 		'ip' => [
-			'type' => 'text',
+			'type' => 'string',
 			'required' => true,
 			'admin_html' => '<a href="http://www.infobyip.com/ip-{ip}.html" target="_blank">{ip}</a>'
 		],

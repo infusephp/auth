@@ -22,12 +22,10 @@ class GroupMember extends Model
 
 	public static $properties = [
 		'group' => [
-			'type' => 'text',
-			'mutable' => true
+			'type' => 'string'
 		],
 		'uid' => [
-			'type' => 'id',
-			'mutable' => true,
+			'type' => 'number',
 			'relation' => Auth::USER_MODEL
 		]
 	];

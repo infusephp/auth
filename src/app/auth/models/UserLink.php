@@ -31,15 +31,13 @@ class UserLink extends Model
 
 	public static $properties = [
 		'uid' => [
-			'type' => 'id',
+			'type' => 'number',
 			'required' => true,
-			'mutable' => true,
 			'relation' => Auth::USER_MODEL
 		],
 		'link' => [
-			'type' => 'id',
+			'type' => 'number',
 			'required' => true,
-			'mutable' => true,
 			'validate' => 'string:32'
 		],
 		'link_type' => [

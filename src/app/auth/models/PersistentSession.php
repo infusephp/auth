@@ -23,22 +23,21 @@ class PersistentSession extends Model
 
 	public static $properties = [
 		'token' => [
-			'type' => 'id',
-			'mutable' => true,
+			'type' => 'number',
 			'required' => true
 		],
 		'user_email' => [
-			'type' => 'text',
+			'type' => 'string',
 			'validate' => 'email'
 		],
 		'series' => [
-			'type' => 'text',
+			'type' => 'string',
 			'required' => true,
 			'validate' => 'string:128',
 			'admin_hidden_property' => true
 		],
 		'uid' => [
-			'type' => 'id',
+			'type' => 'number',
 			'relation' => Auth::USER_MODEL
 		],
 	];
