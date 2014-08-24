@@ -22,12 +22,14 @@ abstract class AbstractUser extends Model
 	// Model Properties
 	/////////////////////////////////////
 	
-	public static $scaffoldApi;
-	public static $autoTimestamps;
+	static $scaffoldApi;
+	static $autoTimestamps;
 		
-	public static $properties = [
+	static $properties = [
 		'uid' =>  [
-			'type' => 'number'
+			'type' => 'number',
+			'mutable' => false,
+			'admin_hidden_property' => true
 		],
 		'user_email' => [
 			'type' => 'string',
