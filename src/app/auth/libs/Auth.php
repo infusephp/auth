@@ -289,7 +289,7 @@ class Auth
 				'UserLinks',
 				[
 					'uid' => $user->id(),
-					'link_type = ' . USER_LINK_TEMPORARY . ' OR link_type = ' . USER_LINK_VERIFY_EMAIL ] );
+					'( link_type = ' . USER_LINK_TEMPORARY . ' OR link_type = ' . USER_LINK_VERIFY_EMAIL . ' )' ] );
 			
 			// send the user a welcome message
 			$user->sendEmail( 'welcome' );
@@ -480,7 +480,7 @@ class Auth
 					'UserLinks',
 					[
 						'uid' => $user->id(),
-						'link_type = ' . USER_LINK_FORGOT_PASSWORD ] );
+						'link_type' => USER_LINK_FORGOT_PASSWORD ] );
 			
 			return $success;
 		}
