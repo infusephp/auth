@@ -36,7 +36,7 @@ class UserLink extends Model
 			'relation' => Auth::USER_MODEL
 		],
 		'link' => [
-			'type' => 'number',
+			'type' => 'string',
 			'required' => true,
 			'validate' => 'string:32'
 		],

@@ -43,7 +43,8 @@ abstract class AbstractUser extends Model
 			'type' => 'string',
 			'validate' => 'matching|password:8',
 			'required' => true,
-			'title' => 'Password'
+			'title' => 'Password',
+			'admin_type' => 'password'
 		],
 		'first_name' => [
 			'type' => 'string',
