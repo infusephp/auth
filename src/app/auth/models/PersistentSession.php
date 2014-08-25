@@ -23,7 +23,7 @@ class PersistentSession extends Model
 
 	public static $properties = [
 		'token' => [
-			'type' => 'number',
+			'type' => 'string',
 			'required' => true
 		],
 		'user_email' => [
