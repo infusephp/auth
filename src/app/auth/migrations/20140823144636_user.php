@@ -16,7 +16,7 @@ class User extends AbstractMigration
                   ->addColumn( 'user_password', 'string', [ 'length' => 128 ] )
                   ->addColumn( 'first_name', 'string' )
                   ->addColumn( 'last_name', 'string' )
-                  ->addColumn( 'ip', 'string', [ 'length' => 16 ] )
+                  ->addColumn( 'ip', 'string', [ 'length' => 45 ] )
                   ->addColumn( 'enabled', 'boolean', [ 'default' => true ] )
                   ->addColumn( 'created_at', 'integer' )
                   ->addColumn( 'updated_at', 'integer', [ 'null' => true, 'default' => null ] )
