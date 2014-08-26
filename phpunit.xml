@@ -23,7 +23,7 @@
     <whitelist addUncoveredFilesFromWhitelist="true">
       <directory suffix=".php">src</directory>
       <exclude>
-        <directory>*/migrations/*.php</directory>
+        <directory suffix=".php">src/*/migrations</directory>
       </exclude>
     </whitelist>
   </filter>
