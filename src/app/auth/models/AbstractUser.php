@@ -152,7 +152,7 @@ abstract class AbstractUser extends Model
 			}
 		}
 		
-		if( $passwordRequired && ( !$passwordValidated || !$this->can( 'skip-password-required', $this->app[ 'user' ] ) )
+		if( $passwordRequired && !$passwordValidated && !$this->can( 'skip-password-required', $this->app[ 'user' ] ) )
 		{
 			$errorStack = $this->app[ 'errors' ];
 			$errorStack->push( [ 'error' => 'invalid_password' ] );
