@@ -470,6 +470,10 @@ class Auth
 
 		if( $user )
 		{
+			// Password cannot be empty
+			if( strlen( implode( $password ) ) == 0 )
+				return false;
+
 			// Update the password
 			$user->grantAllPermissions();
 			$success = $user->set( 'user_password', $password );
