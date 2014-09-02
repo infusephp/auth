@@ -14,7 +14,7 @@ before_script:
     - composer self-update
     - composer install
     - mysql -e 'create database mydb;'
-    - php vendor/robmorgan/phinx/bin/phinx migrate
+    - php vendor/bin/phinx migrate
 
 script:
     - mkdir -p build/logs
