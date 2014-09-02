@@ -1,6 +1,5 @@
 {
 	"name": "idealistsoft/framework-auth",
-	"version": "1.0",
 	"description": "Auth module for Idealist Framework",
 	"type": "library",
 	"keywords": ["idealist","framework","auth","authentication","users"],
@@ -17,7 +16,7 @@
 		"source": "https://github.com/idealistsoft/framework-auth"
 	},
     "autoload": {
-        "psr-0": {"": "src"}
+        "psr-4": {"app\\auth\\": "src/"}
     },
 	"require": {
 		"php": ">=5.4.0"
