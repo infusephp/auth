@@ -4,7 +4,7 @@ namespace app\users\models;
 
 use app\auth\models\AbstractUser;
 
-class UserShim extends AbstractUser
+class User extends AbstractUser
 {
     /**
 	 * Gets the user's name

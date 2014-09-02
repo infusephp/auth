@@ -45,7 +45,7 @@ class Controller
         $userModel = Auth::USER_MODEL;
 
         if( !class_exists( $userModel ) )
-            require_once 'UserShim.php';
+            require_once 'User.php';
 
         Model::configure( [ 'requester' => new $userModel() ] );
 
