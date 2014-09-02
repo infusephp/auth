@@ -9,8 +9,7 @@ class PersistentSession extends AbstractMigration
      */
     public function change()
     {
-        if( !$this->hasTable( 'PersistentSessions' ) )
-        {
+        if ( !$this->hasTable( 'PersistentSessions' ) ) {
             $table = $this->table( 'PersistentSessions', [ 'id' => false, 'primary_key' => 'token' ] );
             $table->addColumn( 'token', 'string', [ 'length' => 128 ] )
                   ->addColumn( 'user_email', 'string' )
@@ -21,13 +20,13 @@ class PersistentSession extends AbstractMigration
                   ->create();
         }
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

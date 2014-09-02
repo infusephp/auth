@@ -4,17 +4,17 @@ namespace app\users\models;
 
 use app\auth\models\AbstractUser;
 
-class User extends AbstractUser
+class UserShim extends AbstractUser
 {
-	/** 
+    /**
 	 * Gets the user's name
 	 *
 	 * @param boolean $full when true gets full name
 	 *
 	 * @return string
 	 */
-	function name( $full = false )
-	{
-		return $this->first_name;
-	}
+    public function name($full = false)
+    {
+        return $this->first_name;
+    }
 }

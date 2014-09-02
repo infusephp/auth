@@ -2,15 +2,14 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class User extends AbstractMigration
+class user extends AbstractMigration
 {
     /**
      * Change Method.
      */
     public function change()
     {
-        if( !$this->hasTable( 'Users' ) )
-        {
+        if ( !$this->hasTable( 'Users' ) ) {
             $table = $this->table( 'Users', [ 'id' => 'uid' ] );
             $table->addColumn( 'user_email', 'string' )
                   ->addColumn( 'user_password', 'string', [ 'length' => 128 ] )
@@ -24,13 +23,13 @@ class User extends AbstractMigration
                   ->create();
         }
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

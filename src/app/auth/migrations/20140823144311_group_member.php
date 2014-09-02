@@ -9,8 +9,7 @@ class GroupMember extends AbstractMigration
      */
     public function change()
     {
-        if( !$this->hasTable( 'GroupMembers' ) )
-        {
+        if ( !$this->hasTable( 'GroupMembers' ) ) {
             $table = $this->table( 'GroupMembers', [ 'id' => false, 'primary_key' => [ 'group', 'uid' ] ] );
             $table->addColumn( 'group', 'string' )
                   ->addColumn( 'uid', 'integer' )
@@ -19,13 +18,13 @@ class GroupMember extends AbstractMigration
                   ->create();
         }
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

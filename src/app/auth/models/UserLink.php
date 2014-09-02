@@ -8,7 +8,7 @@
  * @copyright 2013 Jared King
  * @license MIT
  */
- 
+
 namespace app\auth\models;
 
 use infuse\Database;
@@ -18,84 +18,85 @@ use infuse\Util;
 use app\auth\libs\Auth;
 
 if( !defined( 'USER_LINK_FORGOT_PASSWORD' ) )
-	define( 'USER_LINK_FORGOT_PASSWORD', 0 );
+    define( 'USER_LINK_FORGOT_PASSWORD', 0 );
 if( !defined( 'USER_LINK_VERIFY_EMAIL' ) )
-	define( 'USER_LINK_VERIFY_EMAIL', 1 );
+    define( 'USER_LINK_VERIFY_EMAIL', 1 );
 if( !defined( 'USER_LINK_TEMPORARY' ) )
-	define( 'USER_LINK_TEMPORARY', 2 );
+    define( 'USER_LINK_TEMPORARY', 2 );
 
 class UserLink extends Model
 {
-	public static $scaffoldApi;
-	public static $autoTimestamps;
+    public static $scaffoldApi;
+    public static $autoTimestamps;
 
-	public static $properties = [
-		'uid' => [
-			'type' => 'number',
-			'required' => true,
-			'relation' => Auth::USER_MODEL
-		],
-		'link' => [
-			'type' => 'string',
-			'required' => true,
-			'validate' => 'string:32'
-		],
-		'link_type' => [
-			'type' => 'number',
-			'validate' => 'enum:0,1,2',
-			'required' => true,
-			'admin_type' => 'enum',
-			'admin_enum' => [
-				USER_LINK_FORGOT_PASSWORD => 'Forgot Password',
-				USER_LINK_VERIFY_EMAIL => 'Verify E-mail',
-				USER_LINK_TEMPORARY => 'Temporary'
-			],
-		]
-	];
-	
-	public static $verifyTimeWindow = 86400; // one day
-	
-	public static $forgotLinkTimeframe = 1800; // 30 minutes
+    public static $properties = [
+        'uid' => [
+            'type' => 'number',
+            'required' => true,
+            'relation' => Auth::USER_MODEL
+        ],
+        'link' => [
+            'type' => 'string',
+            'required' => true,
+            'validate' => 'string:32'
+        ],
+        'link_type' => [
+            'type' => 'number',
+            'validate' => 'enum:0,1,2',
+            'required' => true,
+            'admin_type' => 'enum',
+            'admin_enum' => [
+                USER_LINK_FORGOT_PASSWORD => 'Forgot Password',
+                USER_LINK_VERIFY_EMAIL => 'Verify E-mail',
+                USER_LINK_TEMPORARY => 'Temporary'
+            ],
+        ]
+    ];
 
-	static function idProperty()
-	{
-		return [ 'uid', 'link' ];
-	}
-	
-	protected function hasPermission( $permission, Model $requester )
-	{
-		if( $permission == 'create' )
-			return true;
-		
-		return $requester->isAdmin();
-	}
-	
-	protected function preCreateHook( &$data )
-	{
-		// can only create user links for the current user
-		$user = $this->app[ 'user' ];
-		if( $data[ 'uid' ] != $user->id() && !$this->can( 'create-with-mismatched-uid', $user ) )
-		{
-			$this->app[ 'errors' ]->push( ['error' => ERROR_NO_PERMISSION ] );
-			return false;
-		}
+    public static $verifyTimeWindow = 86400; // one day
 
-		if( !isset( $data[ 'link' ] ) )
-			$data[ 'link' ] = Util::guid( false );
-	
-		return true;
-	}
-	
-	/**
+    public static $forgotLinkTimeframe = 1800; // 30 minutes
+
+    public static function idProperty()
+    {
+        return [ 'uid', 'link' ];
+    }
+
+    protected function hasPermission($permission, Model $requester)
+    {
+        if( $permission == 'create' )
+
+            return true;
+
+        return $requester->isAdmin();
+    }
+
+    protected function preCreateHook(&$data)
+    {
+        // can only create user links for the current user
+        $user = $this->app[ 'user' ];
+        if ( $data[ 'uid' ] != $user->id() && !$this->can( 'create-with-mismatched-uid', $user ) ) {
+            $this->app[ 'errors' ]->push( ['error' => ERROR_NO_PERMISSION ] );
+
+            return false;
+        }
+
+        if( !isset( $data[ 'link' ] ) )
+            $data[ 'link' ] = Util::guid( false );
+
+        return true;
+    }
+
+    /**
 	 * Clears out expired user links
 	 */
-	static function garbageCollect()
-	{
-		return
-			Database::delete(
-				'UserLinks',
-				[
-					'created_at < ' . (time() - self::$forgotLinkTimeframe),
-					'link_type' => USER_LINK_FORGOT_PASSWORD ] );
-	}
+    public static function garbageCollect()
+    {
+        return
+            Database::delete(
+                'UserLinks',
+                [
+                    'created_at < ' . (time() - self::$forgotLinkTimeframe),
+                    'link_type' => USER_LINK_FORGOT_PASSWORD ] );
+    }
 }

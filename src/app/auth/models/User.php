@@ -8,15 +8,15 @@ namespace app\auth\models;
  */
 class User extends AbstractUser
 {
-	/** 
+    /**
 	 * Gets the user's name
 	 *
 	 * @param boolean $full when true gets full name
 	 *
 	 * @return string
 	 */
-	function name( $full = false )
-	{
-		return $this->first_name;
-	}
+    public function name($full = false)
+    {
+        return $this->first_name;
+    }
 }

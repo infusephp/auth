@@ -9,8 +9,7 @@ class UserLoginHistory extends AbstractMigration
      */
     public function change()
     {
-        if( !$this->hasTable( 'UserLoginHistories' ) )
-        {
+        if ( !$this->hasTable( 'UserLoginHistories' ) ) {
             $table = $this->table( 'UserLoginHistories' );
             $table->addColumn( 'uid', 'integer' )
                   ->addColumn( 'type', 'integer', [ 'length' => 1 ] )
@@ -21,13 +20,13 @@ class UserLoginHistory extends AbstractMigration
                   ->create();
         }
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

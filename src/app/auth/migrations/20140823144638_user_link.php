@@ -9,8 +9,7 @@ class UserLink extends AbstractMigration
      */
     public function change()
     {
-        if( !$this->hasTable( 'UserLinks' ) )
-        {
+        if ( !$this->hasTable( 'UserLinks' ) ) {
             $table = $this->table( 'UserLinks', [ 'id' => false, 'primary_key' => [ 'uid', 'link' ] ] );
             $table->addColumn( 'uid', 'integer' )
                   ->addColumn( 'link', 'string', [ 'length' => 32 ] )
@@ -20,13 +19,13 @@ class UserLink extends AbstractMigration
                   ->create();
         }
     }
-    
+
     /**
      * Migrate Up.
      */
     public function up()
     {
-    
+
     }
 
     /**

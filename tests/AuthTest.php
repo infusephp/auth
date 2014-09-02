@@ -8,383 +8,381 @@ use app\auth\models\UserLoginHistory;
 
 class AuthTest extends \PHPUnit_Framework_TestCase
 {
-	static $user;
-	static $auth;
-	static $ogUserId;
+    public static $user;
+    public static $auth;
+    public static $ogUserId;
 
-	static function setUpBeforeClass()
-	{
-		$userModel = Auth::USER_MODEL;
+    public static function setUpBeforeClass()
+    {
+        $userModel = Auth::USER_MODEL;
 
-		TestBootstrap::app( 'user' )->enableSU();
+        TestBootstrap::app( 'user' )->enableSU();
 
-		Database::delete( 'Users', [ 'user_email' => 'test@example.com' ] );
+        Database::delete( 'Users', [ 'user_email' => 'test@example.com' ] );
 
-		self::$user = $userModel::registerUser( [
-			'first_name' => 'Bob',
-			'last_name' => 'Loblaw',
-			'user_email' => 'test@example.com',
-			'user_password' => [ 'testpassword', 'testpassword' ],
-			'ip' => '127.0.0.1'
-		] );
-		self::$user->grantAllPermissions();
+        self::$user = $userModel::registerUser( [
+            'first_name' => 'Bob',
+            'last_name' => 'Loblaw',
+            'user_email' => 'test@example.com',
+            'user_password' => [ 'testpassword', 'testpassword' ],
+            'ip' => '127.0.0.1'
+        ] );
+        self::$user->grantAllPermissions();
 
-		TestBootstrap::app( 'user' )->disableSU();
+        TestBootstrap::app( 'user' )->disableSU();
 
-		self::$ogUserId = TestBootstrap::app( 'user' )->id();
-	}
+        self::$ogUserId = TestBootstrap::app( 'user' )->id();
+    }
 
-	static function tearDownAfterClass()
-	{
-		foreach( [ self::$user ] as $u )
-		{
-			if( $u )
-			{
-				$u->grantAllPermissions();
-				$u->delete();
-			}
-		}
-	}
+    public static function tearDownAfterClass()
+    {
+        foreach ([ self::$user ] as $u) {
+            if ($u) {
+                $u->grantAllPermissions();
+                $u->delete();
+            }
+        }
+    }
 
-	function assertPreConditions()
-	{
-		$this->assertInstanceOf( Auth::USER_MODEL, self::$user );
-	}
+    public function assertPreConditions()
+    {
+        $this->assertInstanceOf( Auth::USER_MODEL, self::$user );
+    }
 
-	function assertPostConditions()
-	{
-		$userModel = Auth::USER_MODEL;
+    public function assertPostConditions()
+    {
+        $userModel = Auth::USER_MODEL;
 
-		$app = TestBootstrap::app();
-		if( !$app[ 'user' ]->isLoggedIn() )
-			$app[ 'user' ] = new $userModel( self::$ogUserId, true );
-	}
-	
-	function testConstruct()
-	{
-		// self::$app = new App();
-		self::$auth = new Auth( TestBootstrap::app() );
-	}
+        $app = TestBootstrap::app();
+        if( !$app[ 'user' ]->isLoggedIn() )
+            $app[ 'user' ] = new $userModel( self::$ogUserId, true );
+    }
 
-	function testGetUserWithCredentialsFail()
-	{
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
-		$errorStack->setCurrentContext( '' );
+    public function testConstruct()
+    {
+        // self::$app = new App();
+        self::$auth = new Auth( TestBootstrap::app() );
+    }
 
-		$this->assertFalse( self::$auth->getUserWithCredentials( '', '' ) );
+    public function testGetUserWithCredentialsFail()
+    {
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
+        $errorStack->setCurrentContext( '' );
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_bad_username',
-			'message' => 'user_bad_username',
-			'context' => '',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
+        $this->assertFalse( self::$auth->getUserWithCredentials( '', '' ) );
 
-		$errorStack->clear();
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_bad_username',
+            'message' => 'user_bad_username',
+            'context' => '',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
 
-		$this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', '' ) );
+        $errorStack->clear();
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_bad_password',
-			'message' => 'user_bad_password',
-			'context' => '',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
-	}
+        $this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', '' ) );
 
-	function testGetUserWithCredentialsFailTemporary()
-	{
-		$this->assertTrue( self::$user->set( 'enabled', true ) );
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_TEMPORARY ] ) );
-		
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
-		$errorStack->setCurrentContext( '' );
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_bad_password',
+            'message' => 'user_bad_password',
+            'context' => '',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
+    }
 
-		$this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
+    public function testGetUserWithCredentialsFailTemporary()
+    {
+        $this->assertTrue( self::$user->set( 'enabled', true ) );
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_TEMPORARY ] ) );
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_login_temporary',
-			'message' => 'user_login_temporary',
-			'context' => '',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
-	}
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
+        $errorStack->setCurrentContext( '' );
 
-	function testGetUserWithCredentialsFailDisabled()
-	{
-		Database::delete( 'UserLinks', [ 'uid' => self::$user->id() ] );
-		$this->assertTrue( self::$user->set( 'enabled', false ) );
+        $this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
 
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
-		$errorStack->setCurrentContext( '' );
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_login_temporary',
+            'message' => 'user_login_temporary',
+            'context' => '',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
+    }
 
-		$this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
+    public function testGetUserWithCredentialsFailDisabled()
+    {
+        Database::delete( 'UserLinks', [ 'uid' => self::$user->id() ] );
+        $this->assertTrue( self::$user->set( 'enabled', false ) );
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_login_disabled',
-			'message' => 'user_login_disabled',
-			'context' => '',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
-	}
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
+        $errorStack->setCurrentContext( '' );
 
-	function testGetUserWithCredentialsFailNotVerified()
-	{
-		$this->assertTrue( self::$user->set( 'enabled', true ) );
+        $this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
 
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_VERIFY_EMAIL ] ) );
-		$this->assertTrue( $link->set( 'created_at', '-10 years' ) );
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_login_disabled',
+            'message' => 'user_login_disabled',
+            'context' => '',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
+    }
 
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
-		$errorStack->setCurrentContext( '' );
+    public function testGetUserWithCredentialsFailNotVerified()
+    {
+        $this->assertTrue( self::$user->set( 'enabled', true ) );
 
-		$this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_VERIFY_EMAIL ] ) );
+        $this->assertTrue( $link->set( 'created_at', '-10 years' ) );
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_login_unverified',
-			'message' => 'user_login_unverified',
-			'context' => '',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
-	}
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
+        $errorStack->setCurrentContext( '' );
 
-	function testGetUserWithCredentials()
-	{
-		Database::delete( 'UserLinks', [ 'uid' => self::$user->id() ] );
-		$this->assertTrue( self::$user->set( 'enabled', true ) );
+        $this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
 
-		$user = self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' );
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_login_unverified',
+            'message' => 'user_login_unverified',
+            'context' => '',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
+    }
 
-		$this->assertInstanceOf( Auth::USER_MODEL, $user );
-		$this->assertEquals( self::$user->id(), $user->id() );
-	}
+    public function testGetUserWithCredentials()
+    {
+        Database::delete( 'UserLinks', [ 'uid' => self::$user->id() ] );
+        $this->assertTrue( self::$user->set( 'enabled', true ) );
 
-	function testSignInUser()
-	{
-		$user = self::$auth->signInUser( self::$user->id() );
+        $user = self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' );
 
-		$this->assertInstanceOf( '\\app\\users\\models\\User', $user );
-		$this->assertEquals( $user->id(), self::$user->id() );
-		$this->assertTrue( $user->isLoggedIn() );
+        $this->assertInstanceOf( Auth::USER_MODEL, $user );
+        $this->assertEquals( self::$user->id(), $user->id() );
+    }
 
-		$this->assertEquals( 1, UserLoginHistory::totalRecords( [
-			'uid' => self::$user->id(),
-			'type' => LOGIN_TYPE_TRADITIONAL ] ) );
-	}
+    public function testSignInUser()
+    {
+        $user = self::$auth->signInUser( self::$user->id() );
 
-	function testLogin()
-	{
-		$this->assertFalse( self::$auth->login( 'test@example.com', 'bogus' ) );
+        $this->assertInstanceOf( '\\app\\users\\models\\User', $user );
+        $this->assertEquals( $user->id(), self::$user->id() );
+        $this->assertTrue( $user->isLoggedIn() );
 
-		$this->assertTrue( self::$auth->login( 'test@example.com', 'testpassword' ) );
-		$this->assertEquals( self::$user->id(), TestBootstrap::app( 'user' )->id() );
-		$this->assertTrue( TestBootstrap::app( 'user' )->isLoggedIn() );
-		$this->assertEquals( self::$user->id(), TestBootstrap::app( 'user' )->id() );
-	}
+        $this->assertEquals( 1, UserLoginHistory::totalRecords( [
+            'uid' => self::$user->id(),
+            'type' => LOGIN_TYPE_TRADITIONAL ] ) );
+    }
 
-	/**
+    public function testLogin()
+    {
+        $this->assertFalse( self::$auth->login( 'test@example.com', 'bogus' ) );
+
+        $this->assertTrue( self::$auth->login( 'test@example.com', 'testpassword' ) );
+        $this->assertEquals( self::$user->id(), TestBootstrap::app( 'user' )->id() );
+        $this->assertTrue( TestBootstrap::app( 'user' )->isLoggedIn() );
+        $this->assertEquals( self::$user->id(), TestBootstrap::app( 'user' )->id() );
+    }
+
+    /**
 	 * @depends testLogin
 	 */
-	function testGetAuthenticatedUserSession()
-	{
-		$this->markTestIncomplete();
-	}
+    public function testGetAuthenticatedUserSession()
+    {
+        $this->markTestIncomplete();
+    }
 
-	/**
+    /**
 	 * @depends testLogin
 	 */
-	function testGetAuthenticatedUserPersistentSession()
-	{
-		$this->markTestIncomplete();
-	}
+    public function testGetAuthenticatedUserPersistentSession()
+    {
+        $this->markTestIncomplete();
+    }
 
-	/**
+    /**
 	 * @depends testLogin
 	 */
-	function testGetAuthenticatedUserGuest()
-	{
-		$this->markTestIncomplete();
-	}
+    public function testGetAuthenticatedUserGuest()
+    {
+        $this->markTestIncomplete();
+    }
 
-	/**
+    /**
 	 * @depends testLogin
 	 */
-	function testLogout()
-	{
-		$this->markTestIncomplete();
-	}
+    public function testLogout()
+    {
+        $this->markTestIncomplete();
+    }
 
-	function testGetTemporaryUser()
-	{
-		$this->assertFalse( self::$auth->getTemporaryUser( 'test@example.com' ) );
+    public function testGetTemporaryUser()
+    {
+        $this->assertFalse( self::$auth->getTemporaryUser( 'test@example.com' ) );
 
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_TEMPORARY ] ) );
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_TEMPORARY ] ) );
 
-		$user = self::$auth->getTemporaryUser( 'test@example.com' );
-		$this->assertInstanceOf( '\\app\\users\\models\\User', $user );
-		$this->assertEquals( self::$user->id(), $user->id() );
-	}
+        $user = self::$auth->getTemporaryUser( 'test@example.com' );
+        $this->assertInstanceOf( '\\app\\users\\models\\User', $user );
+        $this->assertEquals( self::$user->id(), $user->id() );
+    }
 
-	function testUpgradeTemporaryAccount()
-	{
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_TEMPORARY ] ) );
+    public function testUpgradeTemporaryAccount()
+    {
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_TEMPORARY ] ) );
 
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_VERIFY_EMAIL ] ) );
-		$this->assertTrue( $link->set( 'created_at', '-10 years' ) );
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_VERIFY_EMAIL ] ) );
+        $this->assertTrue( $link->set( 'created_at', '-10 years' ) );
 
-		$this->assertTrue( self::$user->isTemporary() );
-		$this->assertFalse( self::$user->isVerified() );
+        $this->assertTrue( self::$user->isTemporary() );
+        $this->assertFalse( self::$user->isVerified() );
 
-		$this->assertTrue( self::$auth->upgradeTemporaryAccount( self::$user, [
-			'first_name' => 'Bob',
-			'last_name' => 'Loblaw',
-			'user_password' => [ 'testpassword', 'testpassword' ],
-			'ip' => '127.0.0.1' ] ) );
+        $this->assertTrue( self::$auth->upgradeTemporaryAccount( self::$user, [
+            'first_name' => 'Bob',
+            'last_name' => 'Loblaw',
+            'user_password' => [ 'testpassword', 'testpassword' ],
+            'ip' => '127.0.0.1' ] ) );
 
-		$this->assertFalse( self::$user->isTemporary() );
-		$this->assertTrue( self::$user->isVerified() );
-	}
+        $this->assertFalse( self::$user->isTemporary() );
+        $this->assertTrue( self::$user->isVerified() );
+    }
 
-	function testSendVerificationEmail()
-	{
-		$this->assertTrue( self::$auth->sendVerificationEmail( self::$user ) );
-		$this->assertFalse( self::$user->isVerified( false ) );
-	}
+    public function testSendVerificationEmail()
+    {
+        $this->assertTrue( self::$auth->sendVerificationEmail( self::$user ) );
+        $this->assertFalse( self::$user->isVerified( false ) );
+    }
 
-	function testVerifyEmailWithLink()
-	{
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_VERIFY_EMAIL ] ) );
-		$this->assertTrue( $link->set( 'created_at', '-10 years' ) );
-		$this->assertFalse( self::$user->isVerified() );
+    public function testVerifyEmailWithLink()
+    {
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_VERIFY_EMAIL ] ) );
+        $this->assertTrue( $link->set( 'created_at', '-10 years' ) );
+        $this->assertFalse( self::$user->isVerified() );
 
-		$this->assertFalse( self::$auth->verifyEmailWithLink( 'blah' ) );
+        $this->assertFalse( self::$auth->verifyEmailWithLink( 'blah' ) );
 
-		$user = self::$auth->verifyEmailWithLink( $link->link );
-		$this->assertInstanceOf( '\\app\\users\\models\\User', $user );
-		$this->assertEquals( $user->id(), self::$user->id() );
-		$this->assertTrue( self::$user->isVerified() );
-	}
+        $user = self::$auth->verifyEmailWithLink( $link->link );
+        $this->assertInstanceOf( '\\app\\users\\models\\User', $user );
+        $this->assertEquals( $user->id(), self::$user->id() );
+        $this->assertTrue( self::$user->isVerified() );
+    }
 
-	function testGetUserFromForgotToken()
-	{
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_FORGOT_PASSWORD ] ) );
+    public function testGetUserFromForgotToken()
+    {
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_FORGOT_PASSWORD ] ) );
 
-		$this->assertFalse( self::$auth->getUserFromForgotToken( 'blah' ) );
-		
-		$user = self::$auth->getUserFromForgotToken( $link->link );
-		$this->assertInstanceOf( '\\app\\users\\models\\User', $user );
-		$this->assertEquals( self::$user->id(), $user->id() );
+        $this->assertFalse( self::$auth->getUserFromForgotToken( 'blah' ) );
 
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
-		$errorStack->setCurrentContext( '' );
+        $user = self::$auth->getUserFromForgotToken( $link->link );
+        $this->assertInstanceOf( '\\app\\users\\models\\User', $user );
+        $this->assertEquals( self::$user->id(), $user->id() );
 
-		$link->set( 'created_at', '-10 years' );
-		$this->assertFalse( self::$auth->getUserFromForgotToken( $link->link ) );
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
+        $errorStack->setCurrentContext( '' );
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_forgot_expired_invalid',
-			'message' => 'user_forgot_expired_invalid',
-			'context' => 'UserLink.set',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
-	}
+        $link->set( 'created_at', '-10 years' );
+        $this->assertFalse( self::$auth->getUserFromForgotToken( $link->link ) );
 
-	function testForgotStep1()
-	{
-		Database::delete( 'UserLinks', [
-			'link_type' => USER_LINK_FORGOT_PASSWORD,
-			'uid' => self::$user->id() ] );
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_forgot_expired_invalid',
+            'message' => 'user_forgot_expired_invalid',
+            'context' => 'UserLink.set',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
+    }
 
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
+    public function testForgotStep1()
+    {
+        Database::delete( 'UserLinks', [
+            'link_type' => USER_LINK_FORGOT_PASSWORD,
+            'uid' => self::$user->id() ] );
 
-		$this->assertFalse( self::$auth->forgotStep1( 'invalidemail', '127.0.0.1' ) );
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'validation_failed',
-			'message' => 'validation_failed',
-			'context' => 'auth.forgot',
-			'params' => [ 'field' => 'email', 'field_name' => 'Email' ] ] ];
-		$this->assertEquals( $expected, $errors );
+        $this->assertFalse( self::$auth->forgotStep1( 'invalidemail', '127.0.0.1' ) );
 
-		$errorStack = TestBootstrap::app( 'errors' );
-		$errorStack->clear();
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'validation_failed',
+            'message' => 'validation_failed',
+            'context' => 'auth.forgot',
+            'params' => [ 'field' => 'email', 'field_name' => 'Email' ] ] ];
+        $this->assertEquals( $expected, $errors );
 
-		$this->assertFalse( self::$auth->forgotStep1( 'nomatch@example.com', '127.0.0.1' ) );
+        $errorStack = TestBootstrap::app( 'errors' );
+        $errorStack->clear();
 
-		$errors = $errorStack->errors();
-		$expected = [ [
-			'error' => 'user_forgot_email_no_match',
-			'message' => 'user_forgot_email_no_match',
-			'context' => 'auth.forgot',
-			'params' => [] ] ];
-		$this->assertEquals( $expected, $errors );
+        $this->assertFalse( self::$auth->forgotStep1( 'nomatch@example.com', '127.0.0.1' ) );
 
-		$this->assertTrue( self::$auth->forgotStep1( 'test@example.com', '127.0.0.1' ) );
-		$this->assertEquals( 1, UserLink::totalRecords( [
-			'link_type' => USER_LINK_FORGOT_PASSWORD,
-			'uid' => self::$user->id() ] ) );
-	}
+        $errors = $errorStack->errors();
+        $expected = [ [
+            'error' => 'user_forgot_email_no_match',
+            'message' => 'user_forgot_email_no_match',
+            'context' => 'auth.forgot',
+            'params' => [] ] ];
+        $this->assertEquals( $expected, $errors );
 
-	function testForgotStep2()
-	{
-		Database::delete( 'UserLinks', [
-			'link_type' => USER_LINK_FORGOT_PASSWORD,
-			'uid' => self::$user->id() ] );
-		$link = new UserLink;
-		$link->grantAllPermissions();
-		$this->assertTrue( $link->create( [
-			'uid' => self::$user->id(),
-			'link_type' => USER_LINK_FORGOT_PASSWORD ] ) );
+        $this->assertTrue( self::$auth->forgotStep1( 'test@example.com', '127.0.0.1' ) );
+        $this->assertEquals( 1, UserLink::totalRecords( [
+            'link_type' => USER_LINK_FORGOT_PASSWORD,
+            'uid' => self::$user->id() ] ) );
+    }
 
-		$this->assertFalse( self::$auth->forgotStep2( 'blah', [ 'password', 'password' ] ) );
+    public function testForgotStep2()
+    {
+        Database::delete( 'UserLinks', [
+            'link_type' => USER_LINK_FORGOT_PASSWORD,
+            'uid' => self::$user->id() ] );
+        $link = new UserLink();
+        $link->grantAllPermissions();
+        $this->assertTrue( $link->create( [
+            'uid' => self::$user->id(),
+            'link_type' => USER_LINK_FORGOT_PASSWORD ] ) );
 
-		$oldUserPassword = self::$user->user_password;
-		$this->assertTrue( self::$auth->forgotStep2( $link->link, [ 'testpassword2', 'testpassword2' ] ) );
-		self::$user->load();
-		$this->assertNotEquals( $oldUserPassword, self::$user->user_password );
-		$this->assertEquals( 0, UserLink::totalRecords( [
-			'link_type' => USER_LINK_FORGOT_PASSWORD,
-			'uid' => self::$user->id() ] ) );
-	}
+        $this->assertFalse( self::$auth->forgotStep2( 'blah', [ 'password', 'password' ] ) );
+
+        $oldUserPassword = self::$user->user_password;
+        $this->assertTrue( self::$auth->forgotStep2( $link->link, [ 'testpassword2', 'testpassword2' ] ) );
+        self::$user->load();
+        $this->assertNotEquals( $oldUserPassword, self::$user->user_password );
+        $this->assertEquals( 0, UserLink::totalRecords( [
+            'link_type' => USER_LINK_FORGOT_PASSWORD,
+            'uid' => self::$user->id() ] ) );
+    }
 }
