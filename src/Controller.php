@@ -13,13 +13,15 @@ namespace app\auth;
 
 use infuse\Model;
 
-use App;
+use InjectApp;
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\PersistentSession;
 
 class Controller
 {
+    use InjectApp;
+    
     public static $properties = [
         'models' => [
             'UserLink',
@@ -30,13 +32,6 @@ class Controller
     ];
 
     public static $scaffoldAdmin;
-
-    private $app;
-
-    public function __construct(App $app)
-    {
-        $this->app = $app;
-    }
 
     public function middleware($req, $res)
     {
