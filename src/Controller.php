@@ -13,14 +13,13 @@ namespace app\auth;
 
 use infuse\Model;
 
-use InjectApp;
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\PersistentSession;
 
 class Controller
 {
-    use InjectApp;
+    use \InjectApp;
     
     public static $properties = [
         'models' => [
