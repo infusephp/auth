@@ -184,7 +184,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals( 1, UserLoginHistory::totalRecords( [
             'uid' => self::$user->id(),
-            'type' => LOGIN_TYPE_TRADITIONAL ] ) );
+            'type' => 'web' ] ) );
     }
 
     public function testLogin()

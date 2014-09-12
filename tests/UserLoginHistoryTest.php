@@ -19,7 +19,7 @@ class UserLoginHistoryTest extends \PHPUnit_Framework_TestCase
         self::$history->grantAllPermissions();
         $this->assertTrue( self::$history->create( [
             'uid' => -1,
-            'type' => LOGIN_TYPE_TRADITIONAL,
+            'type' => 'web',
             'ip' => TestBootstrap::app( 'req' )->ip() ] ) );
     }
 
