@@ -15,13 +15,6 @@ use infuse\Model;
 
 use app\auth\libs\Auth;
 
-if( !defined( 'LOGIN_TYPE_TRADITIONAL' ) )
-    define( 'LOGIN_TYPE_TRADITIONAL', 0 );
-if( !defined( 'LOGIN_TYPE_PERSISTENT_SESSION' ) )
-    define( 'LOGIN_TYPE_PERSISTENT_SESSION', 1 );
-if( !defined( 'LOGIN_TYPE_OAUTH' ) )
-    define( 'LOGIN_TYPE_OAUTH', 2 );
-
 class UserLoginHistory extends Model
 {
     public static $scaffoldApi;
@@ -33,15 +26,7 @@ class UserLoginHistory extends Model
             'relation' => Auth::USER_MODEL
         ],
         'type' => [
-            'type' => 'number',
-            'admin_type' => 'enum',
-            'admin_enum' => [
-                LOGIN_TYPE_TRADITIONAL => 'Regular',
-                LOGIN_TYPE_PERSISTENT_SESSION => 'Persistent',
-                LOGIN_TYPE_OAUTH => 'OAuth',
-                3 => 'Facebook',
-                4 => 'Twitter',
-            ],
+            'type' => 'string'
         ],
         'ip' => [
             'type' => 'string',

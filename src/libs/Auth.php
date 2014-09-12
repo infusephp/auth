@@ -16,10 +16,6 @@ if( !defined( 'GUEST' ) )
     define( 'GUEST', -1 );
 if( !defined( 'SUPER_USER' ) )
     define( 'SUPER_USER', -2 );
-if( !defined( 'LOGIN_TYPE_TRADITIONAL' ) )
-    define( 'LOGIN_TYPE_TRADITIONAL', 0 );
-if( !defined( 'LOGIN_TYPE_PERSISTENT_SESSION' ) )
-    define( 'LOGIN_TYPE_PERSISTENT_SESSION', 1 );
 if( !defined( 'USER_LINK_FORGOT_PASSWORD' ) )
     define( 'USER_LINK_FORGOT_PASSWORD', 0 );
 if( !defined( 'USER_LINK_VERIFY_EMAIL' ) )
@@ -84,7 +80,7 @@ class Auth
 
         $user = $this->getUserWithCredentials( $username, $password );
         if ($user) {
-            $this->app[ 'user' ] = $this->signInUser( $user->id(), LOGIN_TYPE_TRADITIONAL );
+            $this->app[ 'user' ] = $this->signInUser( $user->id(), 'web' );
 
             if( $persistent )
                 self::storePersistentCookie( $user->id(), $user->user_email );
@@ -212,7 +208,7 @@ class Auth
 	 *
 	 * @return User authenticated user model
 	 */
-    public function signInUser($uid, $type = LOGIN_TYPE_TRADITIONAL)
+    public function signInUser($uid, $type = 'web')
     {
         $userModel = self::USER_MODEL;
         $user = new $userModel( $uid, true );
@@ -569,7 +565,7 @@ class Auth
                                     'series' => $seriesEnc,
                                     'token' => $tokenEnc ] );
 
-                            $user = $this->signInUser( $user->id(), LOGIN_TYPE_PERSISTENT_SESSION, $req );
+                            $user = $this->signInUser( $user->id(), 'persistent', $req );
 
                             // generate a new cookie for the next time
                             self::storePersistentCookie( $user->id(), $cookieParams->user_email, $cookieParams->series );
