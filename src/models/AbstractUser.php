@@ -13,7 +13,7 @@ namespace app\auth\models;
 
 use infuse\Database;
 use infuse\Model;
-use infuse\Util;
+use infuse\Utility as U;
 use infuse\Validate;
 
 abstract class AbstractUser extends Model
@@ -123,8 +123,8 @@ abstract class AbstractUser extends Model
         // check if the current password is accurate
         $passwordValidated = false;
 
-        $encryptedPassword = Util::encrypt_password(
-            Util::array_value( $data, 'current_password' ),
+        $encryptedPassword = U::encrypt_password(
+            U::array_value( $data, 'current_password' ),
             $this->app[ 'config' ]->get( 'site.salt' ) );
 
         if( $encryptedPassword == $this->user_password )
@@ -347,7 +347,7 @@ abstract class AbstractUser extends Model
 	 */
     public static function registerUser(array $data, $verifiedEmail = false)
     {
-        $tempUser = self::$injectedApp[ 'auth' ]->getTemporaryUser( Util::array_value( $data, 'user_email' ) );
+        $tempUser = self::$injectedApp[ 'auth' ]->getTemporaryUser( U::array_value( $data, 'user_email' ) );
 
         // upgrade temporary account
         if( $tempUser &&
@@ -379,7 +379,7 @@ abstract class AbstractUser extends Model
 	 */
     public static function createTemporary($data)
     {
-        $email = Util::array_value( $data, 'user_email' );
+        $email = U::array_value( $data, 'user_email' );
         if( !Validate::is( $email, 'email' ) )
 
             return false;
@@ -463,7 +463,7 @@ abstract class AbstractUser extends Model
         if( $this->exists() &&
             !$this->isAdmin() &&
             $this->app[ 'user' ]->id() == $this->_id &&
-            Util::encrypt_password( $password, $this->app[ 'config' ]->get( 'site.salt' ) ) == $this->user_password )
+            U::encrypt_password( $password, $this->app[ 'config' ]->get( 'site.salt' ) ) == $this->user_password )
         {
             $this->grantAllPermissions();
 

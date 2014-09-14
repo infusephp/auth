@@ -4,7 +4,7 @@ namespace app\auth\libs;
 
 use infuse\Database;
 use infuse\Model;
-use infuse\Util;
+use infuse\Utility as U;
 use infuse\Validate;
 
 use App;
@@ -170,7 +170,7 @@ class Auth
         $user = $userModel::findOne( [
             'where' => [
                 $usernameWhere,
-                'user_password' => Util::encrypt_password( $password, $this->app[ 'config' ]->get( 'site.salt' ) ) ] ] );
+                'user_password' => U::encrypt_password( $password, $this->app[ 'config' ]->get( 'site.salt' ) ) ] ] );
 
         if ($user) {
             $user->load();
@@ -538,8 +538,8 @@ class Auth
 
                 if ($user) {
                     // encrypt series and token for matching with the db
-                    $seriesEnc = Util::encrypt_password( $cookieParams->series, $this->app[ 'config' ]->get( 'site.salt' ) );
-                    $tokenEnc = Util::encrypt_password( $cookieParams->token, $this->app[ 'config' ]->get( 'site.salt' ) );
+                    $seriesEnc = U::encrypt_password( $cookieParams->series, $this->app[ 'config' ]->get( 'site.salt' ) );
+                    $tokenEnc = U::encrypt_password( $cookieParams->token, $this->app[ 'config' ]->get( 'site.salt' ) );
 
                     // first, make sure all of the parameters match, except the token
                     // we match the token separately in case all of the other information matches,
@@ -601,7 +601,7 @@ class Auth
 
     private function changeSessionUserID($uid)
     {
-        if ( !headers_sent() ) {
+        if (!headers_sent() && session_status() == PHP_SESSION_ACTIVE) {
             // regenerate session id to prevent session hijacking
             session_regenerate_id( true );
 
@@ -660,8 +660,8 @@ class Auth
         $session->grantAllPermissions();
         $session->create( [
             'user_email' => $email,
-            'series' => Util::encrypt_password( $series, $config->get( 'site.salt' ) ),
-            'token' => Util::encrypt_password( $token, $config->get( 'site.salt' ) ),
+            'series' => U::encrypt_password( $series, $config->get( 'site.salt' ) ),
+            'token' => U::encrypt_password( $token, $config->get( 'site.salt' ) ),
             'uid' => $uid ] );
     }
 }

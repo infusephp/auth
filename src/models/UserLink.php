@@ -13,7 +13,7 @@ namespace app\auth\models;
 
 use infuse\Database;
 use infuse\Model;
-use infuse\Util;
+use infuse\Utility as U;
 
 use app\auth\libs\Auth;
 
@@ -82,7 +82,7 @@ class UserLink extends Model
         }
 
         if( !isset( $data[ 'link' ] ) )
-            $data[ 'link' ] = Util::guid( false );
+            $data[ 'link' ] = U::guid( false );
 
         return true;
     }
