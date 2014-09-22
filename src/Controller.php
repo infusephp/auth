@@ -79,24 +79,4 @@ class Controller
             return $persistentSessionSuccess && $userLinkSuccess;
         }
     }
-
-    private function ensureHttp($req, $res)
-    {
-        if ( $req->isSecure() ) {
-            $url = str_replace( 'https://', 'http://', $req->url() );
-            header( 'HTTP/1.1 301 Moved Permanently' );
-            header( "Location: $url" );
-            exit;
-        }
-    }
-
-    private function ensureHttps($req, $res)
-    {
-        if ( !$req->isSecure() && $this->app[ 'config' ]->get( 'site.ssl-enabled' ) ) {
-            $url = str_replace( 'http://', 'https://', $req->url() );
-            header( 'HTTP/1.1 301 Moved Permanently' );
-            header( "Location: $url" );
-            exit;
-        }
-    }
 }
