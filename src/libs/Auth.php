@@ -184,7 +184,10 @@ class Auth
 
                 return false;
             } elseif ( !$user->isVerified() ) {
-                $errorStack->push( [ 'error' => 'user_login_unverified' ] );
+                $errorStack->push([
+                    'error' => 'user_login_unverified',
+                    'params' => [
+                        'uid' => $user->id()]]);
 
                 return false;
             }

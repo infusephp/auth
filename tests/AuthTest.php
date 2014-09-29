@@ -155,11 +155,13 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse( self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' ) );
 
         $errors = $errorStack->errors();
-        $expected = [ [
-            'error' => 'user_login_unverified',
-            'message' => 'user_login_unverified',
-            'context' => '',
-            'params' => [] ] ];
+        $expected = [
+            [
+                'error' => 'user_login_unverified',
+                'message' => 'user_login_unverified',
+                'context' => '',
+                'params' => [
+                    'uid' => self::$user->id()]]];
         $this->assertEquals( $expected, $errors );
     }
 
