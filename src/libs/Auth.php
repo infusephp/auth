@@ -462,7 +462,7 @@ class Auth
 	 *
 	 * @return boolean success
 	 */
-    public function forgotStep2($token, array $password, $pi)
+    public function forgotStep2($token, array $password, $ip)
     {
         $this->app[ 'errors' ]->setCurrentContext( 'auth.forgot' );
 
