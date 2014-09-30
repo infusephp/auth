@@ -458,10 +458,11 @@ class Auth
 	 *
 	 * @param string $token token
 	 * @param array $password new password
+     * @param string $ip ip address making the request
 	 *
 	 * @return boolean success
 	 */
-    public function forgotStep2($token, array $password)
+    public function forgotStep2($token, array $password, $pi)
     {
         $this->app[ 'errors' ]->setCurrentContext( 'auth.forgot' );
 
@@ -478,12 +479,16 @@ class Auth
             $success = $user->set( 'user_password', $password );
             $user->enforcePermissions();
 
-            if( $success )
+            if ($success) {
                 Database::delete(
                     'UserLinks',
                     [
                         'uid' => $user->id(),
                         'link_type' => USER_LINK_FORGOT_PASSWORD ] );
+
+                $user->sendEmail('password-changed', [
+                    'ip' => $ip ]);
+            }
 
             return $success;
         }

@@ -377,10 +377,10 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'uid' => self::$user->id(),
             'link_type' => USER_LINK_FORGOT_PASSWORD ] ) );
 
-        $this->assertFalse( self::$auth->forgotStep2( 'blah', [ 'password', 'password' ] ) );
+        $this->assertFalse(self::$auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1'));
 
         $oldUserPassword = self::$user->user_password;
-        $this->assertTrue( self::$auth->forgotStep2( $link->link, [ 'testpassword2', 'testpassword2' ] ) );
+        $this->assertTrue(self::$auth->forgotStep2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));
         self::$user->load();
         $this->assertNotEquals( $oldUserPassword, self::$user->user_password );
         $this->assertEquals( 0, UserLink::totalRecords( [
