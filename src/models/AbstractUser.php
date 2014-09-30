@@ -442,6 +442,9 @@ abstract class AbstractUser extends Model
             $message[ 'subject' ] = 'Password change request on ' . $this->app[ 'config' ]->get( 'site.title' );
             $message[ 'forgot_link' ] = "{$message['base_url']}users/forgot/{$message['forgot']}";
         break;
+        case 'password-changed':
+            $message['subject'] = 'Your password was changed on ' . $this->app['config']->get('site.title');
+        break;
         }
 
         return $this->app[ 'mailer' ]->queueEmail( $template, $message );
