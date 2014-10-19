@@ -20,7 +20,7 @@ use app\auth\models\PersistentSession;
 class Controller
 {
     use \InjectApp;
-    
+
     public static $properties = [
         'models' => [
             'UserLink',
@@ -57,26 +57,24 @@ class Controller
             $user->enableSU();
     }
 
-    public function cron($command)
+    public function garbageCollection()
     {
-        if ($command == 'garbage-collection') {
-            // clear out expired persistent sessions
-            $persistentSessionSuccess = PersistentSession::garbageCollect();
+        // clear out expired persistent sessions
+        $persistentSessionSuccess = PersistentSession::garbageCollect();
 
-            if( $persistentSessionSuccess )
-                echo "Garbage collection of persistent sessions was successful.\n";
-            else
-                echo "Garbage collection of persistent sessions was NOT successful.\n";
+        if( $persistentSessionSuccess )
+            echo "Garbage collection of persistent sessions was successful.\n";
+        else
+            echo "Garbage collection of persistent sessions was NOT successful.\n";
 
-            // clear out expired user links
-            $userLinkSuccess = UserLink::garbageCollect();
+        // clear out expired user links
+        $userLinkSuccess = UserLink::garbageCollect();
 
-            if( $userLinkSuccess )
-                echo "Garbage collection of user links was successful.\n";
-            else
-                echo "Garbage collection of user links was NOT successful.\n";
+        if( $userLinkSuccess )
+            echo "Garbage collection of user links was successful.\n";
+        else
+            echo "Garbage collection of user links was NOT successful.\n";
 
-            return $persistentSessionSuccess && $userLinkSuccess;
-        }
+        return $persistentSessionSuccess && $userLinkSuccess;
     }
 }
