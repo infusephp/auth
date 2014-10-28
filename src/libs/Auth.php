@@ -35,11 +35,11 @@ class Auth
     }
 
     /**
-	 * Gets the currently authenticated user using the
-	 * available authentication strategies
-	 *
-	 * @return User
-	 */
+     * Gets the currently authenticated user using the
+     * available authentication strategies
+     *
+     * @return User
+     */
     public function getAuthenticatedUser()
     {
         if( $user = $this->authenticateSession() )
@@ -65,15 +65,15 @@ class Auth
     /////////////////////////
 
     /**
-	 * Performs a traditional username/password login and
-	 * creates a signed in user.
-	 *
-	 * @param string $username username
-	 * @param string $password password
-	 * @param boolean $persistent make the session persistent
-	 *
-	 * @return boolean success
-	 */
+     * Performs a traditional username/password login and
+     * creates a signed in user.
+     *
+     * @param string  $username   username
+     * @param string  $password   password
+     * @param boolean $persistent make the session persistent
+     *
+     * @return boolean success
+     */
     public function login($username, $password, $persistent = false)
     {
         $this->app[ 'errors' ]->setCurrentContext( 'auth.login' );
@@ -92,10 +92,10 @@ class Auth
     }
 
     /**
-	 * Logs the authenticated user out
-	 *
-	 * @return boolean success
-	 */
+     * Logs the authenticated user out
+     *
+     * @return boolean success
+     */
     public function logout()
     {
         $req = $this->app[ 'req' ];
@@ -106,10 +106,10 @@ class Auth
             session_name(),
             '',
             time() - 86400,
-            $sessionCookie[ 'path' ],
-            $sessionCookie[ 'domain' ],
-            $sessionCookie[ 'secure' ],
-            $sessionCookie[ 'httponly' ] );
+            $sessionCookie['path'],
+            $sessionCookie['domain'],
+            $sessionCookie['secure'],
+            $sessionCookie['httponly'] );
 
         // destroy the session variables
         $req->destroySession();
@@ -122,9 +122,9 @@ class Auth
             'persistent',
             '',
             time() - 86400,
-            '/',
-            $req->host(),
-            $req->isSecure(),
+            $sessionCookie['path'],
+            $sessionCookie['domain'],
+            $sessionCookie['secure'],
             true );
 
         $this->changeSessionUserID( GUEST );
@@ -136,13 +136,13 @@ class Auth
     }
 
     /**
-	 * Fetches the user for a given username/password combination
-	 *
-	 * @param string $username username
-	 * @param string $password password
-	 *
-	 * @return User|false matching user
-	 */
+     * Fetches the user for a given username/password combination
+     *
+     * @param string $username username
+     * @param string $password password
+     *
+     * @return User|false matching user
+     */
     public function getUserWithCredentials($username, $password)
     {
         $errorStack = $this->app[ 'errors' ];
@@ -202,15 +202,15 @@ class Auth
     }
 
     /**
-	 * Returns a logged in user for a given uid.
-	 * This method is used for signing in via any
-	 * provider (traditional, oauth, fb, twitter, etc.).
-	 *
-	 * @param int $uid
-	 * @param int $type an integer flag to denote the login type
-	 *
-	 * @return User authenticated user model
-	 */
+     * Returns a logged in user for a given uid.
+     * This method is used for signing in via any
+     * provider (traditional, oauth, fb, twitter, etc.).
+     *
+     * @param int $uid
+     * @param int $type an integer flag to denote the login type
+     *
+     * @return User authenticated user model
+     */
     public function signInUser($uid, $type = 'web')
     {
         $userModel = self::USER_MODEL;
@@ -236,12 +236,12 @@ class Auth
     /////////////////////////
 
     /**
-	 * Gets a temporary user from an e-mail address if one exists
-	 *
-	 * @param string $email e-mail address
-	 *
-	 * @return User|false
-	 */
+     * Gets a temporary user from an e-mail address if one exists
+     *
+     * @param string $email e-mail address
+     *
+     * @return User|false
+     */
     public function getTemporaryUser($email)
     {
         if( !Validate::is( $email, 'email' ) )
@@ -262,13 +262,13 @@ class Auth
     }
 
     /**
- 	 * Upgrades the user from temporary to a fully registered account
-	 *
-	 * @param User $user user
-	 * @param array $data user data
-	 *
-	 * @return boolean true if successful
-	 */
+     * Upgrades the user from temporary to a fully registered account
+     *
+     * @param User  $user user
+     * @param array $data user data
+     *
+     * @return boolean true if successful
+     */
     public function upgradeTemporaryAccount(Model $user, $data)
     {
         if( !$user->isTemporary() )
@@ -325,12 +325,12 @@ class Auth
     }
 
     /**
-	 * Processes a verify e-mail hash
-	 *
-	 * @param string $verifyLink verification hash
-	 *
-	 * @return User|false
-	*/
+     * Processes a verify e-mail hash
+     *
+     * @param string $verifyLink verification hash
+     *
+     * @return User|false
+    */
     public function verifyEmailWithLink($verifyLink)
     {
         $this->app[ 'errors' ]->setCurrentContext( 'auth.verify' );
@@ -367,12 +367,12 @@ class Auth
     /////////////////////////
 
     /**
-	 * Looks up a user from a given forgot token
-	 *
-	 * @param string $token
-	 *
-	 * @return User|false
-	 */
+     * Looks up a user from a given forgot token
+     *
+     * @param string $token
+     *
+     * @return User|false
+     */
     public function getUserFromForgotToken($token)
     {
         $link = UserLink::findOne( [
@@ -392,13 +392,13 @@ class Auth
     }
 
     /**
-	 * The first step in the forgot password sequence
-	 *
-	 * @param string $email e-mail address
-	 * @param string $ip ip address making the request
-	 *
-	 * @return boolean success?
-	 */
+     * The first step in the forgot password sequence
+     *
+     * @param string $email e-mail address
+     * @param string $ip    ip address making the request
+     *
+     * @return boolean success?
+     */
     public function forgotStep1($email, $ip)
     {
         $errorStack = $this->app[ 'errors' ];
@@ -454,14 +454,14 @@ class Auth
     }
 
     /**
-	 * Step 2 in the forgot password process. Resets the password with a valid token.
-	 *
-	 * @param string $token token
-	 * @param array $password new password
-     * @param string $ip ip address making the request
-	 *
-	 * @return boolean success
-	 */
+     * Step 2 in the forgot password process. Resets the password with a valid token.
+     *
+     * @param string $token    token
+     * @param array  $password new password
+     * @param string $ip       ip address making the request
+     *
+     * @return boolean success
+     */
     public function forgotStep2($token, array $password, $ip)
     {
         $this->app[ 'errors' ]->setCurrentContext( 'auth.forgot' );
@@ -501,11 +501,11 @@ class Auth
     /////////////////////////
 
     /**
-	 * Attempts to authenticate the user
-	 * using the session strategy
-	 *
-	 * @return User
-	 */
+     * Attempts to authenticate the user
+     * using the session strategy
+     *
+     * @return User
+     */
     private function authenticateSession()
     {
         $req = $this->app[ 'req' ];
@@ -526,9 +526,9 @@ class Auth
     }
 
     /**
-	 * Attempts to authenticate the user
-	 * using the persistent session strategy
-	 */
+     * Attempts to authenticate the user
+     * using the persistent session strategy
+     */
     private function authenticatePersistentSession()
     {
         $req = $this->app[ 'req' ];
@@ -596,13 +596,14 @@ class Auth
             }
 
             // delete persistent session cookie
+            $sessionCookie = session_get_cookie_params();
             $req->setCookie(
                 'persistent',
                 '',
                 time() - 86400,
-                '/',
-                $req->host(),
-                $req->isSecure(),
+                $sessionCookie['path'],
+                $sessionCookie['domain'],
+                $sessionCookie['secure'],
                 true );
         }
     }
@@ -650,17 +651,18 @@ class Auth
 
         $req = $this->app[ 'req' ];
 
+        $sessionCookie = session_get_cookie_params();
         $req->setCookie(
             'persistent',
-            base64_encode( json_encode( [
+            base64_encode(json_encode([
                 'user_email' => $email,
                 'series' => $series,
                 'token' => $token,
-                'agent' => $req->agent() ] ) ),
+                'agent' => $req->agent() ])),
             time() + PersistentSession::$sessionLength,
-            '/',
-            $req->host(),
-            $req->isSecure(),
+            $sessionCookie['path'],
+            $sessionCookie['domain'],
+            $sessionCookie['secure'],
             true );
 
         $config = $this->app[ 'config' ];
