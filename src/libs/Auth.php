@@ -419,7 +419,7 @@ class Auth
             'where' => [
                 'user_email' => $email ] ] );
 
-        if (!$user) {
+        if (!$user || $user->isTemporary()) {
             $errorStack->push( [ 'error' => 'user_forgot_email_no_match' ] );
 
             return false;
