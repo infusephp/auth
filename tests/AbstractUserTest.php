@@ -1,7 +1,5 @@
 <?php
 
-use infuse\Database;
-
 use app\auth\libs\Auth;
 use app\auth\models\GroupMember;
 use app\users\models\User;
@@ -17,9 +15,10 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     {
         self::$ogUserId = TestBootstrap::app( 'user' )->id();
 
-        Database::delete( 'Users', [ 'user_email' => 'test@example.com' ] );
-        Database::delete( 'Users', [ 'user_email' => 'test2@example.com' ] );
-    }
+        $db = TestBootstrap::app('db');
+        $db->delete('Users')->where('user_email', 'test@example.com')->execute();
+        $db->delete('Users')->where('user_email', 'test2@example.com')->execute();
+   }
 
     public static function tearDownAfterClass()
     {
@@ -241,6 +240,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
         self::$user = User::createTemporary( [
             'user_email' => 'test@example.com' ] );
 
+        $this->assertInstanceOf('\\app\\users\\models\\User', self::$user);
         $this->assertTrue( self::$user->isTemporary() );
 
         $upgradedUser = User::registerUser( [
