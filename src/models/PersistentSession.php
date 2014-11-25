@@ -55,10 +55,12 @@ class PersistentSession extends Model
 
     /**
 	 * Clears out expired user links
+     *
+     * @return boolean
 	 */
     public static function garbageCollect()
     {
-        return self::$injectedApp['db']->delete('PersistentSessions')
+        return !!self::$injectedApp['db']->delete('PersistentSessions')
             ->where('created_at', time() - self::$sessionLength, '<')->execute();
     }
 }

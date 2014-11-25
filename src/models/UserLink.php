@@ -88,10 +88,12 @@ class UserLink extends Model
 
     /**
 	 * Clears out expired user links
+     *
+     * @return boolean
 	 */
     public static function garbageCollect()
     {
-        return self::$injectedApp['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+        return !!self::$injectedApp['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
             ->where('created_at', time() - self::$forgotLinkTimeframe, '<')->execute();
     }
 }
