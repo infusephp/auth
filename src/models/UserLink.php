@@ -91,7 +91,7 @@ class UserLink extends Model
 	 */
     public static function garbageCollect()
     {
-        return $this->app['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+        return self::$injectedApp['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
             ->where('created_at', time() - self::$forgotLinkTimeframe, '<')->execute();
     }
 }
