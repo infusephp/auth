@@ -11,7 +11,6 @@
 
 namespace app\auth\models;
 
-use infuse\Database;
 use infuse\Model;
 use infuse\Utility as U;
 
@@ -92,11 +91,7 @@ class UserLink extends Model
 	 */
     public static function garbageCollect()
     {
-        return
-            Database::delete(
-                'UserLinks',
-                [
-                    'created_at < ' . (time() - self::$forgotLinkTimeframe),
-                    'link_type' => USER_LINK_FORGOT_PASSWORD ] );
+        return $this->app['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+            ->where('created_at', time() - self::$forgotLinkTimeframe, '<')->execute();
     }
 }

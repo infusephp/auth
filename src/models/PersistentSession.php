@@ -11,7 +11,6 @@
 
 namespace app\auth\models;
 
-use infuse\Database;
 use infuse\Model;
 
 use app\auth\libs\Auth;
@@ -59,8 +58,7 @@ class PersistentSession extends Model
 	 */
     public static function garbageCollect()
     {
-        return Database::delete(
-            'PersistentSessions',
-            [ 'created_at < ' . (time() - self::$sessionLength) ] );
+        return $this->app['db']->delete('PersistentSessions')
+            ->where('created_at', time() - self::$sessionLength, '<')->execute();
     }
 }

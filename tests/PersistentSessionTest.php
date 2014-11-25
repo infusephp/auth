@@ -1,7 +1,5 @@
 <?php
 
-use infuse\Database;
-
 use app\auth\models\PersistentSession;
 
 class PersistentSessionTest extends \PHPUnit_Framework_TestCase
@@ -10,8 +8,8 @@ class PersistentSessionTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        Database::delete( 'PersistentSessions', [
-            'user_email' => 'test@exmaple.com' ] );
+        TestBootstrap::app('db')->delete('PersistentSessions')
+            ->where('user_email', 'test@exmaple.com')->execute();
     }
 
     public function testHasPermission()

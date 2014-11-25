@@ -1,7 +1,5 @@
 <?php
 
-use infuse\Database;
-
 use app\auth\models\GroupMember;
 
 class GroupMemberTest extends \PHPUnit_Framework_TestCase
@@ -10,7 +8,8 @@ class GroupMemberTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        Database::delete( 'GroupMembers', [ 'uid' => -1, 'group' => 'test' ] );
+        TestBootstrap::app('db')->delete('GroupMembers')->where('uid', -1)
+            ->where('group', 'test')->execute();
     }
 
     public function testHasPermission()

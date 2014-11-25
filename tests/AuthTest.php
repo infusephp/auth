@@ -1,7 +1,5 @@
 <?php
 
-use infuse\Database;
-
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\UserLoginHistory;
@@ -18,7 +16,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
         TestBootstrap::app( 'user' )->enableSU();
 
-        Database::delete( 'Users', [ 'user_email' => 'test@example.com' ] );
+        TestBootstrap::app('db')->delete('Users')
+            ->where('user_email', 'test@example.com')->execute();
 
         self::$user = $userModel::registerUser( [
             'first_name' => 'Bob',
@@ -119,7 +118,9 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsFailDisabled()
     {
-        Database::delete( 'UserLinks', [ 'uid' => self::$user->id() ] );
+        TestBootstrap::app('db')->delete('UserLinks')
+            ->where('uid', self::$user->id())->execute();
+
         $this->assertTrue( self::$user->set( 'enabled', false ) );
 
         $errorStack = TestBootstrap::app( 'errors' );
@@ -167,7 +168,9 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentials()
     {
-        Database::delete( 'UserLinks', [ 'uid' => self::$user->id() ] );
+        TestBootstrap::app('db')->delete('UserLinks')
+            ->where('uid', self::$user->id())->execute();
+
         $this->assertTrue( self::$user->set( 'enabled', true ) );
 
         $user = self::$auth->getUserWithCredentials( 'test@example.com', 'testpassword' );
@@ -330,9 +333,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testForgotStep1()
     {
-        Database::delete( 'UserLinks', [
-            'link_type' => USER_LINK_FORGOT_PASSWORD,
-            'uid' => self::$user->id() ] );
+        TestBootstrap::app('db')->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+            ->where('uid', self::$user->id())->execute();
 
         $errorStack = TestBootstrap::app( 'errors' );
         $errorStack->clear();
@@ -368,9 +370,9 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testForgotStep2()
     {
-        Database::delete( 'UserLinks', [
-            'link_type' => USER_LINK_FORGOT_PASSWORD,
-            'uid' => self::$user->id() ] );
+        TestBootstrap::app('db')->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+            ->where('uid', self::$user->id())->execute();
+
         $link = new UserLink();
         $link->grantAllPermissions();
         $this->assertTrue( $link->create( [
