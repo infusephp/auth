@@ -51,6 +51,7 @@ class Controller
 
         // use the authenticated user as the requester for model permissions
         Model::configure( [ 'requester' => $user ] );
+        $this->app['requester'] = $user;
 
         // CLI requests get super user permissions
         if( $req->isCli() )
