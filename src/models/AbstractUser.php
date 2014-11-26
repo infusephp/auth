@@ -388,7 +388,7 @@ abstract class AbstractUser extends Model
             'enabled' => 0 ] );
 
         // create the temporary user
-        if (self::$injectedApp['db']->insert($insertArray)
+        if (!self::$injectedApp['db']->insert($insertArray)
             ->into(static::tablename())->execute()) {
             return false;
         }
