@@ -11,7 +11,6 @@
 
 namespace app\auth\models;
 
-use infuse\Database;
 use infuse\Model;
 use infuse\Utility as U;
 use infuse\Validate;
@@ -175,8 +174,8 @@ abstract class AbstractUser extends Model
             'UserLoginHistories',
             'UserLinks' ];
 
-        foreach( $nuke as $tablename )
-            Database::delete( $tablename, [ 'uid' => $this->_id ] );
+        foreach ($nuke as $tablename)
+            $this->app['db']->delete($tablename)->where('uid', $this->_id)->execute();
     }
 
     /////////////////////////////////////
@@ -389,11 +388,12 @@ abstract class AbstractUser extends Model
             'enabled' => 0 ] );
 
         // create the temporary user
-        if( !Database::insert( static::tablename(), $insertArray ) )
-
+        if (self::$injectedApp['db']->insert($insertArray)
+            ->into(static::$tablename)->execute()) {
             return false;
+        }
 
-        $user = new static( Database::lastInsertID() );
+        $user = new static(self::$injectedApp['pdo']->lastInsertId());
 
         // create the temporary link
         $link = new UserLink();
