@@ -2,7 +2,6 @@
 
 namespace app\auth\libs;
 
-use infuse\Database;
 use infuse\Model;
 use infuse\Utility as U;
 use infuse\Validate;
@@ -284,11 +283,10 @@ class Auth
         $user->grantAllPermissions();
         if ( $user->set( $updateArray ) ) {
             // remove temporary and unverified links
-            Database::delete(
-                'UserLinks',
-                [
+            $this->app['db']->delete('UserLinks')->where([
                     'uid' => $user->id(),
-                    '( link_type = ' . USER_LINK_TEMPORARY . ' OR link_type = ' . USER_LINK_VERIFY_EMAIL . ' )' ] );
+                    '(link_type = ' . USER_LINK_TEMPORARY . ' OR link_type = ' . USER_LINK_VERIFY_EMAIL . ')'])
+                ->execute();
 
             // send the user a welcome message
             $user->sendEmail( 'welcome' );
@@ -307,9 +305,9 @@ class Auth
     public function sendVerificationEmail(Model $user)
     {
         // delete previous verify links
-        Database::delete( 'UserLinks', [
+        $this->app['db']->delete('UserLinks')->where([
             'uid' => $user->id(),
-            'link_type' => USER_LINK_VERIFY_EMAIL ] );
+            'link_type' => USER_LINK_VERIFY_EMAIL])->execute();
 
         // create new verification link
         $link = new UserLink();
@@ -480,11 +478,9 @@ class Auth
             $user->enforcePermissions();
 
             if ($success) {
-                Database::delete(
-                    'UserLinks',
-                    [
-                        'uid' => $user->id(),
-                        'link_type' => USER_LINK_FORGOT_PASSWORD ] );
+                $this->app['db']->delete('UserLinks')->where([
+                    'uid' => $user->id(),
+                    'link_type' => USER_LINK_FORGOT_PASSWORD])->execute();
 
                 $user->sendEmail('password-changed', [
                     'ip' => $ip ]);
@@ -552,26 +548,21 @@ class Auth
                     // first, make sure all of the parameters match, except the token
                     // we match the token separately in case all of the other information matches,
                     // which means an older session is being used, and then we run away
-                    $tokenDB = Database::select(
-                        'PersistentSessions',
-                        'token',
-                        [
-                            'where' => [
-                                'user_email' => $cookieParams->user_email,
-                                'created_at > ' . (time() - PersistentSession::$sessionLength),
-                                'series' => $seriesEnc ],
-                                'single' => true ] );
+                    $select = $this->app['db']->select('token')
+                        ->from('PersistentSessions')->where([
+                            'user_email' => $cookieParams->user_email,
+                            'created_at > ' . (time() - PersistentSession::$sessionLength),
+                            'series' => $seriesEnc]);
+                    $tokenDB = $select->scalar();
 
-                    if ( Database::numrows() == 1 && $cookieParams->agent == $req->agent() ) {
+                    if ($select->rowCount() == 1 && $cookieParams->agent == $req->agent()) {
                         // if there is a match, sign the user in
                         if ($tokenDB == $tokenEnc) {
                             // remove the token
-                            Database::delete(
-                                'PersistentSessions',
-                                [
-                                    'user_email' => $cookieParams->user_email,
-                                    'series' => $seriesEnc,
-                                    'token' => $tokenEnc ] );
+                            $this->app['db']->delete('PersistentSessions')->where([
+                                'user_email' => $cookieParams->user_email,
+                                'series' => $seriesEnc,
+                                'token' => $tokenEnc])->execute();
 
                             $user = $this->signInUser( $user->id(), 'persistent', $req );
 
@@ -588,8 +579,8 @@ class Auth
                             // same series, but different token.
                             // the user is trying to use an older token
                             // most likely an attack, so flush all sessions
-                            Database::delete( 'PersistentSessions', [
-                                'user_email' => $cookieParams->user_email ] );
+                            $this->app['db']->delete('PersistentSessions')
+                                ->where('user_email', $cookieParams->user_email)->execute();
                         }
                     }
                 }
