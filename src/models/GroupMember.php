@@ -12,7 +12,6 @@
 namespace app\auth\models;
 
 use infuse\Model;
-
 use app\auth\libs\Auth;
 
 class GroupMember extends Model
@@ -22,12 +21,12 @@ class GroupMember extends Model
 
     public static $properties = [
         'group' => [
-            'type' => 'string'
+            'type' => 'string',
         ],
         'uid' => [
             'type' => 'number',
-            'relation' => Auth::USER_MODEL
-        ]
+            'relation' => Auth::USER_MODEL,
+        ],
     ];
 
     public static function idProperty()

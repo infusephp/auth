@@ -9,8 +9,8 @@ return  [
   'modules' => [
     'middleware' => [
       'auth',
-      'email'
-    ]
+      'email',
+    ],
   ],
   'database' => [
     'type' => 'mysql',
@@ -19,11 +19,11 @@ return  [
     'name' => 'mydb',
     'user' => 'root',
     'password' => '',
-    'charset' => 'utf8'
+    'charset' => 'utf8',
   ],
   'sessions' => [
     'enabled' => true,
     'adapter' => 'database',
-    'lifetime' => 86400
+    'lifetime' => 86400,
   ],
 ];

@@ -16,21 +16,21 @@ class GroupMemberTest extends \PHPUnit_Framework_TestCase
     {
         $member = new GroupMember();
 
-        $this->assertFalse( $member->can( 'create', TestBootstrap::app( 'user' ) ) );
+        $this->assertFalse($member->can('create', TestBootstrap::app('user')));
     }
 
     public function testCreate()
     {
         self::$member = new GroupMember();
         self::$member->grantAllPermissions();
-        $this->assertTrue( self::$member->create( [ 'group' => 'test', 'uid' => -1 ] ) );
+        $this->assertTrue(self::$member->create([ 'group' => 'test', 'uid' => -1 ]));
     }
 
     /**
-	 * @depends testCreate
-	 */
+     * @depends testCreate
+     */
     public function testDelete()
     {
-        $this->assertTrue( self::$member->delete() );
+        $this->assertTrue(self::$member->delete());
     }
 }

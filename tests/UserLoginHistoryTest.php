@@ -10,24 +10,24 @@ class UserLoginHistoryTest extends \PHPUnit_Framework_TestCase
     {
         $history = new UserLoginHistory();
 
-        $this->assertFalse( $history->can( 'create', TestBootstrap::app( 'user' ) ) );
+        $this->assertFalse($history->can('create', TestBootstrap::app('user')));
     }
 
     public function testCreate()
     {
         self::$history = new UserLoginHistory();
         self::$history->grantAllPermissions();
-        $this->assertTrue( self::$history->create( [
+        $this->assertTrue(self::$history->create([
             'uid' => -1,
             'type' => 'web',
-            'ip' => TestBootstrap::app( 'req' )->ip() ] ) );
+            'ip' => TestBootstrap::app('req')->ip(), ]));
     }
 
     /**
-	 * @depends testCreate
-	 */
+     * @depends testCreate
+     */
     public function testDelete()
     {
-        $this->assertTrue( self::$history->delete() );
+        $this->assertTrue(self::$history->delete());
     }
 }

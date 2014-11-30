@@ -9,13 +9,13 @@ class UserLink extends AbstractMigration
      */
     public function change()
     {
-        if ( !$this->hasTable( 'UserLinks' ) ) {
-            $table = $this->table( 'UserLinks', [ 'id' => false, 'primary_key' => [ 'uid', 'link' ] ] );
-            $table->addColumn( 'uid', 'integer' )
-                  ->addColumn( 'link', 'string', [ 'length' => 32 ] )
-                  ->addColumn( 'link_type', 'integer', [ 'length' => 2 ] )
-                  ->addColumn( 'created_at', 'integer' )
-                  ->addColumn( 'updated_at', 'integer', [ 'null' => true, 'default' => null ] )
+        if (!$this->hasTable('UserLinks')) {
+            $table = $this->table('UserLinks', [ 'id' => false, 'primary_key' => [ 'uid', 'link' ] ]);
+            $table->addColumn('uid', 'integer')
+                  ->addColumn('link', 'string', [ 'length' => 32 ])
+                  ->addColumn('link_type', 'integer', [ 'length' => 2 ])
+                  ->addColumn('created_at', 'integer')
+                  ->addColumn('updated_at', 'integer', [ 'null' => true, 'default' => null ])
                   ->create();
         }
     }
@@ -25,7 +25,6 @@ class UserLink extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -33,6 +32,5 @@ class UserLink extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

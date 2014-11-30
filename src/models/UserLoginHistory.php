@@ -12,7 +12,6 @@
 namespace app\auth\models;
 
 use infuse\Model;
-
 use app\auth\libs\Auth;
 
 class UserLoginHistory extends Model
@@ -23,20 +22,20 @@ class UserLoginHistory extends Model
     public static $properties = [
         'uid' => [
             'type' => 'number',
-            'relation' => Auth::USER_MODEL
+            'relation' => Auth::USER_MODEL,
         ],
         'type' => [
-            'type' => 'string'
+            'type' => 'string',
         ],
         'ip' => [
             'type' => 'string',
-            'admin_hidden_property' => true
+            'admin_hidden_property' => true,
         ],
         'user_agent' => [
             'type' => 'string',
             'null' => true,
-            'admin_hidden_property' => true
-        ]
+            'admin_hidden_property' => true,
+        ],
     ];
 
     protected function hasPermission($permission, Model $requester)

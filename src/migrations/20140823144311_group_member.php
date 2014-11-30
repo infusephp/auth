@@ -9,12 +9,12 @@ class GroupMember extends AbstractMigration
      */
     public function change()
     {
-        if ( !$this->hasTable( 'GroupMembers' ) ) {
-            $table = $this->table( 'GroupMembers', [ 'id' => false, 'primary_key' => [ 'group', 'uid' ] ] );
-            $table->addColumn( 'group', 'string' )
-                  ->addColumn( 'uid', 'integer' )
-                  ->addColumn( 'created_at', 'integer' )
-                  ->addColumn( 'updated_at', 'integer', [ 'null' => true, 'default' => null ] )
+        if (!$this->hasTable('GroupMembers')) {
+            $table = $this->table('GroupMembers', [ 'id' => false, 'primary_key' => [ 'group', 'uid' ] ]);
+            $table->addColumn('group', 'string')
+                  ->addColumn('uid', 'integer')
+                  ->addColumn('created_at', 'integer')
+                  ->addColumn('updated_at', 'integer', [ 'null' => true, 'default' => null ])
                   ->create();
         }
     }
@@ -24,7 +24,6 @@ class GroupMember extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -32,6 +31,5 @@ class GroupMember extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

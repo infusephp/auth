@@ -15,20 +15,21 @@ class UserLoginHistoryType extends AbstractMigration
 
         foreach ($rows as $row) {
             $type = $row['type'];
-            if ($type == 0)
+            if ($type == 0) {
                 $type = 'web';
-            else if ($type == 1)
+            } elseif ($type == 1) {
                 $type == 'persistent';
-            else if ($type == 2)
+            } elseif ($type == 2) {
                 $type = 'oauth';
-            else if ($type == 3)
+            } elseif ($type == 3) {
                 $type = 'facebook';
-            else if ($type == 4)
+            } elseif ($type == 4) {
                 $type = 'twitter';
-            else if ($type == 5)
+            } elseif ($type == 5) {
                 $type = 'instagram';
+            }
 
-            $this->execute('UPDATE UserLoginHistories SET type = "' . $type . '" WHERE id = ' . $row['id']);
+            $this->execute('UPDATE UserLoginHistories SET type = "'.$type.'" WHERE id = '.$row['id']);
         }
     }
 
@@ -37,6 +38,5 @@ class UserLoginHistoryType extends AbstractMigration
      */
     public function down()
     {
-
     }
 }

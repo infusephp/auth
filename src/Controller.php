@@ -12,7 +12,6 @@
 namespace app\auth;
 
 use infuse\Model;
-
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\PersistentSession;
@@ -26,8 +25,8 @@ class Controller
             'UserLink',
             'UserLoginHistory',
             'PersistentSession',
-            'GroupMember'
-        ]
+            'GroupMember',
+        ],
     ];
 
     public static $scaffoldAdmin;
@@ -38,24 +37,26 @@ class Controller
         // app user is established
         $userModel = Auth::USER_MODEL;
 
-        if( !class_exists( $userModel ) )
+        if (!class_exists($userModel)) {
             require_once 'User.php';
+        }
 
-        Model::configure( [ 'requester' => new $userModel() ] );
+        Model::configure([ 'requester' => new $userModel() ]);
 
         $this->app[ 'auth' ] = function ($app) {
-            return new Auth( $app );
+            return new Auth($app);
         };
 
         $this->app[ 'user' ] = $user = $this->app[ 'auth' ]->getAuthenticatedUser();
 
         // use the authenticated user as the requester for model permissions
-        Model::configure( [ 'requester' => $user ] );
+        Model::configure([ 'requester' => $user ]);
         $this->app['requester'] = $user;
 
         // CLI requests get super user permissions
-        if( $req->isCli() )
+        if ($req->isCli()) {
             $user->enableSU();
+        }
     }
 
     public function garbageCollection()
@@ -63,18 +64,20 @@ class Controller
         // clear out expired persistent sessions
         $persistentSessionSuccess = PersistentSession::garbageCollect();
 
-        if( $persistentSessionSuccess )
+        if ($persistentSessionSuccess) {
             echo "Garbage collection of persistent sessions was successful.\n";
-        else
+        } else {
             echo "Garbage collection of persistent sessions was NOT successful.\n";
+        }
 
         // clear out expired user links
         $userLinkSuccess = UserLink::garbageCollect();
 
-        if( $userLinkSuccess )
+        if ($userLinkSuccess) {
             echo "Garbage collection of user links was successful.\n";
-        else
+        } else {
             echo "Garbage collection of user links was NOT successful.\n";
+        }
 
         return $persistentSessionSuccess && $userLinkSuccess;
     }

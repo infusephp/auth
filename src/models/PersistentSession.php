@@ -12,7 +12,6 @@
 namespace app\auth\models;
 
 use infuse\Model;
-
 use app\auth\libs\Auth;
 
 class PersistentSession extends Model
@@ -23,21 +22,21 @@ class PersistentSession extends Model
     public static $properties = [
         'token' => [
             'type' => 'string',
-            'required' => true
+            'required' => true,
         ],
         'user_email' => [
             'type' => 'string',
-            'validate' => 'email'
+            'validate' => 'email',
         ],
         'series' => [
             'type' => 'string',
             'required' => true,
             'validate' => 'string:128',
-            'admin_hidden_property' => true
+            'admin_hidden_property' => true,
         ],
         'uid' => [
             'type' => 'number',
-            'relation' => Auth::USER_MODEL
+            'relation' => Auth::USER_MODEL,
         ],
     ];
 
@@ -54,10 +53,10 @@ class PersistentSession extends Model
     }
 
     /**
-	 * Clears out expired user links
+     * Clears out expired user links
      *
      * @return boolean
-	 */
+     */
     public static function garbageCollect()
     {
         return !!self::$injectedApp['db']->delete('PersistentSessions')

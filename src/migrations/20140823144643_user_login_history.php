@@ -9,14 +9,14 @@ class UserLoginHistory extends AbstractMigration
      */
     public function change()
     {
-        if ( !$this->hasTable( 'UserLoginHistories' ) ) {
-            $table = $this->table( 'UserLoginHistories' );
-            $table->addColumn( 'uid', 'integer' )
-                  ->addColumn( 'type', 'integer', [ 'length' => 1 ] )
-                  ->addColumn( 'ip', 'string', [ 'length' => 45 ] )
-                  ->addColumn( 'user_agent', 'string' )
-                  ->addColumn( 'created_at', 'integer' )
-                  ->addColumn( 'updated_at', 'integer', [ 'null' => true, 'default' => null ] )
+        if (!$this->hasTable('UserLoginHistories')) {
+            $table = $this->table('UserLoginHistories');
+            $table->addColumn('uid', 'integer')
+                  ->addColumn('type', 'integer', [ 'length' => 1 ])
+                  ->addColumn('ip', 'string', [ 'length' => 45 ])
+                  ->addColumn('user_agent', 'string')
+                  ->addColumn('created_at', 'integer')
+                  ->addColumn('updated_at', 'integer', [ 'null' => true, 'default' => null ])
                   ->create();
         }
     }
@@ -26,7 +26,6 @@ class UserLoginHistory extends AbstractMigration
      */
     public function up()
     {
-
     }
 
     /**
@@ -34,6 +33,5 @@ class UserLoginHistory extends AbstractMigration
      */
     public function down()
     {
-
     }
 }
