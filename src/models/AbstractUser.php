@@ -427,14 +427,15 @@ abstract class AbstractUser extends Model
     {
         $email = $this->user_email;
 
-        $message[ 'base_url' ] = $this->app[ 'base_url' ];
-        $message[ 'siteEmail' ] = $this->app[ 'config' ]->get('site.email');
-        $message[ 'email' ] = $email;
-        $message[ 'username' ] = $this->name(true);
-        $message[ 'to' ] = [
+        $message['base_url'] = $this->app['base_url'];
+        $message['siteEmail'] = $this->app['config']->get('site.email');
+        $message['email'] = $email;
+        $message['username'] = $this->name(true);
+        $message['to'] = [
             [
                 'email' => $email,
                 'name' => $this->name(true), ], ];
+        $message['tags'] = array_merge([$template, (array) U::array_value($message, 'tags')]);
 
         switch ($template) {
         case 'welcome':
