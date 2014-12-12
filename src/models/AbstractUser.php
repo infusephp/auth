@@ -435,7 +435,7 @@ abstract class AbstractUser extends Model
             [
                 'email' => $email,
                 'name' => $this->name(true), ], ];
-        $message['tags'] = array_merge([$template, (array) U::array_value($message, 'tags')]);
+        $message['tags'] = array_merge([$template], (array) U::array_value($message, 'tags'));
 
         switch ($template) {
         case 'welcome':
