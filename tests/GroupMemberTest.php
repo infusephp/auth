@@ -8,7 +8,7 @@ class GroupMemberTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        TestBootstrap::app('db')->delete('GroupMembers')->where('uid', -1)
+        Test::$app['db']->delete('GroupMembers')->where('uid', -1)
             ->where('group', 'test')->execute();
     }
 
@@ -16,7 +16,7 @@ class GroupMemberTest extends \PHPUnit_Framework_TestCase
     {
         $member = new GroupMember();
 
-        $this->assertFalse($member->can('create', TestBootstrap::app('user')));
+        $this->assertFalse($member->can('create', Test::$app['user']));
     }
 
     public function testCreate()

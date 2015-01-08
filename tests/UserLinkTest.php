@@ -10,20 +10,20 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
     {
         $link = new UserLink();
 
-        $this->assertTrue($link->can('create', TestBootstrap::app('user')));
+        $this->assertTrue($link->can('create', Test::$app['user']));
 
-        $this->assertFalse($link->can('admins-only', TestBootstrap::app('user')));
+        $this->assertFalse($link->can('admins-only', Test::$app['user']));
     }
 
     public function testCannotCreate()
     {
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
 
         $link = new UserLink();
 
         $this->assertFalse($link->create([
-            'uid' => TestBootstrap::app('user')->id() - 1,
+            'uid' => Test::$app['user']->id() - 1,
             'link_type' => USER_LINK_FORGOT_PASSWORD, ]));
         $errors = $errorStack->errors('UserLink.create');
         $expected = [ [

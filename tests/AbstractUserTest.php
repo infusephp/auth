@@ -13,9 +13,9 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$ogUserId = TestBootstrap::app('user')->id();
+        self::$ogUserId = Test::$app['user']->id();
 
-        $db = TestBootstrap::app('db');
+        $db = Test::$app['db'];
         $db->delete('Users')->where('user_email', 'test@example.com')->execute();
         $db->delete('Users')->where('user_email', 'test2@example.com')->execute();
     }
@@ -32,7 +32,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
     public function assertPostConditions()
     {
-        $app = TestBootstrap::app();
+        $app = Test::$app;
         if ($app[ 'user' ]->id() != self::$ogUserId) {
             $app[ 'user' ] = new User(self::$ogUserId, true);
         }
@@ -67,7 +67,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
     public function testPermissions()
     {
-        $testUser = TestBootstrap::app('user');
+        $testUser = Test::$app['user'];
 
         $user = new User(GUEST);
         $this->assertTrue($user->can('create', $user));
@@ -115,7 +115,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
      */
     public function testEditProtectedFieldAdmin()
     {
-        TestBootstrap::app('user')->enableSU();
+        Test::$app['user']->enableSU();
 
         $this->assertTrue(self::$user->set([
             'user_password' => 'testpassword',
@@ -160,7 +160,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     public function testIsLoggedIn()
     {
         $this->assertFalse(self::$user->isLoggedIn());
-        $this->assertTrue(TestBootstrap::app('user')->isLoggedIn());
+        $this->assertTrue(Test::$app['user']->isLoggedIn());
     }
 
     /**
@@ -224,7 +224,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
     public function testSU()
     {
-        $user = TestBootstrap::app('user');
+        $user = Test::$app['user'];
         $this->assertFalse($user->isAdmin());
 
         $user->enableSU();
@@ -260,7 +260,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
     private function logInAsUser($user)
     {
-        $app = TestBootstrap::app();
-        $app[ 'user' ] = TestBootstrap::app('auth')->signInUser($user->id());
+        $app = Test::$app;
+        $app[ 'user' ] = Test::$app['auth']->signInUser($user->id());
     }
 }

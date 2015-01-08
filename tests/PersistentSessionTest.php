@@ -8,7 +8,7 @@ class PersistentSessionTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        TestBootstrap::app('db')->delete('PersistentSessions')
+        Test::$app['db']->delete('PersistentSessions')
             ->where('user_email', 'test@exmaple.com')->execute();
     }
 
@@ -16,7 +16,7 @@ class PersistentSessionTest extends \PHPUnit_Framework_TestCase
     {
         $sesh = new PersistentSession();
 
-        $this->assertFalse($sesh->can('create', TestBootstrap::app('user')));
+        $this->assertFalse($sesh->can('create', Test::$app['user']));
     }
 
     public function testCreate()

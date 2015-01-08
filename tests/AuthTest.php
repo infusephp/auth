@@ -14,9 +14,9 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $userModel = Auth::USER_MODEL;
 
-        TestBootstrap::app('user')->enableSU();
+        Test::$app['user']->enableSU();
 
-        TestBootstrap::app('db')->delete('Users')
+        Test::$app['db']->delete('Users')
             ->where('user_email', 'test@example.com')->execute();
 
         self::$user = $userModel::registerUser([
@@ -28,9 +28,9 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         ]);
         self::$user->grantAllPermissions();
 
-        TestBootstrap::app('user')->disableSU();
+        Test::$app['user']->disableSU();
 
-        self::$ogUserId = TestBootstrap::app('user')->id();
+        self::$ogUserId = Test::$app['user']->id();
     }
 
     public static function tearDownAfterClass()
@@ -52,7 +52,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $userModel = Auth::USER_MODEL;
 
-        $app = TestBootstrap::app();
+        $app = Test::$app;
         if (!$app[ 'user' ]->isLoggedIn()) {
             $app[ 'user' ] = new $userModel(self::$ogUserId, true);
         }
@@ -61,12 +61,12 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     public function testConstruct()
     {
         // self::$app = new App();
-        self::$auth = new Auth(TestBootstrap::app());
+        self::$auth = new Auth(Test::$app);
     }
 
     public function testGetUserWithCredentialsFail()
     {
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
         $errorStack->setCurrentContext('');
 
@@ -102,7 +102,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'uid' => self::$user->id(),
             'link_type' => USER_LINK_TEMPORARY, ]));
 
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
         $errorStack->setCurrentContext('');
 
@@ -119,12 +119,12 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsFailDisabled()
     {
-        TestBootstrap::app('db')->delete('UserLinks')
+        Test::$app['db']->delete('UserLinks')
             ->where('uid', self::$user->id())->execute();
 
         $this->assertTrue(self::$user->set('enabled', false));
 
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
         $errorStack->setCurrentContext('');
 
@@ -150,7 +150,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'link_type' => USER_LINK_VERIFY_EMAIL, ]));
         $this->assertTrue($link->set('created_at', '-10 years'));
 
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
         $errorStack->setCurrentContext('');
 
@@ -169,7 +169,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentials()
     {
-        TestBootstrap::app('db')->delete('UserLinks')
+        Test::$app['db']->delete('UserLinks')
             ->where('uid', self::$user->id())->execute();
 
         $this->assertTrue(self::$user->set('enabled', true));
@@ -198,9 +198,9 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->login('test@example.com', 'bogus'));
 
         $this->assertTrue(self::$auth->login('test@example.com', 'testpassword'));
-        $this->assertEquals(self::$user->id(), TestBootstrap::app('user')->id());
-        $this->assertTrue(TestBootstrap::app('user')->isLoggedIn());
-        $this->assertEquals(self::$user->id(), TestBootstrap::app('user')->id());
+        $this->assertEquals(self::$user->id(), Test::$app['user']->id());
+        $this->assertTrue(Test::$app['user']->isLoggedIn());
+        $this->assertEquals(self::$user->id(), Test::$app['user']->id());
     }
 
     /**
@@ -316,7 +316,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\\app\\users\\models\\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
 
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
         $errorStack->setCurrentContext('');
 
@@ -334,10 +334,10 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testForgotStep1()
     {
-        TestBootstrap::app('db')->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+        Test::$app['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
             ->where('uid', self::$user->id())->execute();
 
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
 
         $this->assertFalse(self::$auth->forgotStep1('invalidemail', '127.0.0.1'));
@@ -350,7 +350,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'params' => [ 'field' => 'email', 'field_name' => 'Email' ], ] ];
         $this->assertEquals($expected, $errors);
 
-        $errorStack = TestBootstrap::app('errors');
+        $errorStack = Test::$app['errors'];
         $errorStack->clear();
 
         $this->assertFalse(self::$auth->forgotStep1('nomatch@example.com', '127.0.0.1'));
@@ -371,7 +371,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testForgotStep2()
     {
-        TestBootstrap::app('db')->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
+        Test::$app['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
             ->where('uid', self::$user->id())->execute();
 
         $link = new UserLink();
