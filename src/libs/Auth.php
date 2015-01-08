@@ -382,7 +382,7 @@ class Auth
             'where' => [
                 'link' => $token,
                 'link_type' => USER_LINK_FORGOT_PASSWORD,
-                'created_at > '.U::unixToDb(time() - UserLink::$forgotLinkTimeframe), ], ]);
+                'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ], ]);
 
         if ($link) {
             $userModel = self::USER_MODEL;
@@ -434,7 +434,7 @@ class Auth
         // make sure there are no other forgot links
         $oldLinks = UserLink::totalRecords([
             'link_type' => USER_LINK_FORGOT_PASSWORD,
-            'created_at > '.U::unixToDb(time() - UserLink::$forgotLinkTimeframe), ]);
+            'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ]);
 
         if ($oldLinks > 0) {
             return true;
@@ -558,7 +558,7 @@ class Auth
                     $select = $this->app['db']->select('token')
                         ->from('PersistentSessions')->where([
                             'user_email' => $cookieParams->user_email,
-                            'created_at > '.U::unixToDb(time() - PersistentSession::$sessionLength),
+                            'created_at > "'.U::unixToDb(time() - PersistentSession::$sessionLength).'"',
                             'series' => $seriesEnc, ]);
                     $tokenDB = $select->scalar();
 
