@@ -12,6 +12,7 @@
 namespace app\auth\models;
 
 use infuse\Model;
+use infuse\Utility as U;
 use app\auth\libs\Auth;
 
 class PersistentSession extends Model
