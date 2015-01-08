@@ -60,6 +60,6 @@ class PersistentSession extends Model
     public static function garbageCollect()
     {
         return !!self::$injectedApp['db']->delete('PersistentSessions')
-            ->where('created_at', time() - self::$sessionLength, '<')->execute();
+            ->where('created_at', U::unixToDb(time() - self::$sessionLength), '<')->execute();
     }
 }

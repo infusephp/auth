@@ -222,7 +222,7 @@ abstract class AbstractUser extends Model
         return UserLink::totalRecords([
             'uid' => $this->_id,
             'link_type' => USER_LINK_VERIFY_EMAIL,
-            'created_at <= '.$timeWindow, ]) == 0;
+            'created_at <= '.U::unixToDb($timeWindow), ]) == 0;
     }
 
     /**
@@ -390,7 +390,7 @@ abstract class AbstractUser extends Model
         }
 
         $insertArray = array_replace($data, [
-            'created_at' => time(),
+            'created_at' => U::unixToDb(time()),
             'enabled' => 0 ]);
 
         // create the temporary user
