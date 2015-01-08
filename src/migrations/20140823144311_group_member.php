@@ -13,8 +13,8 @@ class GroupMember extends AbstractMigration
             $table = $this->table('GroupMembers', [ 'id' => false, 'primary_key' => [ 'group', 'uid' ] ]);
             $table->addColumn('group', 'string')
                   ->addColumn('uid', 'integer')
-                  ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-                  ->addColumn('updated_at', 'timestamp', ['null' => true, 'default' => null, 'update' => 'CURRENT_TIMESTAMP'])
+                  ->addColumn('created_at', 'timestamp', ['default' => 0])
+                  ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
                   ->create();
         }
     }

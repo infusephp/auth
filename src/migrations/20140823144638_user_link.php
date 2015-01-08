@@ -14,8 +14,8 @@ class UserLink extends AbstractMigration
             $table->addColumn('uid', 'integer')
                   ->addColumn('link', 'string', [ 'length' => 32 ])
                   ->addColumn('link_type', 'integer', [ 'length' => 2 ])
-                  ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
-                  ->addColumn('updated_at', 'timestamp', ['null' => true, 'default' => null, 'update' => 'CURRENT_TIMESTAMP'])
+                  ->addColumn('created_at', 'timestamp', ['default' => 0])
+                  ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
                   ->create();
         }
     }
