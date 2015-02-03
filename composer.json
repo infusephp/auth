@@ -1,8 +1,8 @@
 {
-	"name": "idealistsoft/framework-auth",
-	"description": "Auth module for Idealist Framework",
+	"name": "infuse/auth",
+	"description": "Auth module for Infuse Framework",
 	"type": "library",
-	"keywords": ["idealist","framework","auth","authentication","users"],
+	"keywords": ["infuse","framework","auth","authentication","users"],
 	"license": "MIT",
 	"authors": [
 		{
@@ -12,8 +12,8 @@
 		}
 	],
 	"support": {
-		"issues": "https://github.com/idealistsoft/framework-auth/issues",
-		"source": "https://github.com/idealistsoft/framework-auth"
+		"issues": "https://github.com/infusephp/auth/issues",
+		"source": "https://github.com/infusephp/auth"
 	},
     "autoload": {
         "psr-4": {"app\\auth\\": "src/"}
@@ -22,8 +22,8 @@
 		"php": ">=5.4.0"
 	},
 	"require-dev": {
-		"idealistsoft/framework-bootstrap": "dev-master",
-		"idealistsoft/framework-email": "~1.0",
+		"infuse/bootstrap": "dev-master",
+		"infuse/email": "~1.0",
 		"satooshi/php-coveralls": "0.6.1",
 		"robmorgan/phinx": "~0.3"
 	},

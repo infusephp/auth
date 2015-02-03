@@ -1,11 +1,11 @@
-framework-auth [![Build Status](https://travis-ci.org/idealistsoft/framework-auth.png?branch=master)](https://travis-ci.org/idealistsoft/framework-auth)
+auth [![Build Status](https://travis-ci.org/infusephp/auth.png?branch=master)](https://travis-ci.org/infusephp/auth)
 =============
 
-[![Coverage Status](https://coveralls.io/repos/idealistsoft/framework-auth/badge.png)](https://coveralls.io/r/idealistsoft/framework-auth)
-[![Latest Stable Version](https://poser.pugx.org/idealistsoft/framework-auth/v/stable.png)](https://packagist.org/packages/idealistsoft/framework-auth)
-[![Total Downloads](https://poser.pugx.org/idealistsoft/framework-auth/downloads.png)](https://packagist.org/packages/idealistsoft/framework-auth)
+[![Coverage Status](https://coveralls.io/repos/infusephp/auth/badge.png)](https://coveralls.io/r/infusephp/auth)
+[![Latest Stable Version](https://poser.pugx.org/infusephp/auth/v/stable.png)](https://packagist.org/packages/infusephp/auth)
+[![Total Downloads](https://poser.pugx.org/infusephp/auth/downloads.png)](https://packagist.org/packages/infusephp/auth)
 
-Auth module for Idealist Framework
+Auth module for Infuse Framework
 
 ## Installation
 
