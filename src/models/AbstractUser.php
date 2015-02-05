@@ -35,7 +35,7 @@ abstract class AbstractUser extends Model
             'validate' => 'email',
             'required' => true,
             'unique' => true,
-            'title' => 'E-mail',
+            'title' => 'Email',
             'admin_html' => '<a href="mailto:{user_email}">{user_email}</a>',
         ],
         'user_password' => [
@@ -286,7 +286,7 @@ abstract class AbstractUser extends Model
     /**
      * Generates the URL for the user's profile picture
      *
-     * Gravatar is used for profile pictures. To accomplish this we need to generate a hash of the user's e-mail.
+     * Gravatar is used for profile pictures. To accomplish this we need to generate a hash of the user's email.
      *
      * @param int $size size of the picture (it is square, usually)
      *
@@ -345,7 +345,7 @@ abstract class AbstractUser extends Model
      * Registers a new user
      *
      * @param array   $data          user data
-     * @param boolean $verifiedEmail true if the e-mail has been verified
+     * @param boolean $verifiedEmail true if the email has been verified
      *
      * @return boolean success
      */
@@ -415,7 +415,7 @@ abstract class AbstractUser extends Model
     ///////////////////////////////////
 
     /**
-     * Sends the user an e-mail
+     * Sends the user an email
      *
      * @param string $template template name
      * @param array  $message  message details
@@ -424,36 +424,37 @@ abstract class AbstractUser extends Model
      */
     public function sendEmail($template, $message = [])
     {
-        $email = $this->user_email;
-
-        $message['base_url'] = $this->app['base_url'];
-        $message['siteEmail'] = $this->app['config']->get('site.email');
-        $message['email'] = $email;
-        $message['username'] = $this->name(true);
-        $message['to'] = [
-            [
-                'email' => $email,
-                'name' => $this->name(true), ], ];
-        $message['tags'] = array_merge([$template], (array) U::array_value($message, 'tags'));
+        $params = array_replace([
+            'base_url' => $this->app['base_url'],
+            'siteEmail' => $this->app['config']->get('site.email'),
+            'email' => $this->user_email,
+            'username' => $this->name(true),
+            'to' => [[
+                'email' => $this->user_email,
+                'name' => $this->name(true), ]],
+            'tags' => array_merge([$template], (array) U::array_value($message, 'tags')),
+        ], $message);
 
         switch ($template) {
         case 'welcome':
-            $message[ 'subject' ] = 'Welcome to '.$this->app[ 'config' ]->get('site.title');
+            $params['subject'] = 'Welcome to '.$this->app['config']->get('site.title');
         break;
         case 'verify-email':
-            $message[ 'subject' ] = 'Please verify your e-mail address';
-            $message[ 'verify_link' ] = "{$message['base_url']}users/verifyEmail/{$message['verify']}";
+            $params['subject'] = 'Please verify your email address';
+            $params['verify_link'] = "{$params['base_url']}users/verifyEmail/{$params['verify']}";
         break;
         case 'forgot-password':
-            $message[ 'subject' ] = 'Password change request on '.$this->app[ 'config' ]->get('site.title');
-            $message[ 'forgot_link' ] = "{$message['base_url']}users/forgot/{$message['forgot']}";
+            $params['subject'] = 'Password change request on '.$this->app['config']->get('site.title');
+            $params['forgot_link'] = "{$params['base_url']}users/forgot/{$params['forgot']}";
         break;
         case 'password-changed':
-            $message['subject'] = 'Your password was changed on '.$this->app['config']->get('site.title');
+            $params['subject'] = 'Your password was changed on '.$this->app['config']->get('site.title');
         break;
         }
 
-        return $this->app[ 'mailer' ]->queueEmail($template, $message);
+        $message = array_replace($params, $message);
+
+        return $this->app['mailer']->queueEmail($template, $message);
     }
 
     /**
