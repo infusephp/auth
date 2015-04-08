@@ -1,9 +1,10 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
@@ -31,7 +32,5 @@ return  [
   ],
   'sessions' => [
     'enabled' => true,
-    'adapter' => 'database',
-    'lifetime' => 86400,
   ],
 ];
