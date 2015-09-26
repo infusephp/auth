@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth\models;
 
 use infuse\Model;
@@ -23,8 +23,8 @@ abstract class AbstractUser extends Model
     public static $scaffoldApi;
     public static $autoTimestamps;
 
-    static $properties = [
-        'uid' =>  [
+    public static $properties = [
+        'uid' => [
             'type' => 'number',
             'mutable' => false,
             'admin_hidden_property' => true,
@@ -64,7 +64,7 @@ abstract class AbstractUser extends Model
         ],
     ];
 
-    public static $usernameProperties = [ 'user_email' ];
+    public static $usernameProperties = ['user_email'];
 
     /////////////////////////////////////
     // Protected Class Variables
@@ -73,13 +73,13 @@ abstract class AbstractUser extends Model
     protected $logged_in = false;
     protected $isSu = false;
     protected $oldUid = false;
-    protected static $protectedFields = [ 'user_email', 'user_password' ];
+    protected static $protectedFields = ['user_email', 'user_password'];
 
     /**
-     * Creates a new user
+     * Creates a new user.
      *
-     * @param int     $id
-     * @param boolean $isLoggedIn when true, signifies that the user is logged in
+     * @param int  $id
+     * @param bool $isLoggedIn when true, signifies that the user is logged in
      */
     public function __construct($id = false, $isLoggedIn = false)
     {
@@ -100,7 +100,7 @@ abstract class AbstractUser extends Model
         // allow user registrations
         if ($permission == 'create' && !$requester->isLoggedIn()) {
             return true;
-        } elseif (in_array($permission, [ 'edit' ]) && $requester->id() == $this->_id) {
+        } elseif (in_array($permission, ['edit']) && $requester->id() == $this->_id) {
             return true;
         }
 
@@ -114,7 +114,7 @@ abstract class AbstractUser extends Model
     protected function preSetHook(&$data)
     {
         if (!is_array($data)) {
-            $data = [ $data => $value ];
+            $data = [$data => $value];
         }
 
         $params = [];
@@ -152,7 +152,7 @@ abstract class AbstractUser extends Model
 
         if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $this->app[ 'user' ])) {
             $errorStack = $this->app[ 'errors' ];
-            $errorStack->push([ 'error' => 'invalid_password' ]);
+            $errorStack->push(['error' => 'invalid_password']);
 
             return false;
         }
@@ -186,20 +186,20 @@ abstract class AbstractUser extends Model
     /////////////////////////////////////
 
     /**
-    * Get's the user's name.
-    * WARNING this method should be overridden
-    *
-    * @param boolean $full get full name if true
-    *
-    * @return string name
-    */
+     * Get's the user's name.
+     * WARNING this method should be overridden.
+     *
+     * @param bool $full get full name if true
+     *
+     * @return string name
+     */
     abstract public function name($full = false);
 
     /**
-    * Gets the temporary string if the user is temporary
-    *
-    * @return link|false true if temporary
-    */
+     * Gets the temporary string if the user is temporary.
+     *
+     * @return link|false true if temporary
+     */
     public function isTemporary()
     {
         return UserLink::totalRecords([
@@ -208,12 +208,12 @@ abstract class AbstractUser extends Model
     }
 
     /**
-    * Checks if the account has been verified
-    *
-    * @param boolean $withinTimeWindow when true, allows a time window before the account is considered unverified
-    *
-    * @return boolean
-    */
+     * Checks if the account has been verified.
+     *
+     * @param bool $withinTimeWindow when true, allows a time window before the account is considered unverified
+     *
+     * @return bool
+     */
     public function isVerified($withinTimeWindow = true)
     {
         $timeWindow = ($withinTimeWindow) ? time() - UserLink::$verifyTimeWindow : time();
@@ -225,51 +225,53 @@ abstract class AbstractUser extends Model
     }
 
     /**
-    * Checks if the user is logged in
-    * @return boolean true if logged in
-    */
+     * Checks if the user is logged in.
+     *
+     * @return bool true if logged in
+     */
     public function isLoggedIn()
     {
         return $this->logged_in;
     }
 
     /**
-    * Checks if the user is an admin
-    * @todo not implemented
-    * @return boolean true if admin
-    */
+     * Checks if the user is an admin.
+     *
+     * @todo not implemented
+     *
+     * @return bool true if admin
+     */
     public function isAdmin()
     {
         return $this->isSu || $this->isMemberOf('admin');
     }
 
     /**
-    * Gets the groups this user is a member of
-    *
-    * @return array groups
-    */
+     * Gets the groups this user is a member of.
+     *
+     * @return array groups
+     */
     public function groups()
     {
-        $return = [ 'everyone' ];
+        $return = ['everyone'];
 
-        $groups = GroupMember::find([
-            'where' => [
-                'uid' => $this->_id, ],
+        $groups = GroupMember::findAll([
+            'where' => ['uid' => $this->_id],
             'sort' => '`group ASC', ]);
 
-        foreach ($groups[ 'models' ] as $group) {
-            $return[] = $groups->group;
+        foreach ($groups as $group) {
+            $return[] = $group->group;
         }
 
         return $return;
     }
 
     /**
-     * Checks if the user is a member of a group
+     * Checks if the user is a member of a group.
      *
      * @param string $group
      *
-     * @return boolean true if member
+     * @return bool true if member
      */
     public function isMemberOf($group)
     {
@@ -283,7 +285,7 @@ abstract class AbstractUser extends Model
     }
 
     /**
-     * Generates the URL for the user's profile picture
+     * Generates the URL for the user's profile picture.
      *
      * Gravatar is used for profile pictures. To accomplish this we need to generate a hash of the user's email.
      *
@@ -341,12 +343,12 @@ abstract class AbstractUser extends Model
     ///////////////////////////////////
 
     /**
-     * Registers a new user
+     * Registers a new user.
      *
-     * @param array   $data          user data
-     * @param boolean $verifiedEmail true if the email has been verified
+     * @param array $data          user data
+     * @param bool  $verifiedEmail true if the email has been verified
      *
-     * @return boolean success
+     * @return bool success
      */
     public static function registerUser(array $data, $verifiedEmail = false)
     {
@@ -389,7 +391,7 @@ abstract class AbstractUser extends Model
         }
 
         $insertArray = array_replace($data, [
-            'enabled' => 0 ]);
+            'enabled' => 0, ]);
 
         // create the temporary user
         if (!self::$injectedApp['db']->insert($insertArray)
@@ -414,12 +416,12 @@ abstract class AbstractUser extends Model
     ///////////////////////////////////
 
     /**
-     * Sends the user an email
+     * Sends the user an email.
      *
      * @param string $template template name
      * @param array  $message  message details
      *
-     * @return boolean success
+     * @return bool success
      */
     public function sendEmail($template, $message = [])
     {
@@ -457,11 +459,11 @@ abstract class AbstractUser extends Model
     }
 
     /**
-     * Deletes the user account permanently (DANGER!)
+     * Deletes the user account permanently (DANGER!).
      *
      * @param string $password
      *
-     * @return boolean success
+     * @return bool success
      */
     public function deleteConfirm($password)
     {
