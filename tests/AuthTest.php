@@ -335,7 +335,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $expected = [[
             'error' => 'user_forgot_expired_invalid',
             'message' => 'user_forgot_expired_invalid',
-            'context' => 'UserLink.set',
+            'context' => '',
             'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }

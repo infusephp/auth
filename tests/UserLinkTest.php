@@ -33,11 +33,11 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($link->create([
             'uid' => Test::$app['user']->id() - 1,
             'link_type' => USER_LINK_FORGOT_PASSWORD, ]));
-        $errors = $errorStack->errors('UserLink.create');
+        $errors = $errorStack->errors();
         $expected = [[
             'error' => 'no_permission',
             'message' => 'no_permission',
-            'context' => 'UserLink.create',
+            'context' => '',
             'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }
