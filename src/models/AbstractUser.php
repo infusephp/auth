@@ -390,23 +390,27 @@ abstract class AbstractUser extends Model
             return false;
         }
 
-        $insertArray = array_replace($data, [
-            'enabled' => 0, ]);
+        $insertArray = array_replace($data, ['enabled' => 0]);
 
         // create the temporary user
-        if (!self::$injectedApp['db']->insert($insertArray)
-            ->into(static::tablename())->execute()) {
+        $user = new static();
+        $driver = self::getDriver();
+        $created = $driver->createModel($user, $insertArray);
+
+        if (!$created) {
             return false;
         }
 
-        $user = new static(self::$injectedApp['pdo']->lastInsertId());
+        // get the new user ID
+        $id = $driver->getCreatedID($user, static::idProperty());
+        $user = new static($id);
 
         // create the temporary link
         $link = new UserLink();
-        $link->grantAllPermissions();
-        $link->create([
-            'uid' => $user->id(),
-            'link_type' => USER_LINK_TEMPORARY, ]);
+        $link->grantAllPermissions()
+             ->create([
+                'uid' => $user->id(),
+                'link_type' => USER_LINK_TEMPORARY, ]);
 
         return $user;
     }
