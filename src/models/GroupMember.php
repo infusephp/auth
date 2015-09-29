@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth\models;
 
 use infuse\Model;
@@ -30,7 +30,7 @@ class GroupMember extends Model
 
     public static function idProperty()
     {
-        return [ 'group', 'uid' ];
+        return ['group', 'uid'];
     }
 
     protected function hasPermission($permission, Model $requester)

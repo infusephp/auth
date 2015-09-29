@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 use app\auth\libs\Auth;
 use app\auth\models\GroupMember;
 use app\users\models\User;
@@ -30,7 +30,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
 
     public static function tearDownAfterClass()
     {
-        foreach ([ self::$user, self::$user2 ] as $u) {
+        foreach ([self::$user, self::$user2] as $u) {
             if ($u) {
                 $u->grantAllPermissions();
                 $u->delete();
@@ -41,8 +41,8 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     public function assertPostConditions()
     {
         $app = Test::$app;
-        if ($app[ 'user' ]->id() != self::$ogUserId) {
-            $app[ 'user' ] = new User(self::$ogUserId, true);
+        if ($app['user']->id() != self::$ogUserId) {
+            $app['user'] = new User(self::$ogUserId, true);
         }
     }
 
@@ -54,7 +54,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'user_email' => 'test@example.com',
-            'user_password' => [ 'testpassword', 'testpassword' ],
+            'user_password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
 
@@ -65,7 +65,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'user_email' => 'test2@example.com',
-            'user_password' => [ 'testpassword', 'testpassword' ],
+            'user_password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ], true);
 
@@ -103,7 +103,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     public function testEditProtectedFieldFail()
     {
         $this->logInAsUser(self::$user);
-        $this->assertFalse(self::$user->set([ 'user_password' => 'testpassword2', 'user_email' => '' ]));
+        $this->assertFalse(self::$user->set(['user_password' => 'testpassword2', 'user_email' => '']));
     }
 
     /**
@@ -154,7 +154,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$user->isVerified(false));
         $this->assertTrue(self::$user->isVerified(true));
 
-        $link = UserLink::findOne([ 'uid' => self::$user->id(), 'link_type' => USER_LINK_VERIFY_EMAIL ]);
+        $link = UserLink::findOne(['uid' => self::$user->id(), 'link_type' => USER_LINK_VERIFY_EMAIL]);
         $link->delete();
 
         $this->assertTrue(self::$user->isVerified());
@@ -184,7 +184,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
      */
     public function testGroups()
     {
-        $this->assertEquals([ 'everyone' ], self::$user->groups());
+        $this->assertEquals(['everyone'], self::$user->groups());
     }
 
     /**
@@ -194,7 +194,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertTrue(self::$user->isMemberOf('everyone'));
         $member = new GroupMember();
-        $member->create([ 'uid' => self::$user->id(), 'group' => 'group' ]);
+        $member->create(['uid' => self::$user->id(), 'group' => 'group']);
         $this->assertTrue(self::$user->isMemberOf('group'));
         $this->assertFalse(self::$user->isMemberOf('random'));
     }
@@ -204,7 +204,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
      */
     public function testProfilePicture()
     {
-        $this->assertEquals("https://secure.gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0?s=200&d=mm", self::$user->profilePicture());
+        $this->assertEquals('https://secure.gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0?s=200&d=mm', self::$user->profilePicture());
     }
 
     /**
@@ -213,8 +213,8 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     public function testSendEmail()
     {
         $this->assertTrue(self::$user->sendEmail('welcome'));
-        $this->assertTrue(self::$user->sendEmail('verify-email', [ 'verify' => 'test' ]));
-        $this->assertTrue(self::$user->sendEmail('forgot-password', [ 'forgot' => 'test', 'ip' => 'test' ]));
+        $this->assertTrue(self::$user->sendEmail('verify-email', ['verify' => 'test']));
+        $this->assertTrue(self::$user->sendEmail('forgot-password', ['forgot' => 'test', 'ip' => 'test']));
     }
 
     /**
@@ -256,7 +256,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
                 'first_name' => 'Bob',
                 'last_name' => 'Loblaw',
                 'user_email' => 'test@example.com',
-                'user_password' => [ 'testpassword', 'testpassword' ],
+                'user_password' => ['testpassword', 'testpassword'],
                 'ip' => '127.0.0.1',
             ]);
 
@@ -269,6 +269,6 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
     private function logInAsUser($user)
     {
         $app = Test::$app;
-        $app[ 'user' ] = Test::$app['auth']->signInUser($user->id());
+        $app['user'] = Test::$app['auth']->signInUser($user->id());
     }
 }

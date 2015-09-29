@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth\libs;
 
 use infuse\Model;
@@ -47,7 +47,7 @@ class Auth
 
     /**
      * Gets the currently authenticated user using the
-     * available authentication strategies
+     * available authentication strategies.
      *
      * @return User
      */
@@ -63,7 +63,7 @@ class Auth
 
         // change session user id back to guest if we thought
         // user was someone else
-        if ($this->app[ 'req' ]->session('user_id') != GUEST) {
+        if ($this->app['req']->session('user_id') != GUEST) {
             $this->changeSessionUserID(GUEST);
         }
 
@@ -80,19 +80,19 @@ class Auth
      * Performs a traditional username/password login and
      * creates a signed in user.
      *
-     * @param string  $username   username
-     * @param string  $password   password
-     * @param boolean $persistent make the session persistent
+     * @param string $username   username
+     * @param string $password   password
+     * @param bool   $persistent make the session persistent
      *
-     * @return boolean success
+     * @return bool success
      */
     public function login($username, $password, $persistent = false)
     {
-        $this->app[ 'errors' ]->setCurrentContext('auth.login');
+        $this->app['errors']->setCurrentContext('auth.login');
 
         $user = $this->getUserWithCredentials($username, $password);
         if ($user) {
-            $this->app[ 'user' ] = $this->signInUser($user->id(), 'web');
+            $this->app['user'] = $this->signInUser($user->id(), 'web');
 
             if ($persistent) {
                 self::storePersistentCookie($user->id(), $user->user_email);
@@ -105,13 +105,13 @@ class Auth
     }
 
     /**
-     * Logs the authenticated user out
+     * Logs the authenticated user out.
      *
-     * @return boolean success
+     * @return bool success
      */
     public function logout()
     {
-        $req = $this->app[ 'req' ];
+        $req = $this->app['req'];
 
         // empty the session cookie
         $sessionCookie = session_get_cookie_params();
@@ -143,13 +143,13 @@ class Auth
         $this->changeSessionUserID(GUEST);
 
         $userModel = self::USER_MODEL;
-        $this->app[ 'user' ] = new $userModel(GUEST, false);
+        $this->app['user'] = new $userModel(GUEST, false);
 
         return true;
     }
 
     /**
-     * Fetches the user for a given username/password combination
+     * Fetches the user for a given username/password combination.
      *
      * @param string $username username
      * @param string $password password
@@ -158,16 +158,16 @@ class Auth
      */
     public function getUserWithCredentials($username, $password)
     {
-        $errorStack = $this->app[ 'errors' ];
+        $errorStack = $this->app['errors'];
 
         if (empty($username)) {
-            $errorStack->push([ 'error' => 'user_bad_username' ]);
+            $errorStack->push(['error' => 'user_bad_username']);
 
             return false;
         }
 
         if (empty($password)) {
-            $errorStack->push([ 'error' => 'user_bad_password' ]);
+            $errorStack->push(['error' => 'user_bad_password']);
 
             return false;
         }
@@ -183,17 +183,17 @@ class Auth
         $user = $userModel::findOne([
             'where' => [
                 $usernameWhere,
-                'user_password' => U::encrypt_password($password, $this->app[ 'config' ]->get('site.salt')), ], ]);
+                'user_password' => U::encrypt_password($password, $this->app['config']->get('site.salt')), ], ]);
 
         if ($user) {
             $user->load();
 
             if ($user->isTemporary()) {
-                $errorStack->push([ 'error' => 'user_login_temporary' ]);
+                $errorStack->push(['error' => 'user_login_temporary']);
 
                 return false;
             } elseif (!$user->enabled) {
-                $errorStack->push([ 'error' => 'user_login_disabled' ]);
+                $errorStack->push(['error' => 'user_login_disabled']);
 
                 return false;
             } elseif (!$user->isVerified()) {
@@ -208,7 +208,7 @@ class Auth
             // success!
             return $user;
         } else {
-            $errorStack->push([ 'error' => 'user_login_no_match' ]);
+            $errorStack->push(['error' => 'user_login_no_match']);
 
             return false;
         }
@@ -238,8 +238,8 @@ class Auth
         $history->create([
             'uid' => $uid,
             'type' => $type,
-            'ip' => $this->app[ 'req' ]->ip(),
-            'user_agent' => $this->app[ 'req' ]->agent(), ]);
+            'ip' => $this->app['req']->ip(),
+            'user_agent' => $this->app['req']->agent(), ]);
 
         return $user;
     }
@@ -249,7 +249,7 @@ class Auth
     /////////////////////////
 
     /**
-     * Gets a temporary user from an e-mail address if one exists
+     * Gets a temporary user from an e-mail address if one exists.
      *
      * @param string $email e-mail address
      *
@@ -274,12 +274,12 @@ class Auth
     }
 
     /**
-     * Upgrades the user from temporary to a fully registered account
+     * Upgrades the user from temporary to a fully registered account.
      *
      * @param User  $user user
      * @param array $data user data
      *
-     * @return boolean true if successful
+     * @return bool true if successful
      */
     public function upgradeTemporaryAccount(Model $user, $data)
     {
@@ -289,7 +289,7 @@ class Auth
 
         $updateArray = array_replace($data, [
             'created_at' => U::unixToDb(time()),
-            'enabled' => 1 ]);
+            'enabled' => 1, ]);
 
         $success = false;
 
@@ -332,19 +332,19 @@ class Auth
         }
 
         // e-mail it
-        return $user->sendEmail('verify-email', [ 'verify' => $link->link ]);
+        return $user->sendEmail('verify-email', ['verify' => $link->link]);
     }
 
     /**
-     * Processes a verify e-mail hash
+     * Processes a verify e-mail hash.
      *
      * @param string $verifyLink verification hash
      *
      * @return User|false
-    */
+     */
     public function verifyEmailWithLink($verifyLink)
     {
-        $this->app[ 'errors' ]->setCurrentContext('auth.verify');
+        $this->app['errors']->setCurrentContext('auth.verify');
 
         $link = UserLink::findOne([
             'where' => [
@@ -378,7 +378,7 @@ class Auth
     /////////////////////////
 
     /**
-     * Looks up a user from a given forgot token
+     * Looks up a user from a given forgot token.
      *
      * @param string $token
      *
@@ -397,23 +397,23 @@ class Auth
 
             return new $userModel($link->uid);
         } else {
-            $this->app[ 'errors' ]->push([ 'error' => 'user_forgot_expired_invalid' ]);
+            $this->app['errors']->push(['error' => 'user_forgot_expired_invalid']);
         }
 
         return false;
     }
 
     /**
-     * The first step in the forgot password sequence
+     * The first step in the forgot password sequence.
      *
      * @param string $email e-mail address
      * @param string $ip    ip address making the request
      *
-     * @return boolean success?
+     * @return bool success?
      */
     public function forgotStep1($email, $ip)
     {
-        $errorStack = $this->app[ 'errors' ];
+        $errorStack = $this->app['errors'];
         $errorStack->setCurrentContext('auth.forgot');
 
         if (!Validate::is($email, 'email')) {
@@ -432,7 +432,7 @@ class Auth
                 'user_email' => $email, ], ]);
 
         if (!$user || $user->isTemporary()) {
-            $errorStack->push([ 'error' => 'user_forgot_email_no_match' ]);
+            $errorStack->push(['error' => 'user_forgot_email_no_match']);
 
             return false;
         }
@@ -460,7 +460,7 @@ class Auth
                 'forgot-password',
                 [
                     'ip' => $ip,
-                    'forgot' => $link->link ]);
+                    'forgot' => $link->link, ]);
         }
 
         return $success;
@@ -473,11 +473,11 @@ class Auth
      * @param array  $password new password
      * @param string $ip       ip address making the request
      *
-     * @return boolean success
+     * @return bool success
      */
     public function forgotStep2($token, array $password, $ip)
     {
-        $this->app[ 'errors' ]->setCurrentContext('auth.forgot');
+        $this->app['errors']->setCurrentContext('auth.forgot');
 
         $user = $this->getUserFromForgotToken($token);
 
@@ -498,7 +498,7 @@ class Auth
                     'link_type' => USER_LINK_FORGOT_PASSWORD, ])->execute();
 
                 $user->sendEmail('password-changed', [
-                    'ip' => $ip ]);
+                    'ip' => $ip, ]);
             }
 
             return $success;
@@ -513,13 +513,13 @@ class Auth
 
     /**
      * Attempts to authenticate the user
-     * using the session strategy
+     * using the session strategy.
      *
      * @return User
      */
     private function authenticateSession()
     {
-        $req = $this->app[ 'req' ];
+        $req = $this->app['req'];
 
         // check if the user's session is already logged in and valid
         if ($req->session('user_agent') == $req->agent()) {
@@ -538,11 +538,11 @@ class Auth
 
     /**
      * Attempts to authenticate the user
-     * using the persistent session strategy
+     * using the persistent session strategy.
      */
     private function authenticatePersistentSession()
     {
-        $req = $this->app[ 'req' ];
+        $req = $this->app['req'];
 
         // check for persistent sessions
         if ($cookie = $req->cookies('persistent')) {
@@ -557,8 +557,8 @@ class Auth
 
                 if ($user) {
                     // encrypt series and token for matching with the db
-                    $seriesEnc = U::encrypt_password($cookieParams->series, $this->app[ 'config' ]->get('site.salt'));
-                    $tokenEnc = U::encrypt_password($cookieParams->token, $this->app[ 'config' ]->get('site.salt'));
+                    $seriesEnc = U::encrypt_password($cookieParams->series, $this->app['config']->get('site.salt'));
+                    $tokenEnc = U::encrypt_password($cookieParams->token, $this->app['config']->get('site.salt'));
 
                     // first, make sure all of the parameters match, except the token
                     // we match the token separately in case all of the other information matches,
@@ -632,7 +632,7 @@ class Auth
         }
 
         // set the user id
-        $req = $this->app[ 'req' ];
+        $req = $this->app['req'];
         $req->setSession([
             'user_id' => $uid,
             'user_agent' => $req->agent(), ]);
@@ -641,7 +641,7 @@ class Auth
     private function generateToken()
     {
         $str = '';
-        for ($i = 0; $i<16; $i++) {
+        for ($i = 0; $i < 16; ++$i) {
             $str .= base_convert(mt_rand(1, 36), 10, 36);
         }
 
@@ -658,7 +658,7 @@ class Auth
             $token = $this->generateToken();
         }
 
-        $req = $this->app[ 'req' ];
+        $req = $this->app['req'];
 
         $sessionCookie = session_get_cookie_params();
         $req->setCookie(
@@ -674,7 +674,7 @@ class Auth
             $sessionCookie['secure'],
             true);
 
-        $config = $this->app[ 'config' ];
+        $config = $this->app['config'];
         $session = new PersistentSession();
         $session->grantAllPermissions();
         $session->create([

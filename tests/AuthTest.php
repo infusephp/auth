@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\UserLoginHistory;
@@ -31,7 +31,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'user_email' => 'test@example.com',
-            'user_password' => [ 'testpassword', 'testpassword' ],
+            'user_password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
         self::$user->grantAllPermissions();
@@ -43,7 +43,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public static function tearDownAfterClass()
     {
-        foreach ([ self::$user ] as $u) {
+        foreach ([self::$user] as $u) {
             if ($u) {
                 $u->grantAllPermissions();
                 $u->delete();
@@ -61,8 +61,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $userModel = Auth::USER_MODEL;
 
         $app = Test::$app;
-        if (!$app[ 'user' ]->isLoggedIn()) {
-            $app[ 'user' ] = new $userModel(self::$ogUserId, true);
+        if (!$app['user']->isLoggedIn()) {
+            $app['user'] = new $userModel(self::$ogUserId, true);
         }
     }
 
@@ -81,11 +81,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getUserWithCredentials('', ''));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'user_bad_username',
             'message' => 'user_bad_username',
             'context' => '',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
 
         $errorStack->clear();
@@ -93,11 +93,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', ''));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'user_bad_password',
             'message' => 'user_bad_password',
             'context' => '',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }
 
@@ -117,11 +117,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', 'testpassword'));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'user_login_temporary',
             'message' => 'user_login_temporary',
             'context' => '',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }
 
@@ -139,11 +139,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', 'testpassword'));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'user_login_disabled',
             'message' => 'user_login_disabled',
             'context' => '',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }
 
@@ -279,8 +279,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(self::$auth->upgradeTemporaryAccount(self::$user, [
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
-            'user_password' => [ 'testpassword', 'testpassword' ],
-            'ip' => '127.0.0.1' ]));
+            'user_password' => ['testpassword', 'testpassword'],
+            'ip' => '127.0.0.1', ]));
 
         $this->assertFalse(self::$user->isTemporary());
         $this->assertTrue(self::$user->isVerified());
@@ -332,11 +332,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getUserFromForgotToken($link->link));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'user_forgot_expired_invalid',
             'message' => 'user_forgot_expired_invalid',
             'context' => 'UserLink.set',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }
 
@@ -351,11 +351,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->forgotStep1('invalidemail', '127.0.0.1'));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'validation_failed',
             'message' => 'validation_failed',
             'context' => 'auth.forgot',
-            'params' => [ 'field' => 'email', 'field_name' => 'Email' ], ] ];
+            'params' => ['field' => 'email', 'field_name' => 'Email'], ]];
         $this->assertEquals($expected, $errors);
 
         $errorStack = Test::$app['errors'];
@@ -364,11 +364,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->forgotStep1('nomatch@example.com', '127.0.0.1'));
 
         $errors = $errorStack->errors();
-        $expected = [ [
+        $expected = [[
             'error' => 'user_forgot_email_no_match',
             'message' => 'user_forgot_email_no_match',
             'context' => 'auth.forgot',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
 
         $this->assertTrue(self::$auth->forgotStep1('test@example.com', '127.0.0.1'));

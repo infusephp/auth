@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 use app\auth\models\UserLink;
 
 class UserLinkTest extends \PHPUnit_Framework_TestCase
@@ -34,11 +34,11 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
             'uid' => Test::$app['user']->id() - 1,
             'link_type' => USER_LINK_FORGOT_PASSWORD, ]));
         $errors = $errorStack->errors('UserLink.create');
-        $expected = [ [
+        $expected = [[
             'error' => 'no_permission',
             'message' => 'no_permission',
             'context' => 'UserLink.create',
-            'params' => [], ] ];
+            'params' => [], ]];
         $this->assertEquals($expected, $errors);
     }
 

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth\models;
 
 use infuse\Model;
@@ -59,7 +59,7 @@ class UserLink extends Model
 
     public static function idProperty()
     {
-        return [ 'uid', 'link' ];
+        return ['uid', 'link'];
     }
 
     protected function hasPermission($permission, Model $requester)
@@ -74,24 +74,24 @@ class UserLink extends Model
     protected function preCreateHook(&$data)
     {
         // can only create user links for the current user
-        $user = $this->app[ 'user' ];
-        if ($data[ 'uid' ] != $user->id() && !$this->can('create-with-mismatched-uid', $user)) {
-            $this->app[ 'errors' ]->push(['error' => ERROR_NO_PERMISSION ]);
+        $user = $this->app['user'];
+        if ($data['uid'] != $user->id() && !$this->can('create-with-mismatched-uid', $user)) {
+            $this->app['errors']->push(['error' => ERROR_NO_PERMISSION]);
 
             return false;
         }
 
-        if (!isset($data[ 'link' ])) {
-            $data[ 'link' ] = U::guid(false);
+        if (!isset($data['link'])) {
+            $data['link'] = U::guid(false);
         }
 
         return true;
     }
 
     /**
-     * Clears out expired user links
+     * Clears out expired user links.
      *
-     * @return boolean
+     * @return bool
      */
     public static function garbageCollect()
     {

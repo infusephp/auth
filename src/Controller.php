@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth;
 
 use infuse\Model;
@@ -40,16 +40,16 @@ class Controller
             require_once 'User.php';
         }
 
-        Model::configure([ 'requester' => new $userModel() ]);
+        Model::configure(['requester' => new $userModel()]);
 
-        $this->app[ 'auth' ] = function ($app) {
+        $this->app['auth'] = function ($app) {
             return new Auth($app);
         };
 
-        $this->app[ 'user' ] = $user = $this->app[ 'auth' ]->getAuthenticatedUser();
+        $this->app['user'] = $user = $this->app['auth']->getAuthenticatedUser();
 
         // use the authenticated user as the requester for model permissions
-        Model::configure([ 'requester' => $user ]);
+        Model::configure(['requester' => $user]);
         $this->app['requester'] = $user;
 
         // CLI requests get super user permissions

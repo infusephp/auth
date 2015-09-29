@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 use app\auth\models\UserLoginHistory;
 
 class UserLoginHistoryTest extends \PHPUnit_Framework_TestCase
@@ -28,7 +28,7 @@ class UserLoginHistoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(self::$history->create([
             'uid' => -1,
             'type' => 'web',
-            'ip' => Test::$app['req']->ip(), ]));
+            'ip' => '127.0.0.1', ]));
     }
 
     /**

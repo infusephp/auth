@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 use app\auth\models\GroupMember;
 
 class GroupMemberTest extends \PHPUnit_Framework_TestCase
@@ -31,7 +31,7 @@ class GroupMemberTest extends \PHPUnit_Framework_TestCase
     {
         self::$member = new GroupMember();
         self::$member->grantAllPermissions();
-        $this->assertTrue(self::$member->create([ 'group' => 'test', 'uid' => -1 ]));
+        $this->assertTrue(self::$member->create(['group' => 'test', 'uid' => -1]));
     }
 
     /**

@@ -125,7 +125,7 @@ abstract class AbstractUser extends Model
 
         $encryptedPassword = U::encrypt_password(
             U::array_value($data, 'current_password'),
-            $this->app[ 'config' ]->get('site.salt'));
+            $this->app['config']->get('site.salt'));
 
         if ($encryptedPassword == $this->user_password) {
             $passwordValidated = true;
@@ -139,19 +139,19 @@ abstract class AbstractUser extends Model
                     // protected fields, i.e. passwords, are not allowed
                     // to be set to empty values
                     if (strlen(implode((array) $value)) == 0) {
-                        unset($data[ $key ]);
+                        unset($data[$key]);
                         continue;
                     }
 
                     $passwordRequired = true;
                 }
 
-                $data[ $key ] = $value;
+                $data[$key] = $value;
             }
         }
 
-        if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $this->app[ 'user' ])) {
-            $errorStack = $this->app[ 'errors' ];
+        if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $this->app['user'])) {
+            $errorStack = $this->app['errors'];
             $errorStack->push(['error' => 'invalid_password']);
 
             return false;
@@ -352,11 +352,11 @@ abstract class AbstractUser extends Model
      */
     public static function registerUser(array $data, $verifiedEmail = false)
     {
-        $tempUser = self::$injectedApp[ 'auth' ]->getTemporaryUser(U::array_value($data, 'user_email'));
+        $tempUser = self::$injectedApp['auth']->getTemporaryUser(U::array_value($data, 'user_email'));
 
         // upgrade temporary account
         if ($tempUser &&
-            self::$injectedApp[ 'auth' ]->upgradeTemporaryAccount($tempUser, $data)) {
+            self::$injectedApp['auth']->upgradeTemporaryAccount($tempUser, $data)) {
             return $tempUser;
         }
 
@@ -364,7 +364,7 @@ abstract class AbstractUser extends Model
 
         if ($user->create($data)) {
             if (!$verifiedEmail) {
-                self::$injectedApp[ 'auth' ]->sendVerificationEmail($user);
+                self::$injectedApp['auth']->sendVerificationEmail($user);
             } else {
                 // send the user a welcome message
                 $user->sendEmail('welcome');
@@ -467,14 +467,14 @@ abstract class AbstractUser extends Model
      */
     public function deleteConfirm($password)
     {
-        $this->app[ 'errors' ]->setCurrentContext('user.delete');
+        $this->app['errors']->setCurrentContext('user.delete');
 
         // Check for the password.
         // Only the current user can delete their account using this method
         if ($this->exists() &&
             !$this->isAdmin() &&
-            $this->app[ 'user' ]->id() == $this->_id &&
-            U::encrypt_password($password, $this->app[ 'config' ]->get('site.salt')) == $this->user_password) {
+            $this->app['user']->id() == $this->_id &&
+            U::encrypt_password($password, $this->app['config']->get('site.salt')) == $this->user_password) {
             $this->grantAllPermissions();
 
             return $this->delete();
