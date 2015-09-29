@@ -27,6 +27,7 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
     {
         $errorStack = Test::$app['errors'];
         $errorStack->clear();
+        $errorStack->clearCurrentContext();
 
         $link = new UserLink();
 
