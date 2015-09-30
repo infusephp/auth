@@ -11,9 +11,10 @@
 namespace app\auth\models;
 
 use infuse\Model;
+use infuse\Model\ACLModel;
 use app\auth\libs\Auth;
 
-class GroupMember extends Model
+class GroupMember extends ACLModel
 {
     public static $scaffoldApi;
     public static $autoTimestamps;

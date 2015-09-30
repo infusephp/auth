@@ -1,19 +1,20 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth\models;
 
 use infuse\Model;
+use infuse\Model\ACLModel;
 use app\auth\libs\Auth;
 
-class UserLoginHistory extends Model
+class UserLoginHistory extends ACLModel
 {
     public static $scaffoldApi;
     public static $autoTimestamps;

@@ -11,6 +11,7 @@
 namespace app\auth\models;
 
 use infuse\Model;
+use infuse\Model\ACLModel;
 use infuse\Utility as U;
 use app\auth\libs\Auth;
 
@@ -24,7 +25,7 @@ if (!defined('USER_LINK_TEMPORARY')) {
     define('USER_LINK_TEMPORARY', 2);
 }
 
-class UserLink extends Model
+class UserLink extends ACLModel
 {
     public static $scaffoldApi;
     public static $autoTimestamps;

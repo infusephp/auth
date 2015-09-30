@@ -11,10 +11,11 @@
 namespace app\auth\models;
 
 use infuse\Model;
+use infuse\Model\ACLModel;
 use infuse\Utility as U;
 use infuse\Validate;
 
-abstract class AbstractUser extends Model
+abstract class AbstractUser extends ACLModel
 {
     /////////////////////////////////////
     // Model Properties

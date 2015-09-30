@@ -1,20 +1,21 @@
 <?php
 
 /**
- * @package infuse\auth
  * @author Jared King <j@jaredtking.com>
+ *
  * @link http://jaredtking.com
+ *
  * @copyright 2015 Jared King
  * @license MIT
  */
-
 namespace app\auth\models;
 
 use infuse\Model;
+use infuse\Model\ACLModel;
 use infuse\Utility as U;
 use app\auth\libs\Auth;
 
-class PersistentSession extends Model
+class PersistentSession extends ACLModel
 {
     public static $scaffoldApi;
     public static $autoTimestamps;
@@ -53,9 +54,9 @@ class PersistentSession extends Model
     }
 
     /**
-     * Clears out expired user links
+     * Clears out expired user links.
      *
-     * @return boolean
+     * @return bool
      */
     public static function garbageCollect()
     {
