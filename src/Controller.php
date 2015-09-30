@@ -10,7 +10,7 @@
  */
 namespace app\auth;
 
-use infuse\Acl;
+use infuse\Model\ACLModel;
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\PersistentSession;
@@ -40,7 +40,7 @@ class Controller
             require_once 'User.php';
         }
 
-        Acl::setRequester(new $userModel());
+        ACLModel::setRequester(new $userModel());
 
         $this->app['auth'] = function ($app) {
             return new Auth($app);
@@ -49,7 +49,7 @@ class Controller
         $this->app['user'] = $user = $this->app['auth']->getAuthenticatedUser();
 
         // use the authenticated user as the requester for model permissions
-        Acl::setRequester($user);
+        ACLModel::setRequester($user);
         $this->app['requester'] = $user;
 
         // CLI requests get super user permissions
