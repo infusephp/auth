@@ -255,9 +255,9 @@ abstract class AbstractUser extends Model
     {
         $return = ['everyone'];
 
-        $groups = GroupMember::findAll([
-            'where' => ['uid' => $this->_id],
-            'sort' => '`group ASC', ]);
+        $groups = GroupMember::where(['uid' => $this->_id])
+            ->sort('`group` ASC')
+            ->all();
 
         foreach ($groups as $group) {
             $return[] = $group->group;
