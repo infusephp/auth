@@ -32,17 +32,16 @@ class UserLink extends ACLModel
 
     public static $properties = [
         'uid' => [
-            'type' => 'number',
+            'type' => Model::TYPE_NUMBER,
             'required' => true,
             'relation' => Auth::USER_MODEL,
         ],
         'link' => [
-            'type' => 'string',
             'required' => true,
             'validate' => 'string:32',
         ],
         'link_type' => [
-            'type' => 'number',
+            'type' => Model::TYPE_NUMBER,
             'validate' => 'enum:0,1,2',
             'required' => true,
             'admin_type' => 'enum',

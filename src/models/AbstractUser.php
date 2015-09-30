@@ -26,12 +26,11 @@ abstract class AbstractUser extends ACLModel
 
     public static $properties = [
         'uid' => [
-            'type' => 'number',
+            'type' => Model::TYPE_NUMBER,
             'mutable' => false,
             'admin_hidden_property' => true,
         ],
         'user_email' => [
-            'type' => 'string',
             'validate' => 'email',
             'required' => true,
             'unique' => true,
@@ -39,26 +38,21 @@ abstract class AbstractUser extends ACLModel
             'admin_html' => '<a href="mailto:{user_email}">{user_email}</a>',
         ],
         'user_password' => [
-            'type' => 'string',
             'validate' => 'matching|password:8',
             'required' => true,
             'title' => 'Password',
             'admin_type' => 'password',
         ],
         'first_name' => [
-            'type' => 'string',
             'validate' => 'string:1',
         ],
-        'last_name' => [
-            'type' => 'string',
-        ],
+        'last_name' => [],
         'ip' => [
-            'type' => 'string',
             'required' => true,
             'admin_html' => '<a href="http://www.infobyip.com/ip-{ip}.html" target="_blank">{ip}</a>',
         ],
         'enabled' => [
-            'type' => 'boolean',
+            'type' => Model::TYPE_BOOLEAN,
             'validate' => 'boolean',
             'required' => true,
             'default' => true,

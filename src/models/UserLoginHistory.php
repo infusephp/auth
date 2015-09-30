@@ -21,18 +21,13 @@ class UserLoginHistory extends ACLModel
 
     public static $properties = [
         'uid' => [
-            'type' => 'number',
             'relation' => Auth::USER_MODEL,
         ],
-        'type' => [
-            'type' => 'string',
-        ],
+        'type' => [],
         'ip' => [
-            'type' => 'string',
             'admin_hidden_property' => true,
         ],
         'user_agent' => [
-            'type' => 'string',
             'null' => true,
             'admin_hidden_property' => true,
         ],

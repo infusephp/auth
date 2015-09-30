@@ -20,11 +20,9 @@ class GroupMember extends ACLModel
     public static $autoTimestamps;
 
     public static $properties = [
-        'group' => [
-            'type' => 'string',
-        ],
+        'group' => [],
         'uid' => [
-            'type' => 'number',
+            'type' => Model::TYPE_NUMBER,
             'relation' => Auth::USER_MODEL,
         ],
     ];

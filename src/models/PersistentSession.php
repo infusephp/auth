@@ -22,21 +22,18 @@ class PersistentSession extends ACLModel
 
     public static $properties = [
         'token' => [
-            'type' => 'string',
             'required' => true,
         ],
         'user_email' => [
-            'type' => 'string',
             'validate' => 'email',
         ],
         'series' => [
-            'type' => 'string',
             'required' => true,
             'validate' => 'string:128',
             'admin_hidden_property' => true,
         ],
         'uid' => [
-            'type' => 'number',
+            'type' => Model::TYPE_NUMBER,
             'relation' => Auth::USER_MODEL,
         ],
     ];
