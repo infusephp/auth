@@ -154,8 +154,9 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$user->isVerified(false));
         $this->assertTrue(self::$user->isVerified(true));
 
-        $link = UserLink::findOne(['uid' => self::$user->id(), 'link_type' => USER_LINK_VERIFY_EMAIL]);
-        $link->delete();
+        $link = UserLink::where(['uid' => self::$user->id(), 'link_type' => USER_LINK_VERIFY_EMAIL])
+            ->first()
+            ->delete();
 
         $this->assertTrue(self::$user->isVerified());
 

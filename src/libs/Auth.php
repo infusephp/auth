@@ -180,10 +180,10 @@ class Auth
         }, $userModel::$usernameProperties, array_fill(0, count($userModel::$usernameProperties), addslashes($username)))).')';
 
         // look the user up
-        $user = $userModel::findOne([
-            'where' => [
+        $user = $userModel::where([
                 $usernameWhere,
-                'user_password' => U::encrypt_password($password, $this->app['config']->get('site.salt')), ], ]);
+                'user_password' => U::encrypt_password($password, $this->app['config']->get('site.salt')), ])
+            ->first();
 
         if ($user) {
             $user->load();
@@ -262,9 +262,7 @@ class Auth
         }
 
         $userModel = self::USER_MODEL;
-        if ($user = $userModel::findOne([
-            'where' => [
-                'user_email' => $email, ], ])) {
+        if ($user = $userModel::where(['user_email' => $email])->first()) {
             if ($user->isTemporary()) {
                 return $user;
             }
@@ -346,10 +344,10 @@ class Auth
     {
         $this->app['errors']->setCurrentContext('auth.verify');
 
-        $link = UserLink::findOne([
-            'where' => [
+        $link = UserLink::where([
                 'link' => $verifyLink,
-                'link_type' => USER_LINK_VERIFY_EMAIL, ], ]);
+                'link_type' => USER_LINK_VERIFY_EMAIL, ])
+            ->first();
 
         if ($link) {
             $userModel = self::USER_MODEL;
@@ -386,11 +384,11 @@ class Auth
      */
     public function getUserFromForgotToken($token)
     {
-        $link = UserLink::findOne([
-            'where' => [
+        $link = UserLink::where([
                 'link' => $token,
                 'link_type' => USER_LINK_FORGOT_PASSWORD,
-                'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ], ]);
+                'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ])
+            ->first();
 
         if ($link) {
             $userModel = self::USER_MODEL;
@@ -427,9 +425,8 @@ class Auth
         }
 
         $userModel = self::USER_MODEL;
-        $user = $userModel::findOne([
-            'where' => [
-                'user_email' => $email, ], ]);
+        $user = $userModel::where(['user_email' => $email])
+            ->first();
 
         if (!$user || $user->isTemporary()) {
             $errorStack->push(['error' => 'user_forgot_email_no_match']);
@@ -551,9 +548,8 @@ class Auth
 
             if ($cookieParams) {
                 $userModel = self::USER_MODEL;
-                $user = $userModel::findOne([
-                    'where' => [
-                        'user_email' => $cookieParams->user_email, ], ]);
+                $user = $userModel::where(['user_email' => $cookieParams->user_email])
+                    ->first();
 
                 if ($user) {
                     // encrypt series and token for matching with the db
