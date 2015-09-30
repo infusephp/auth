@@ -10,9 +10,9 @@
  */
 namespace app\auth\models;
 
-use infuse\Model;
-use infuse\Model\ACLModel;
-use infuse\Utility as U;
+use Infuse\Model;
+use Infuse\Model\ACLModel;
+use Infuse\Utility as U;
 use app\auth\libs\Auth;
 
 if (!defined('USER_LINK_FORGOT_PASSWORD')) {

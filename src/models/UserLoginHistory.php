@@ -10,8 +10,8 @@
  */
 namespace app\auth\models;
 
-use infuse\Model;
-use infuse\Model\ACLModel;
+use Infuse\Model;
+use Infuse\Model\ACLModel;
 use app\auth\libs\Auth;
 
 class UserLoginHistory extends ACLModel

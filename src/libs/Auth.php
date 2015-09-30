@@ -10,9 +10,9 @@
  */
 namespace app\auth\libs;
 
-use infuse\Model;
-use infuse\Utility as U;
-use infuse\Validate;
+use Infuse\Model;
+use Infuse\Utility as U;
+use Infuse\Validate;
 use App;
 use app\auth\models\PersistentSession;
 use app\auth\models\UserLink;

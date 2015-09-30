@@ -10,7 +10,7 @@
  */
 namespace app\auth;
 
-use infuse\Model\ACLModel;
+use Infuse\Model\ACLModel;
 use app\auth\libs\Auth;
 use app\auth\models\UserLink;
 use app\auth\models\PersistentSession;

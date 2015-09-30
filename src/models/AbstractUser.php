@@ -10,10 +10,10 @@
  */
 namespace app\auth\models;
 
-use infuse\Model;
-use infuse\Model\ACLModel;
-use infuse\Utility as U;
-use infuse\Validate;
+use Infuse\Model;
+use Infuse\Model\ACLModel;
+use Infuse\Utility as U;
+use Infuse\Validate;
 
 abstract class AbstractUser extends ACLModel
 {
