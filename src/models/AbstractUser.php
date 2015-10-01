@@ -24,6 +24,8 @@ abstract class AbstractUser extends ACLModel
     public static $scaffoldApi;
     public static $autoTimestamps;
 
+    public static $ids = ['uid'];
+
     public static $properties = [
         'uid' => [
             'type' => Model::TYPE_NUMBER,
@@ -83,11 +85,6 @@ abstract class AbstractUser extends ACLModel
         if ($isLoggedIn && $this->_id > 0) {
             $this->logged_in = true;
         }
-    }
-
-    public static function idProperty()
-    {
-        return 'uid';
     }
 
     protected function hasPermission($permission, Model $requester)

@@ -19,6 +19,8 @@ class GroupMember extends ACLModel
     public static $scaffoldApi;
     public static $autoTimestamps;
 
+    public static $ids = ['group', 'uid'];
+
     public static $properties = [
         'group' => [],
         'uid' => [
@@ -26,11 +28,6 @@ class GroupMember extends ACLModel
             'relation' => Auth::USER_MODEL,
         ],
     ];
-
-    public static function idProperty()
-    {
-        return ['group', 'uid'];
-    }
 
     protected function hasPermission($permission, Model $requester)
     {

@@ -20,6 +20,8 @@ class PersistentSession extends ACLModel
     public static $scaffoldApi;
     public static $autoTimestamps;
 
+    public static $ids = ['token'];
+
     public static $properties = [
         'token' => [
             'required' => true,
@@ -39,11 +41,6 @@ class PersistentSession extends ACLModel
     ];
 
     public static $sessionLength = 7776000; // 3 months
-
-    public static function idProperty()
-    {
-        return 'token';
-    }
 
     protected function hasPermission($permission, Model $requester)
     {

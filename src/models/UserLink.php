@@ -30,6 +30,8 @@ class UserLink extends ACLModel
     public static $scaffoldApi;
     public static $autoTimestamps;
 
+    public static $ids = ['uid', 'link'];
+
     public static $properties = [
         'uid' => [
             'type' => Model::TYPE_NUMBER,
@@ -56,11 +58,6 @@ class UserLink extends ACLModel
     public static $verifyTimeWindow = 86400; // one day
 
     public static $forgotLinkTimeframe = 1800; // 30 minutes
-
-    public static function idProperty()
-    {
-        return ['uid', 'link'];
-    }
 
     protected function hasPermission($permission, Model $requester)
     {
