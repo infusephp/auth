@@ -394,7 +394,11 @@ abstract class AbstractUser extends ACLModel
         }
 
         // get the new user ID
-        $id = $driver->getCreatedID($user, static::idProperty());
+        $id = [];
+        foreach (static::$ids as $k) {
+            $id[] = $driver->getCreatedID($user, $k);
+        }
+
         $user = new static($id);
 
         // create the temporary link
