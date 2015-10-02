@@ -17,11 +17,11 @@ use app\auth\libs\Auth;
 class GroupMember extends ACLModel
 {
     public static $scaffoldApi;
-    public static $autoTimestamps;
+    protected static $autoTimestamps;
 
-    public static $ids = ['group', 'uid'];
+    protected static $ids = ['group', 'uid'];
 
-    public static $properties = [
+    protected static $properties = [
         'group' => [],
         'uid' => [
             'type' => Model::TYPE_NUMBER,

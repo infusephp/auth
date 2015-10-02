@@ -18,11 +18,11 @@ use app\auth\libs\Auth;
 class PersistentSession extends ACLModel
 {
     public static $scaffoldApi;
-    public static $autoTimestamps;
+    protected static $autoTimestamps;
 
-    public static $ids = ['token'];
+    protected static $ids = ['token'];
 
-    public static $properties = [
+    protected static $properties = [
         'token' => [
             'required' => true,
         ],

@@ -17,9 +17,9 @@ use app\auth\libs\Auth;
 class UserLoginHistory extends ACLModel
 {
     public static $scaffoldApi;
-    public static $autoTimestamps;
+    protected static $autoTimestamps;
 
-    public static $properties = [
+    protected static $properties = [
         'uid' => [
             'relation' => Auth::USER_MODEL,
         ],

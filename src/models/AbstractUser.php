@@ -22,11 +22,11 @@ abstract class AbstractUser extends ACLModel
     /////////////////////////////////////
 
     public static $scaffoldApi;
-    public static $autoTimestamps;
+    protected static $autoTimestamps;
 
-    public static $ids = ['uid'];
+    protected static $ids = ['uid'];
 
-    public static $properties = [
+    protected static $properties = [
         'uid' => [
             'type' => Model::TYPE_NUMBER,
             'mutable' => false,

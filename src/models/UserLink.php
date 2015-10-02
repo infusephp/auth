@@ -28,11 +28,11 @@ if (!defined('USER_LINK_TEMPORARY')) {
 class UserLink extends ACLModel
 {
     public static $scaffoldApi;
-    public static $autoTimestamps;
+    protected static $autoTimestamps;
 
-    public static $ids = ['uid', 'link'];
+    protected static $ids = ['uid', 'link'];
 
-    public static $properties = [
+    protected static $properties = [
         'uid' => [
             'type' => Model::TYPE_NUMBER,
             'required' => true,
