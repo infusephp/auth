@@ -395,7 +395,7 @@ abstract class AbstractUser extends ACLModel
 
         // get the new user ID
         $id = [];
-        foreach (static::$ids as $k) {
+        foreach (static::getIDProperties() as $k) {
             $id[] = $driver->getCreatedID($user, $k);
         }
 
