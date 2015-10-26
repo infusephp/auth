@@ -600,7 +600,7 @@ class Auth
 
             // delete persistent session cookie
             $sessionCookie = session_get_cookie_params();
-            $res->setCookie(
+            $this->app['res']->setCookie(
                 'persistent',
                 '',
                 time() - 86400,
@@ -656,10 +656,9 @@ class Auth
         }
 
         $req = $this->app['req'];
-        $res = $this->app['res'];
 
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(
+        $this->app['res']->setCookie(
             'persistent',
             base64_encode(json_encode([
                 'user_email' => $email,
