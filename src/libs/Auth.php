@@ -112,10 +112,11 @@ class Auth
     public function logout()
     {
         $req = $this->app['req'];
+        $res = $this->app['res'];
 
         // empty the session cookie
         $sessionCookie = session_get_cookie_params();
-        $req->setCookie(
+        $res->setCookie(
             session_name(),
             '',
             time() - 86400,
@@ -131,7 +132,7 @@ class Auth
         session_destroy();
 
         // delete persistent session cookie
-        $req->setCookie(
+        $res->setCookie(
             'persistent',
             '',
             time() - 86400,
@@ -575,7 +576,7 @@ class Auth
                                 'series' => $seriesEnc,
                                 'token' => $tokenEnc, ])->execute();
 
-                            $user = $this->signInUser($user->id(), 'persistent', $req);
+                            $user = $this->signInUser($user->id(), 'persistent');
 
                             // generate a new cookie for the next time
                             self::storePersistentCookie($user->id(), $cookieParams->user_email, $cookieParams->series);
@@ -599,7 +600,7 @@ class Auth
 
             // delete persistent session cookie
             $sessionCookie = session_get_cookie_params();
-            $req->setCookie(
+            $res->setCookie(
                 'persistent',
                 '',
                 time() - 86400,
@@ -655,9 +656,10 @@ class Auth
         }
 
         $req = $this->app['req'];
+        $res = $this->app['res'];
 
         $sessionCookie = session_get_cookie_params();
-        $req->setCookie(
+        $res->setCookie(
             'persistent',
             base64_encode(json_encode([
                 'user_email' => $email,
