@@ -53,7 +53,7 @@ class Controller
         $this->app['requester'] = $user;
 
         // CLI requests get super user permissions
-        if ($req->isCli()) {
+        if (defined('STDIN')) {
             $user->enableSU();
         }
     }
