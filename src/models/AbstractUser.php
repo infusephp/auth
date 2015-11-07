@@ -455,7 +455,9 @@ abstract class AbstractUser extends ACLModel
 
         $message = array_replace($params, $message);
 
-        return $this->app['mailer']->queueEmail($template, $message);
+        $this->app['mailer']->queueEmail($template, $message);
+
+        return true;
     }
 
     /**
