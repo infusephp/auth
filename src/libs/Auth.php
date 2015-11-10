@@ -435,10 +435,9 @@ class Auth
             return false;
         }
 
-        $user->load();
-
         // make sure there are no other forgot links
         $oldLinks = UserLink::totalRecords([
+            'uid' => $user->id(),
             'link_type' => USER_LINK_FORGOT_PASSWORD,
             'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ]);
 
