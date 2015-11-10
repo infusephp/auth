@@ -11,10 +11,21 @@ Auth module for Infuse Framework
 
 ## Installation
 
-Install the package with [composer](http://getcomposer.org):
+1. Install the package with [composer](http://getcomposer.org):
 
 ```
 composer require infuse/auth
+```
+
+2. (optional) Add the console command for helper tasks to `modules.commands` in your app's configuration:
+```php
+'modules' => [
+	// ...
+	'commands' => [
+		// ...
+		'app\auth\console\ResetPasswordLinkCommand'
+	]
+]
 ```
 
 ## Usage

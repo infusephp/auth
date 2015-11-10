@@ -36,7 +36,7 @@ if (!defined('USER_LINK_TEMPORARY')) {
 
 class Auth
 {
-    const USER_MODEL = '\\app\\users\\models\\User';
+    const USER_MODEL = 'app\users\models\User';
 
     private $app;
 

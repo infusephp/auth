@@ -79,10 +79,24 @@ class UserLink extends ACLModel
         }
 
         if (!isset($data['link'])) {
-            $data['link'] = U::guid(false);
+            $data['link'] = strtolower(U::guid(false));
         }
 
         return true;
+    }
+
+    /**
+     * Gets the URL for this link.
+     *
+     * @return string|false
+     */
+    public function url()
+    {
+        if ($this->link_type === USER_LINK_FORGOT_PASSWORD) {
+            return $this->app['base_url'].'users/forgot/'.$this->link;
+        }
+
+        return false;
     }
 
     /**
