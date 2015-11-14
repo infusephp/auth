@@ -94,7 +94,8 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
      */
     public function testEdit()
     {
-        $this->assertTrue(self::$user->set('ip', '127.0.0.2'));
+        self::$user->ip = '127.0.0.2';
+        $this->assertTrue(self::$user->save());
     }
 
     /**

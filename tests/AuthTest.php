@@ -103,7 +103,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsFailTemporary()
     {
-        $this->assertTrue(self::$user->set('enabled', true));
+        self::$user->enabled = true;
+        $this->assertTrue(self::$user->save());
         $link = new UserLink();
         $link->grantAllPermissions();
         $this->assertTrue($link->create([
@@ -130,7 +131,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         Test::$app['db']->delete('UserLinks')
             ->where('uid', self::$user->id())->execute();
 
-        $this->assertTrue(self::$user->set('enabled', false));
+        self::$user->enabled = false;
+        $this->assertTrue(self::$user->save());
 
         $errorStack = Test::$app['errors'];
         $errorStack->clear();
@@ -149,14 +151,16 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsFailNotVerified()
     {
-        $this->assertTrue(self::$user->set('enabled', true));
+        self::$user->enabled = true;
+        $this->assertTrue(self::$user->save());
 
         $link = new UserLink();
         $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => USER_LINK_VERIFY_EMAIL, ]));
-        $this->assertTrue($link->set('created_at', '-10 years'));
+        $link->created_at = '-10 years';
+        $this->assertTrue($link->save());
 
         $errorStack = Test::$app['errors'];
         $errorStack->clear();
@@ -180,7 +184,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         Test::$app['db']->delete('UserLinks')
             ->where('uid', self::$user->id())->execute();
 
-        $this->assertTrue(self::$user->set('enabled', true));
+        self::$user->enabled = true;
+        $this->assertTrue(self::$user->save());
 
         $user = self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
 
@@ -271,7 +276,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => USER_LINK_VERIFY_EMAIL, ]));
-        $this->assertTrue($link->set('created_at', '-10 years'));
+        $link->created_at = '-10 years';
+        $this->assertTrue($link->save());
 
         $this->assertTrue(self::$user->isTemporary());
         $this->assertFalse(self::$user->isVerified());
@@ -299,7 +305,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => USER_LINK_VERIFY_EMAIL, ]));
-        $this->assertTrue($link->set('created_at', '-10 years'));
+        $link->created_at = '-10 years';
+        $this->assertTrue($link->save());
         $this->assertFalse(self::$user->isVerified());
 
         $this->assertFalse(self::$auth->verifyEmailWithLink('blah'));
@@ -328,7 +335,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $errorStack->clear();
         $errorStack->setCurrentContext('');
 
-        $link->set('created_at', '-10 years');
+        $link->created_at = '-10 years';
+        $this->assertTrue($link->save());
         $this->assertFalse(self::$auth->getUserFromForgotToken($link->link));
 
         $errors = $errorStack->errors();

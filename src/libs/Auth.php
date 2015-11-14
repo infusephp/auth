@@ -355,8 +355,8 @@ class Auth
             $user = new $userModel($link->uid);
 
             // enable the user
-            $user->grantAllPermissions();
-            $user->set('enabled', 1);
+            $user->enabled = true;
+            $user->grantAllPermissions()->save();
             $user->enforcePermissions();
 
             // delete the verify link
@@ -485,8 +485,8 @@ class Auth
             }
 
             // Update the password
-            $user->grantAllPermissions();
-            $success = $user->set('user_password', $password);
+            $user->user_password = $password;
+            $success = $user->grantAllPermissions()->save();
             $user->enforcePermissions();
 
             if ($success) {
