@@ -8,7 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace app\auth\models;
+namespace App\Auth\Models;
 
 use Infuse\Model;
 use Infuse\Model\ACLModel;

@@ -23,11 +23,11 @@ composer require infuse/auth
 	// ...
 	'commands' => [
 		// ...
-		'app\auth\console\ResetPasswordLinkCommand'
+		'App\Auth\Console\ResetPasswordLinkCommand'
 	]
 ]
 ```
 
 ## Usage
 
-You can create your own User model located at `\app\users\models\User` for futher customization.
+You can create your own User model located at `App\Users\Models\User` for futher customization.

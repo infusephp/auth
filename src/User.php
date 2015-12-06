@@ -8,9 +8,9 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace app\users\models;
+namespace App\Users\Models;
 
-use app\auth\models\AbstractUser;
+use App\Auth\Models\AbstractUser;
 
 class User extends AbstractUser
 {

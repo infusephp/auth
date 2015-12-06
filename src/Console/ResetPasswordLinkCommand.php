@@ -8,10 +8,10 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace app\auth\console;
+namespace App\Auth\Console;
 
-use app\auth\libs\Auth;
-use app\auth\models\UserLink;
+use App\Auth\Libs\Auth;
+use App\Auth\Models\UserLink;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

@@ -8,7 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use app\auth\models\GroupMember;
+use App\Auth\Models\GroupMember;
 
 class GroupMemberTest extends \PHPUnit_Framework_TestCase
 {

@@ -8,9 +8,9 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use app\auth\libs\Auth;
-use app\auth\models\UserLink;
-use app\auth\models\UserLoginHistory;
+use App\Auth\Libs\Auth;
+use App\Auth\Models\UserLink;
+use App\Auth\Models\UserLoginHistory;
 
 class AuthTest extends \PHPUnit_Framework_TestCase
 {
@@ -197,7 +197,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $user = self::$auth->signInUser(self::$user->id());
 
-        $this->assertInstanceOf('\\app\\users\\models\\User', $user);
+        $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals($user->id(), self::$user->id());
         $this->assertTrue($user->isLoggedIn());
 
@@ -259,7 +259,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'link_type' => USER_LINK_TEMPORARY, ]));
 
         $user = self::$auth->getTemporaryUser('test@example.com');
-        $this->assertInstanceOf('\\app\\users\\models\\User', $user);
+        $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
     }
 
@@ -312,7 +312,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->verifyEmailWithLink('blah'));
 
         $user = self::$auth->verifyEmailWithLink($link->link);
-        $this->assertInstanceOf('\\app\\users\\models\\User', $user);
+        $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals($user->id(), self::$user->id());
         $this->assertTrue(self::$user->isVerified());
     }
@@ -328,7 +328,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getUserFromForgotToken('blah'));
 
         $user = self::$auth->getUserFromForgotToken($link->link);
-        $this->assertInstanceOf('\\app\\users\\models\\User', $user);
+        $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
 
         $errorStack = Test::$app['errors'];

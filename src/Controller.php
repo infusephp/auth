@@ -8,12 +8,12 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace app\auth;
+namespace App\Auth;
 
+use App\Auth\Libs\Auth;
+use App\Auth\Models\UserLink;
+use App\Auth\Models\PersistentSession;
 use Infuse\Model\ACLModel;
-use app\auth\libs\Auth;
-use app\auth\models\UserLink;
-use app\auth\models\PersistentSession;
 
 class Controller
 {

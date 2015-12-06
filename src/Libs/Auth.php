@@ -8,15 +8,15 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace app\auth\libs;
+namespace App\Auth\Libs;
 
+use App;
+use App\Auth\Models\PersistentSession;
+use App\Auth\Models\UserLink;
+use App\Auth\Models\UserLoginHistory;
 use Infuse\Model;
 use Infuse\Utility as U;
 use Infuse\Validate;
-use App;
-use app\auth\models\PersistentSession;
-use app\auth\models\UserLink;
-use app\auth\models\UserLoginHistory;
 
 if (!defined('GUEST')) {
     define('GUEST', -1);
@@ -36,7 +36,7 @@ if (!defined('USER_LINK_TEMPORARY')) {
 
 class Auth
 {
-    const USER_MODEL = 'app\users\models\User';
+    const USER_MODEL = 'App\Users\Models\User';
 
     private $app;
 

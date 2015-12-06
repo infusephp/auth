@@ -8,7 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use app\auth\models\PersistentSession;
+use App\Auth\Models\PersistentSession;
 
 class PersistentSessionTest extends \PHPUnit_Framework_TestCase
 {

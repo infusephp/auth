@@ -8,7 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use app\auth\models\UserLink;
+use App\Auth\Models\UserLink;
 
 class UserLinkTest extends \PHPUnit_Framework_TestCase
 {

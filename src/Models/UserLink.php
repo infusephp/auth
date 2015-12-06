@@ -8,12 +8,12 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace app\auth\models;
+namespace App\Auth\Models;
 
+use App\Auth\Libs\Auth;
 use Infuse\Model;
 use Infuse\Model\ACLModel;
 use Infuse\Utility as U;
-use app\auth\libs\Auth;
 
 if (!defined('USER_LINK_FORGOT_PASSWORD')) {
     define('USER_LINK_FORGOT_PASSWORD', 0);

@@ -8,10 +8,10 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use app\auth\libs\Auth;
-use app\auth\models\GroupMember;
-use app\users\models\User;
-use app\auth\models\UserLink;
+use App\Auth\Libs\Auth;
+use App\Auth\Models\GroupMember;
+use App\Users\Models\User;
+use App\Auth\Models\UserLink;
 
 class AbstractUserTest extends \PHPUnit_Framework_TestCase
 {
@@ -58,7 +58,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
             'ip' => '127.0.0.1',
         ]);
 
-        $this->assertInstanceOf('\\app\\users\\models\\User', self::$user);
+        $this->assertInstanceOf('App\Users\Models\User', self::$user);
         $this->assertGreaterThan(0, self::$user->id());
 
         self::$user2 = User::registerUser([
@@ -69,7 +69,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
             'ip' => '127.0.0.1',
         ], true);
 
-        $this->assertInstanceOf('\\app\\users\\models\\User', self::$user);
+        $this->assertInstanceOf('App\Users\Models\User', self::$user);
         $this->assertGreaterThan(0, self::$user->id());
     }
 
@@ -251,7 +251,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
         self::$user = User::createTemporary([
             'user_email' => 'test@example.com', ]);
 
-        $this->assertInstanceOf('\\app\\users\\models\\User', self::$user);
+        $this->assertInstanceOf('App\Users\Models\User', self::$user);
         $this->assertTrue(self::$user->isTemporary());
 
         $upgradedUser = User::registerUser([
@@ -262,7 +262,7 @@ class AbstractUserTest extends \PHPUnit_Framework_TestCase
                 'ip' => '127.0.0.1',
             ]);
 
-        $this->assertInstanceOf('\\app\\users\\models\\User', $upgradedUser);
+        $this->assertInstanceOf('App\Users\Models\User', $upgradedUser);
         $this->assertEquals(self::$user->id(), $upgradedUser->id());
         self::$user->load();
         $this->assertFalse(self::$user->isTemporary());
