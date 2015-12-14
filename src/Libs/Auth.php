@@ -15,6 +15,8 @@ use App\Auth\Models\PersistentSession;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\UserLoginHistory;
 use Infuse\Model;
+use Infuse\Request;
+use Infuse\Response;
 use Infuse\Utility as U;
 use Infuse\Validate;
 
@@ -36,13 +38,66 @@ if (!defined('USER_LINK_TEMPORARY')) {
 
 class Auth
 {
+    use \InjectApp;
+
     const USER_MODEL = 'App\Users\Models\User';
 
-    private $app;
+    /**
+     * @var Request
+     */
+    private $request;
 
-    public function __construct(App $app)
+    /**
+     * @var Response
+     */
+    private $response;
+
+    /**
+     * Sets the request object.
+     *
+     * @param Request $request
+     *
+     * @return self
+     */
+    public function setRequest(Request $request)
     {
-        $this->app = $app;
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * Gets the request object.
+     *
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * Sets the response object.
+     *
+     * @param Response $response
+     *
+     * @return self
+     */
+    public function setResponse(Response $response)
+    {
+        $this->response = $response;
+
+        return $this;
+    }
+
+    /**
+     * Gets the response object.
+     *
+     * @return Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     /**
@@ -63,7 +118,7 @@ class Auth
 
         // change session user id back to guest if we thought
         // user was someone else
-        if ($this->app['req']->session('user_id') != GUEST) {
+        if ($this->request->session('user_id') != GUEST) {
             $this->changeSessionUserID(GUEST);
         }
 
@@ -111,12 +166,9 @@ class Auth
      */
     public function logout()
     {
-        $req = $this->app['req'];
-        $res = $this->app['res'];
-
         // empty the session cookie
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(
+        $this->response->setCookie(
             session_name(),
             '',
             time() - 86400,
@@ -126,13 +178,13 @@ class Auth
             $sessionCookie['httponly']);
 
         // destroy the session variables
-        $req->destroySession();
+        $this->request->destroySession();
 
         // actually destroy the session now
         session_destroy();
 
         // delete persistent session cookie
-        $res->setCookie(
+        $this->response->setCookie(
             'persistent',
             '',
             time() - 86400,
@@ -239,8 +291,8 @@ class Auth
         $history->create([
             'uid' => $uid,
             'type' => $type,
-            'ip' => $this->app['req']->ip(),
-            'user_agent' => $this->app['req']->agent(), ]);
+            'ip' => $this->request->ip(),
+            'user_agent' => $this->request->agent(), ]);
 
         return $user;
     }
@@ -516,12 +568,10 @@ class Auth
      */
     private function authenticateSession()
     {
-        $req = $this->app['req'];
-
         // check if the user's session is already logged in and valid
-        if ($req->session('user_agent') == $req->agent()) {
+        if ($this->request->session('user_agent') == $this->request->agent()) {
             $userModel = self::USER_MODEL;
-            $user = new $userModel($req->session('user_id'), true);
+            $user = new $userModel($this->request->session('user_id'), true);
 
             if ($user->exists()) {
                 $user->load();
@@ -539,10 +589,8 @@ class Auth
      */
     private function authenticatePersistentSession()
     {
-        $req = $this->app['req'];
-
         // check for persistent sessions
-        if ($cookie = $req->cookies('persistent')) {
+        if ($cookie = $this->request->cookies('persistent')) {
             // decode the cookie
             $cookieParams = json_decode(base64_decode($cookie));
 
@@ -566,7 +614,7 @@ class Auth
                             'series' => $seriesEnc, ]);
                     $tokenDB = $select->scalar();
 
-                    if ($select->rowCount() == 1 && $cookieParams->agent == $req->agent()) {
+                    if ($select->rowCount() == 1 && $cookieParams->agent == $this->request->agent()) {
                         // if there is a match, sign the user in
                         if ($tokenDB == $tokenEnc) {
                             // remove the token
@@ -581,7 +629,7 @@ class Auth
                             self::storePersistentCookie($user->id(), $cookieParams->user_email, $cookieParams->series);
 
                             // mark this session as persistent (useful for security checks)
-                            $req->setSession('persistent', true);
+                            $this->request->setSession('persistent', true);
 
                             $user->load();
 
@@ -599,7 +647,7 @@ class Auth
 
             // delete persistent session cookie
             $sessionCookie = session_get_cookie_params();
-            $this->app['res']->setCookie(
+            $this->response->setCookie(
                 'persistent',
                 '',
                 time() - 86400,
@@ -628,10 +676,9 @@ class Auth
         }
 
         // set the user id
-        $req = $this->app['req'];
-        $req->setSession([
+        $this->request->setSession([
             'user_id' => $uid,
-            'user_agent' => $req->agent(), ]);
+            'user_agent' => $this->request->agent(), ]);
     }
 
     private function generateToken()
@@ -654,16 +701,14 @@ class Auth
             $token = $this->generateToken();
         }
 
-        $req = $this->app['req'];
-
         $sessionCookie = session_get_cookie_params();
-        $this->app['res']->setCookie(
+        $this->response->setCookie(
             'persistent',
             base64_encode(json_encode([
                 'user_email' => $email,
                 'series' => $series,
                 'token' => $token,
-                'agent' => $req->agent(), ])),
+                'agent' => $this->request->agent(), ])),
             time() + PersistentSession::$sessionLength,
             $sessionCookie['path'],
             $sessionCookie['domain'],

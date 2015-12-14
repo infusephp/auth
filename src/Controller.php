@@ -42,8 +42,13 @@ class Controller
 
         ACLModel::setRequester(new $userModel());
 
-        $this->app['auth'] = function ($app) {
-            return new Auth($app);
+        $this->app['auth'] = function ($app) use ($req, $res) {
+            $auth = new Auth();
+            $auth->injectApp($app)
+                 ->setRequest($req)
+                 ->setResponse($res);
+
+            return $auth;
         };
 
         $this->app['user'] = $user = $this->app['auth']->getAuthenticatedUser();
