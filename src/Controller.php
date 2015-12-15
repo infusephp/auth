@@ -51,16 +51,17 @@ class Controller
             return $auth;
         };
 
-        $this->app['user'] = $user = $this->app['auth']->getAuthenticatedUser();
+        // CLI requests have a super user
+        if (defined('STDIN')) {
+            $this->app['user'] = $user = new $userModel(-2, true);
+            $user->enableSU();
+        } else {
+            $this->app['user'] = $user = $this->app['auth']->getAuthenticatedUser();
+        }
 
         // use the authenticated user as the requester for model permissions
         ACLModel::setRequester($user);
         $this->app['requester'] = $user;
-
-        // CLI requests get super user permissions
-        if (defined('STDIN')) {
-            $user->enableSU();
-        }
     }
 
     public function garbageCollection()
