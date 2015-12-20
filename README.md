@@ -17,7 +17,18 @@ Auth module for Infuse Framework
 composer require infuse/auth
 ```
 
-2. (optional) Add the console command for helper tasks to `modules.commands` in your app's configuration:
+2. Add the service to `services` in your app's configuration:
+
+```php
+'services' => [
+	// ...
+	'auth' => 'App\Auth\Services\Auth'
+	// ...
+]
+```
+
+3. (optional) Add the console command for helper tasks to `modules.commands` in your app's configuration:
+
 ```php
 'modules' => [
 	// ...
