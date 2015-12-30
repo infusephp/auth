@@ -12,11 +12,9 @@ namespace App\Auth\Models;
 
 use App\Auth\Libs\Auth;
 use Infuse\Model;
-use Infuse\Model\ACLModel;
 
-class UserLoginHistory extends ACLModel
+class UserLoginHistory extends Model
 {
-    public static $scaffoldApi;
     protected static $autoTimestamps;
 
     protected static $properties = [
@@ -32,9 +30,4 @@ class UserLoginHistory extends ACLModel
             'admin_hidden_property' => true,
         ],
     ];
-
-    protected function hasPermission($permission, Model $requester)
-    {
-        return $requester->isAdmin();
-    }
 }

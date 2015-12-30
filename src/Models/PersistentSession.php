@@ -12,12 +12,10 @@ namespace App\Auth\Models;
 
 use App\Auth\Libs\Auth;
 use Infuse\Model;
-use Infuse\Model\ACLModel;
 use Infuse\Utility as U;
 
-class PersistentSession extends ACLModel
+class PersistentSession extends Model
 {
-    public static $scaffoldApi;
     protected static $autoTimestamps;
 
     protected static $ids = ['token'];
@@ -41,11 +39,6 @@ class PersistentSession extends ACLModel
     ];
 
     public static $sessionLength = 7776000; // 3 months
-
-    protected function hasPermission($permission, Model $requester)
-    {
-        return $requester->isAdmin();
-    }
 
     /**
      * Clears out expired user links.

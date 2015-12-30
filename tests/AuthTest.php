@@ -106,7 +106,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
@@ -155,7 +154,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->save());
 
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::VERIFY_EMAIL, ]));
@@ -253,7 +251,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(self::$auth->getTemporaryUser('test@example.com'));
 
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
@@ -266,13 +263,11 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testUpgradeTemporaryAccount()
     {
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::VERIFY_EMAIL, ]));
@@ -301,7 +296,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testVerifyEmailWithLink()
     {
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::VERIFY_EMAIL, ]));
@@ -320,7 +314,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testGetUserFromForgotToken()
     {
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
@@ -391,7 +384,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
             ->where('uid', self::$user->id())->execute();
 
         $link = new UserLink();
-        $link->grantAllPermissions();
         $this->assertTrue($link->create([
             'uid' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));

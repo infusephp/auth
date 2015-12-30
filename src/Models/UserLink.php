@@ -12,16 +12,14 @@ namespace App\Auth\Models;
 
 use App\Auth\Libs\Auth;
 use Infuse\Model;
-use Infuse\Model\ACLModel;
 use Infuse\Utility as U;
 
-class UserLink extends ACLModel
+class UserLink extends Model
 {
-    const LINK_FORGOT_PASSWORD = 0;
-    const LINK_VERIFY_EMAIL = 1;
-    const LINK_TEMPORARY = 2;
+    const FORGOT_PASSWORD = 0;
+    const VERIFY_EMAIL = 1;
+    const TEMPORARY = 2;
 
-    public static $scaffoldApi;
     protected static $autoTimestamps;
 
     protected static $ids = ['uid', 'link'];
@@ -53,25 +51,8 @@ class UserLink extends ACLModel
 
     public static $forgotLinkTimeframe = 1800; // 30 minutes
 
-    protected function hasPermission($permission, Model $requester)
-    {
-        if ($permission == 'create') {
-            return true;
-        }
-
-        return $requester->isAdmin();
-    }
-
     protected function preCreateHook(&$data)
     {
-        // can only create user links for the current user
-        $user = $this->app['user'];
-        if ($data['uid'] != $user->id() && !$this->can('create-with-mismatched-uid', $user)) {
-            $this->app['errors']->push(['error' => ERROR_NO_PERMISSION]);
-
-            return false;
-        }
-
         if (!isset($data['link'])) {
             $data['link'] = strtolower(U::guid(false));
         }

@@ -17,20 +17,13 @@ class PersistentSessionTest extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         Test::$app['db']->delete('PersistentSessions')
-            ->where('user_email', 'test@exmaple.com')->execute();
-    }
-
-    public function testHasPermission()
-    {
-        $sesh = new PersistentSession();
-
-        $this->assertFalse($sesh->can('create', Test::$app['user']));
+            ->where('user_email', 'test@exmaple.com')
+            ->execute();
     }
 
     public function testCreate()
     {
         self::$sesh = new PersistentSession();
-        self::$sesh->grantAllPermissions();
         $this->assertTrue(self::$sesh->create([
             'token' => '969326B47C4994ADAF57AD7CE7345D5A40F1F9565DE899E8302DA903340E5A79969326B47C4994ADAF57AD7CE7345D5A40F1F9565DE899E8302DA903340E5A79',
             'user_email' => 'test@example.com',

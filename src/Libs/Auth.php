@@ -288,13 +288,12 @@ class Auth
 
         // create a login history entry
         $history = new UserLoginHistory();
-        $history->grantAllPermissions()
-                ->create([
-                    'uid' => $uid,
-                    'type' => $type,
-                    'ip' => $this->request->ip(),
-                    'user_agent' => $this->request->agent(),
-                ]);
+        $history->create([
+            'uid' => $uid,
+            'type' => $type,
+            'ip' => $this->request->ip(),
+            'user_agent' => $this->request->agent(),
+        ]);
 
         return $user;
     }
@@ -389,7 +388,6 @@ class Auth
 
         // create new verification link
         $link = new UserLink();
-        $link->grantAllPermissions();
         if (!$link->create($params)) {
             return false;
         }
@@ -427,7 +425,7 @@ class Auth
         $user->enforcePermissions();
 
         // delete the verify link
-        $link->grantAllPermissions()->delete();
+        $link->delete();
 
         // send a welcome e-mail
         $user->sendEmail('welcome');
@@ -508,11 +506,10 @@ class Auth
         }
 
         $link = new UserLink();
-        $success = $link->grantAllPermissions()
-            ->create([
-                'uid' => $user->id(),
-                'link_type' => UserLink::FORGOT_PASSWORD,
-            ]);
+        $success = $link->create([
+            'uid' => $user->id(),
+            'link_type' => UserLink::FORGOT_PASSWORD,
+        ]);
 
         if (!$success) {
             return false;
@@ -787,12 +784,11 @@ class Auth
 
         $config = $this->app['config'];
         $session = new PersistentSession();
-        $session->grantAllPermissions()
-                ->create([
-                    'user_email' => $email,
-                    'series' => $this->encrypt($series),
-                    'token' => $this->encrypt($token),
-                    'uid' => $uid,
-                ]);
+        $session->create([
+            'user_email' => $email,
+            'series' => $this->encrypt($series),
+            'token' => $this->encrypt($token),
+            'uid' => $uid,
+        ]);
     }
 }

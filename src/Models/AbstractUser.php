@@ -400,10 +400,9 @@ abstract class AbstractUser extends ACLModel
 
         // create the temporary link
         $link = new UserLink();
-        $link->grantAllPermissions()
-             ->create([
-                'uid' => $user->id(),
-                'link_type' => UserLink::TEMPORARY, ]);
+        $link->create([
+            'uid' => $user->id(),
+            'link_type' => UserLink::TEMPORARY, ]);
 
         return $user;
     }
