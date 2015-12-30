@@ -10,7 +10,7 @@
  */
 use App\Auth\Models\UserLoginHistory;
 
-class UserLoginHistoryTest extends \PHPUnit_Framework_TestCase
+class UserLoginHistoryTest extends PHPUnit_Framework_TestCase
 {
     public static $history;
 

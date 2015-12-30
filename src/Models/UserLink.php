@@ -15,18 +15,12 @@ use Infuse\Model;
 use Infuse\Model\ACLModel;
 use Infuse\Utility as U;
 
-if (!defined('USER_LINK_FORGOT_PASSWORD')) {
-    define('USER_LINK_FORGOT_PASSWORD', 0);
-}
-if (!defined('USER_LINK_VERIFY_EMAIL')) {
-    define('USER_LINK_VERIFY_EMAIL', 1);
-}
-if (!defined('USER_LINK_TEMPORARY')) {
-    define('USER_LINK_TEMPORARY', 2);
-}
-
 class UserLink extends ACLModel
 {
+    const LINK_FORGOT_PASSWORD = 0;
+    const LINK_VERIFY_EMAIL = 1;
+    const LINK_TEMPORARY = 2;
+
     public static $scaffoldApi;
     protected static $autoTimestamps;
 
@@ -48,9 +42,9 @@ class UserLink extends ACLModel
             'required' => true,
             'admin_type' => 'enum',
             'admin_enum' => [
-                USER_LINK_FORGOT_PASSWORD => 'Forgot Password',
-                USER_LINK_VERIFY_EMAIL => 'Verify E-mail',
-                USER_LINK_TEMPORARY => 'Temporary',
+                self::FORGOT_PASSWORD => 'Forgot Password',
+                self::VERIFY_EMAIL => 'Verify E-mail',
+                self::TEMPORARY => 'Temporary',
             ],
         ],
     ];
@@ -92,7 +86,7 @@ class UserLink extends ACLModel
      */
     public function url()
     {
-        if ($this->link_type === USER_LINK_FORGOT_PASSWORD) {
+        if ($this->link_type === self::FORGOT_PASSWORD) {
             return $this->app['base_url'].'users/forgot/'.$this->link;
         }
 
@@ -106,7 +100,9 @@ class UserLink extends ACLModel
      */
     public static function garbageCollect()
     {
-        return !!self::$injectedApp['db']->delete('UserLinks')->where('link_type', USER_LINK_FORGOT_PASSWORD)
-            ->where('created_at', U::unixToDb(time() - self::$forgotLinkTimeframe), '<')->execute();
+        return !!self::$injectedApp['db']->delete('UserLinks')
+            ->where('link_type', self::FORGOT_PASSWORD)
+            ->where('created_at', U::unixToDb(time() - self::$forgotLinkTimeframe), '<')
+            ->execute();
     }
 }

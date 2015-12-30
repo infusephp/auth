@@ -10,7 +10,7 @@
  */
 use App\Auth\Models\GroupMember;
 
-class GroupMemberTest extends \PHPUnit_Framework_TestCase
+class GroupMemberTest extends PHPUnit_Framework_TestCase
 {
     public static $member;
 

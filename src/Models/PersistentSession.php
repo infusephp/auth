@@ -55,6 +55,7 @@ class PersistentSession extends ACLModel
     public static function garbageCollect()
     {
         return !!self::$injectedApp['db']->delete('PersistentSessions')
-            ->where('created_at', U::unixToDb(time() - self::$sessionLength), '<')->execute();
+            ->where('created_at', U::unixToDb(time() - self::$sessionLength), '<')
+            ->execute();
     }
 }

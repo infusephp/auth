@@ -10,7 +10,7 @@
  */
 use App\Auth\Models\PersistentSession;
 
-class PersistentSessionTest extends \PHPUnit_Framework_TestCase
+class PersistentSessionTest extends PHPUnit_Framework_TestCase
 {
     public static $sesh;
 

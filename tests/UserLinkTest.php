@@ -10,7 +10,7 @@
  */
 use App\Auth\Models\UserLink;
 
-class UserLinkTest extends \PHPUnit_Framework_TestCase
+class UserLinkTest extends PHPUnit_Framework_TestCase
 {
     public static $link;
 
@@ -33,7 +33,7 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($link->create([
             'uid' => Test::$app['user']->id() - 1,
-            'link_type' => USER_LINK_FORGOT_PASSWORD, ]));
+            'link_type' => UserLink::FORGOT_PASSWORD, ]));
         $errors = $errorStack->errors();
         $expected = [[
             'error' => 'no_permission',
@@ -49,7 +49,7 @@ class UserLinkTest extends \PHPUnit_Framework_TestCase
         self::$link->grantAllPermissions();
         $this->assertTrue(self::$link->create([
             'uid' => -1,
-            'link_type' => USER_LINK_FORGOT_PASSWORD, ]));
+            'link_type' => UserLink::FORGOT_PASSWORD, ]));
     }
 
     /**

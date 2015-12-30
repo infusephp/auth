@@ -113,15 +113,10 @@ abstract class AbstractUser extends ACLModel
         $protectedFields = static::$protectedFields;
 
         // check if the current password is accurate
-        $passwordValidated = false;
+        $password = U::array_value($data, 'current_password');
+        $encryptedPassword = $this->app['auth']->encrypt($password);
 
-        $encryptedPassword = U::encrypt_password(
-            U::array_value($data, 'current_password'),
-            $this->app['config']->get('site.salt'));
-
-        if ($encryptedPassword == $this->user_password) {
-            $passwordValidated = true;
-        }
+        $passwordValidated = $encryptedPassword == $this->user_password;
 
         $passwordRequired = false;
 
@@ -169,7 +164,9 @@ abstract class AbstractUser extends ACLModel
             'UserLinks', ];
 
         foreach ($nuke as $tablename) {
-            $this->app['db']->delete($tablename)->where('uid', $this->_id)->execute();
+            $this->app['db']->delete($tablename)
+                ->where('uid', $this->_id)
+                ->execute();
         }
     }
 
@@ -196,7 +193,7 @@ abstract class AbstractUser extends ACLModel
     {
         return UserLink::totalRecords([
             'uid' => $this->_id,
-            'link_type' => USER_LINK_TEMPORARY, ]) > 0;
+            'link_type' => UserLink::TEMPORARY, ]) > 0;
     }
 
     /**
@@ -212,7 +209,7 @@ abstract class AbstractUser extends ACLModel
 
         return UserLink::totalRecords([
             'uid' => $this->_id,
-            'link_type' => USER_LINK_VERIFY_EMAIL,
+            'link_type' => UserLink::VERIFY_EMAIL,
             'created_at <= "'.U::unixToDb($timeWindow).'"', ]) == 0;
     }
 
@@ -247,7 +244,7 @@ abstract class AbstractUser extends ACLModel
     {
         $return = ['everyone'];
 
-        $groups = GroupMember::where(['uid' => $this->_id])
+        $groups = GroupMember::where('uid', $this->_id)
             ->sort('`group` ASC')
             ->all();
 
@@ -406,7 +403,7 @@ abstract class AbstractUser extends ACLModel
         $link->grantAllPermissions()
              ->create([
                 'uid' => $user->id(),
-                'link_type' => USER_LINK_TEMPORARY, ]);
+                'link_type' => UserLink::TEMPORARY, ]);
 
         return $user;
     }
@@ -473,15 +470,14 @@ abstract class AbstractUser extends ACLModel
 
         // Check for the password.
         // Only the current user can delete their account using this method
-        if ($this->exists() &&
-            !$this->isAdmin() &&
-            $this->app['user']->id() == $this->_id &&
-            U::encrypt_password($password, $this->app['config']->get('site.salt')) == $this->user_password) {
-            $this->grantAllPermissions();
-
-            return $this->delete();
+        $password = $this->app['auth']->encrypt($password);
+        if (!$this->exists() ||
+            $this->isAdmin() ||
+            $this->app['user']->id() != $this->_id ||
+            $password != $this->user_password) {
+            return false;
         }
 
-        return false;
+        return $this->grantAllPermissions()->delete();
     }
 }
