@@ -12,6 +12,7 @@ namespace App\Auth\Console;
 
 use App\Auth\Libs\Auth;
 use App\Auth\Models\UserLink;
+use Infuse\HasApp;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ResetPasswordLinkCommand extends Command
 {
-    use \InjectApp;
+    use HasApp;
 
     protected function configure()
     {

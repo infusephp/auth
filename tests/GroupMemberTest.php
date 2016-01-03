@@ -9,6 +9,7 @@
  * @license MIT
  */
 use App\Auth\Models\GroupMember;
+use Infuse\Test;
 
 class GroupMemberTest extends PHPUnit_Framework_TestCase
 {

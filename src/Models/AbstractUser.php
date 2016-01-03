@@ -10,10 +10,10 @@
  */
 namespace App\Auth\Models;
 
-use Infuse\Model;
-use Infuse\Model\ACLModel;
+use Pulsar\Model;
+use Pulsar\ACLModel;
 use Infuse\Utility as U;
-use Infuse\Validate;
+use Pulsar\Validate;
 
 abstract class AbstractUser extends ACLModel
 {
@@ -423,7 +423,7 @@ abstract class AbstractUser extends ACLModel
     {
         $params = array_replace([
             'base_url' => $this->app['base_url'],
-            'siteEmail' => $this->app['config']->get('site.email'),
+            'siteEmail' => $this->app['config']->get('app.email'),
             'email' => $this->user_email,
             'username' => $this->name(true),
             'to' => [[
@@ -434,18 +434,18 @@ abstract class AbstractUser extends ACLModel
 
         switch ($template) {
         case 'welcome':
-            $params['subject'] = 'Welcome to '.$this->app['config']->get('site.title');
+            $params['subject'] = 'Welcome to '.$this->app['config']->get('app.title');
         break;
         case 'verify-email':
             $params['subject'] = 'Please verify your email address';
             $params['verify_link'] = "{$params['base_url']}users/verifyEmail/{$params['verify']}";
         break;
         case 'forgot-password':
-            $params['subject'] = 'Password change request on '.$this->app['config']->get('site.title');
+            $params['subject'] = 'Password change request on '.$this->app['config']->get('app.title');
             $params['forgot_link'] = "{$params['base_url']}users/forgot/{$params['forgot']}";
         break;
         case 'password-changed':
-            $params['subject'] = 'Your password was changed on '.$this->app['config']->get('site.title');
+            $params['subject'] = 'Your password was changed on '.$this->app['config']->get('app.title');
         break;
         }
 

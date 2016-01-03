@@ -10,15 +10,15 @@
  */
 namespace App\Auth\Libs;
 
-use App;
 use App\Auth\Models\PersistentSession;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\UserLoginHistory;
-use Infuse\Model;
+use Infuse\HasApp;
+use Pulsar\Model;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Utility as U;
-use Infuse\Validate;
+use Pulsar\Validate;
 
 if (!defined('GUEST')) {
     define('GUEST', -1);
@@ -29,7 +29,7 @@ if (!defined('SUPER_USER')) {
 
 class Auth
 {
-    use \InjectApp;
+    use HasApp;
 
     const USER_MODEL = 'App\Users\Models\User';
 
@@ -579,7 +579,7 @@ class Auth
      */
     public function encrypt($password)
     {
-        return U::encrypt_password($password, $this->app['config']->get('site.salt'));
+        return U::encrypt_password($password, $this->app['config']->get('app.salt'));
     }
 
     /////////////////////////

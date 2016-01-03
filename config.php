@@ -12,7 +12,7 @@
 /* This configuration is used to run the tests */
 
 return  [
-  'site' => [
+  'app' => [
     'salt' => 'replacewithrandomstring',
   ],
   'modules' => [

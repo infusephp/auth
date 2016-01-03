@@ -9,6 +9,7 @@
  * @license MIT
  */
 use App\Auth\Models\PersistentSession;
+use Infuse\Test;
 
 class PersistentSessionTest extends PHPUnit_Framework_TestCase
 {

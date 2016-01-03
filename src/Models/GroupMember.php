@@ -10,8 +10,8 @@
  */
 namespace App\Auth\Models;
 
-use Infuse\Model;
-use Infuse\Model\ACLModel;
+use Pulsar\Model;
+use Pulsar\ACLModel;
 use App\Auth\Libs\Auth;
 
 class GroupMember extends ACLModel

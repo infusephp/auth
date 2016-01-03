@@ -12,11 +12,12 @@ namespace App\Auth;
 
 use App\Auth\Models\UserLink;
 use App\Auth\Models\PersistentSession;
-use Infuse\Model\ACLModel;
+use Infuse\HasApp;
+use Pulsar\ACLModel;
 
 class Controller
 {
-    use \InjectApp;
+    use HasApp;
 
     public static $properties = [
         'models' => [

@@ -3,7 +3,7 @@
 namespace App\Auth\Services;
 
 use App\Auth\Libs\Auth as AuthService;
-use Infuse\Model\ACLModel;
+use Pulsar\ACLModel;
 
 class Auth
 {

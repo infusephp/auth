@@ -11,7 +11,7 @@
 namespace App\Auth\Models;
 
 use App\Auth\Libs\Auth;
-use Infuse\Model;
+use Pulsar\Model;
 use Infuse\Utility as U;
 
 class PersistentSession extends Model

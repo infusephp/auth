@@ -11,6 +11,7 @@
 use App\Auth\Libs\Auth;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\UserLoginHistory;
+use Infuse\Test;
 
 class AuthTest extends PHPUnit_Framework_TestCase
 {

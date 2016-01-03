@@ -12,6 +12,7 @@ use App\Auth\Libs\Auth;
 use App\Auth\Models\GroupMember;
 use App\Users\Models\User;
 use App\Auth\Models\UserLink;
+use Infuse\Test;
 
 class AbstractUserTest extends PHPUnit_Framework_TestCase
 {
