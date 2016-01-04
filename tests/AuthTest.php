@@ -11,6 +11,8 @@
 use App\Auth\Libs\Auth;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\UserLoginHistory;
+use Infuse\Request;
+use Infuse\Response;
 use Infuse\Test;
 
 class AuthTest extends PHPUnit_Framework_TestCase
@@ -26,7 +28,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
         Test::$app['user']->enableSU();
 
         Test::$app['db']->delete('Users')
-            ->where('user_email', 'test@example.com')->execute();
+            ->where('user_email', 'test@example.com')
+            ->execute();
 
         self::$user = $userModel::registerUser([
             'first_name' => 'Bob',
@@ -69,8 +72,10 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-        // self::$app = new App();
-        self::$auth = new Auth(Test::$app);
+        self::$auth = new Auth();
+        self::$auth->injectApp(Test::$app)
+                   ->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
+                   ->setResponse(new Response());
     }
 
     public function testGetUserWithCredentialsFail()
@@ -129,7 +134,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testGetUserWithCredentialsFailDisabled()
     {
         Test::$app['db']->delete('UserLinks')
-            ->where('uid', self::$user->id())->execute();
+            ->where('uid', self::$user->id())
+            ->execute();
 
         self::$user->enabled = false;
         $this->assertTrue(self::$user->save());
@@ -181,7 +187,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testGetUserWithCredentials()
     {
         Test::$app['db']->delete('UserLinks')
-            ->where('uid', self::$user->id())->execute();
+            ->where('uid', self::$user->id())
+            ->execute();
 
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
@@ -344,8 +351,10 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testForgotStep1()
     {
-        Test::$app['db']->delete('UserLinks')->where('link_type', UserLink::FORGOT_PASSWORD)
-            ->where('uid', self::$user->id())->execute();
+        Test::$app['db']->delete('UserLinks')
+            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('uid', self::$user->id())
+            ->execute();
 
         $errorStack = Test::$app['errors'];
         $errorStack->clear();
@@ -381,8 +390,10 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testForgotStep2()
     {
-        Test::$app['db']->delete('UserLinks')->where('link_type', UserLink::FORGOT_PASSWORD)
-            ->where('uid', self::$user->id())->execute();
+        Test::$app['db']->delete('UserLinks')
+            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('uid', self::$user->id())
+            ->execute();
 
         $link = new UserLink();
         $this->assertTrue($link->create([

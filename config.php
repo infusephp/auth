@@ -15,11 +15,22 @@ return  [
   'app' => [
     'salt' => 'replacewithrandomstring',
   ],
+  'dirs' => [
+    'views' => __DIR__.'/tests/views',
+  ],
   'services' => [
     'auth' => 'App\Auth\Services\Auth',
     'db' => 'Infuse\Services\Database',
+    'mailer' => 'App\Email\MailerService',
     'model_driver' => 'Infuse\Services\ModelDriver',
     'pdo' => 'Infuse\Services\Pdo',
+    'queue_driver' => 'Infuse\Services\QueueDriver',
+  ],
+  'models' => [
+    'driver' => 'Pulsar\Driver\DatabaseDriver',
+  ],
+  'queue' => [
+    'driver' => 'Infuse\Queue\Driver\SynchronousDriver',
   ],
   'modules' => [
     'middleware' => [

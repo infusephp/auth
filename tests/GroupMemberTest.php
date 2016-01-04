@@ -17,8 +17,10 @@ class GroupMemberTest extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('GroupMembers')->where('uid', -1)
-            ->where('group', 'test')->execute();
+        Test::$app['db']->delete('GroupMembers')
+            ->where('uid', -1)
+            ->where('group', 'test')
+            ->execute();
     }
 
     public function testHasPermission()

@@ -12,6 +12,8 @@ use App\Auth\Libs\Auth;
 use App\Auth\Models\GroupMember;
 use App\Users\Models\User;
 use App\Auth\Models\UserLink;
+use Infuse\Request;
+use Infuse\Response;
 use Infuse\Test;
 
 class AbstractUserTest extends PHPUnit_Framework_TestCase
@@ -25,8 +27,15 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         self::$ogUserId = Test::$app['user']->id();
 
         $db = Test::$app['db'];
-        $db->delete('Users')->where('user_email', 'test@example.com')->execute();
-        $db->delete('Users')->where('user_email', 'test2@example.com')->execute();
+        $db->delete('Users')
+            ->where('user_email', 'test@example.com')
+            ->execute();
+        $db->delete('Users')
+            ->where('user_email', 'test2@example.com')
+            ->execute();
+
+        Test::$app['auth']->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
+            ->setResponse(new Response());
     }
 
     public static function tearDownAfterClass()
@@ -70,8 +79,8 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
             'ip' => '127.0.0.1',
         ], true);
 
-        $this->assertInstanceOf('App\Users\Models\User', self::$user);
-        $this->assertGreaterThan(0, self::$user->id());
+        $this->assertInstanceOf('App\Users\Models\User', self::$user2);
+        $this->assertGreaterThan(0, self::$user2->id());
     }
 
     public function testPermissions()
@@ -156,12 +165,12 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(self::$user->isVerified(false));
         $this->assertTrue(self::$user->isVerified(true));
 
-        $link = UserLink::where(['uid' => self::$user->id(), 'link_type' => UserLink::VERIFY_EMAIL])
+        $link = UserLink::where('uid', self::$user->id())
+            ->where('link_type', UserLink::VERIFY_EMAIL)
             ->first()
             ->delete();
 
         $this->assertTrue(self::$user->isVerified());
-
         $this->assertTrue(self::$user2->isVerified());
     }
 
@@ -250,7 +259,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(User::createTemporary([]));
 
         self::$user = User::createTemporary([
-            'user_email' => 'test@example.com', ]);
+            'user_email' => 'test3@example.com', ]);
 
         $this->assertInstanceOf('App\Users\Models\User', self::$user);
         $this->assertTrue(self::$user->isTemporary());
@@ -258,7 +267,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $upgradedUser = User::registerUser([
                 'first_name' => 'Bob',
                 'last_name' => 'Loblaw',
-                'user_email' => 'test@example.com',
+                'user_email' => 'test3@example.com',
                 'user_password' => ['testpassword', 'testpassword'],
                 'ip' => '127.0.0.1',
             ]);

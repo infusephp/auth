@@ -82,7 +82,7 @@ abstract class AbstractUser extends ACLModel
     {
         parent::__construct($id);
 
-        if ($isLoggedIn && $this->_id > 0) {
+        if ($isLoggedIn && $this->id() > 0) {
             $this->logged_in = true;
         }
     }
@@ -92,7 +92,7 @@ abstract class AbstractUser extends ACLModel
         // allow user registrations
         if ($permission == 'create' && !$requester->isLoggedIn()) {
             return true;
-        } elseif (in_array($permission, ['edit']) && $requester->id() == $this->_id) {
+        } elseif (in_array($permission, ['edit']) && $requester->id() == $this->id()) {
             return true;
         }
 
@@ -165,7 +165,7 @@ abstract class AbstractUser extends ACLModel
 
         foreach ($nuke as $tablename) {
             $this->app['db']->delete($tablename)
-                ->where('uid', $this->_id)
+                ->where('uid', $this->id())
                 ->execute();
         }
     }
@@ -192,7 +192,7 @@ abstract class AbstractUser extends ACLModel
     public function isTemporary()
     {
         return UserLink::totalRecords([
-            'uid' => $this->_id,
+            'uid' => $this->id(),
             'link_type' => UserLink::TEMPORARY, ]) > 0;
     }
 
@@ -208,7 +208,7 @@ abstract class AbstractUser extends ACLModel
         $timeWindow = ($withinTimeWindow) ? time() - UserLink::$verifyTimeWindow : time();
 
         return UserLink::totalRecords([
-            'uid' => $this->_id,
+            'uid' => $this->id(),
             'link_type' => UserLink::VERIFY_EMAIL,
             'created_at <= "'.U::unixToDb($timeWindow).'"', ]) == 0;
     }
@@ -244,7 +244,7 @@ abstract class AbstractUser extends ACLModel
     {
         $return = ['everyone'];
 
-        $groups = GroupMember::where('uid', $this->_id)
+        $groups = GroupMember::where('uid', $this->id())
             ->sort('`group` ASC')
             ->all();
 
@@ -270,7 +270,7 @@ abstract class AbstractUser extends ACLModel
 
         return GroupMember::totalRecords([
             'group' => $group,
-            'uid' => $this->_id, ]) == 1;
+            'uid' => $this->id(), ]) == 1;
     }
 
     /**
@@ -309,7 +309,7 @@ abstract class AbstractUser extends ACLModel
         }
 
         $this->isSu = true;
-        $this->oldUid = $this->_id;
+        $this->oldUid = $this->id();
         $this->_id = SUPER_USER;
     }
 
@@ -472,7 +472,7 @@ abstract class AbstractUser extends ACLModel
         $password = $this->app['auth']->encrypt($password);
         if (!$this->exists() ||
             $this->isAdmin() ||
-            $this->app['user']->id() != $this->_id ||
+            $this->app['user']->id() != $this->id() ||
             $password != $this->user_password) {
             return false;
         }
