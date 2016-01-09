@@ -113,7 +113,7 @@ abstract class AbstractUser extends ACLModel
         $protectedFields = static::$protectedFields;
 
         // check if the current password is accurate
-        $password = U::array_value($data, 'current_password');
+        $password = array_value($data, 'current_password');
         $encryptedPassword = $this->app['auth']->encrypt($password);
 
         $passwordValidated = $encryptedPassword == $this->user_password;
@@ -341,7 +341,7 @@ abstract class AbstractUser extends ACLModel
      */
     public static function registerUser(array $data, $verifiedEmail = false)
     {
-        $tempUser = self::$injectedApp['auth']->getTemporaryUser(U::array_value($data, 'user_email'));
+        $tempUser = self::$injectedApp['auth']->getTemporaryUser(array_value($data, 'user_email'));
 
         // upgrade temporary account
         if ($tempUser &&
@@ -374,7 +374,7 @@ abstract class AbstractUser extends ACLModel
      */
     public static function createTemporary($data)
     {
-        $email = U::array_value($data, 'user_email');
+        $email = array_value($data, 'user_email');
         if (!Validate::is($email, 'email')) {
             return false;
         }
@@ -429,7 +429,7 @@ abstract class AbstractUser extends ACLModel
             'to' => [[
                 'email' => $this->user_email,
                 'name' => $this->name(true), ]],
-            'tags' => array_merge([$template], (array) U::array_value($message, 'tags')),
+            'tags' => array_merge([$template], (array) array_value($message, 'tags')),
         ], $message);
 
         switch ($template) {
