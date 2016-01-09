@@ -1,11 +1,11 @@
 auth
 =============
 
-[![Build Status](https://travis-ci.org/infusephp/auth.png?branch=master)](https://travis-ci.org/infusephp/auth)
-[![Coverage Status](https://coveralls.io/repos/infusephp/auth/badge.png)](https://coveralls.io/r/infusephp/auth)
-[![Latest Stable Version](https://poser.pugx.org/infuse/auth/v/stable.png)](https://packagist.org/packages/infuse/auth)
-[![Total Downloads](https://poser.pugx.org/infuse/auth/downloads.png)](https://packagist.org/packages/infuse/auth)
-[![HHVM Status](http://hhvm.h4cc.de/badge/infuse/auth.svg)](http://hhvm.h4cc.de/package/infuse/auth)
+[![Build Status](https://travis-ci.org/infusephp/auth.svg?branch=master&style=flat)](https://travis-ci.org/infusephp/auth)
+[![Coverage Status](https://coveralls.io/repos/infusephp/auth/badge.svg?style=flat)](https://coveralls.io/r/infusephp/auth)
+[![Latest Stable Version](https://poser.pugx.org/infuse/auth/v/stable.svg?style=flat)](https://packagist.org/packages/infuse/auth)
+[![Total Downloads](https://poser.pugx.org/infuse/auth/downloads.svg?style=flat)](https://packagist.org/packages/infuse/auth)
+[![HHVM Status](http://hhvm.h4cc.de/badge/infuse/auth.svg?style=flat)](http://hhvm.h4cc.de/package/infuse/auth)
 
 Auth module for Infuse Framework
 
