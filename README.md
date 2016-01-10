@@ -27,10 +27,10 @@ composer require infuse/auth
 ]
 ```
 
-3. (optional) Add the console command for helper tasks to `modules.commands` in your app's configuration:
+3. (optional) Add the console command for helper tasks to `console.commands` in your app's configuration:
 
 ```php
-'modules' => [
+'console' => [
 	// ...
 	'commands' => [
 		// ...
