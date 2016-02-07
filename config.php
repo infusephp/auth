@@ -35,7 +35,6 @@ return  [
   'modules' => [
     'middleware' => [
       'auth',
-      'email',
     ],
   ],
   'database' => [
