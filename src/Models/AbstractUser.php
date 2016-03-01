@@ -24,14 +24,7 @@ abstract class AbstractUser extends ACLModel
     public static $scaffoldApi;
     protected static $autoTimestamps;
 
-    protected static $ids = ['uid'];
-
     protected static $properties = [
-        'uid' => [
-            'type' => Model::TYPE_NUMBER,
-            'mutable' => false,
-            'admin_hidden_property' => true,
-        ],
         'user_email' => [
             'validate' => 'email',
             'required' => true,
