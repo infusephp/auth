@@ -12,9 +12,6 @@ use Phinx\Migration\AbstractMigration;
 
 class UserLoginHistory extends AbstractMigration
 {
-    /**
-     * Change Method.
-     */
     public function change()
     {
         if (!$this->hasTable('UserLoginHistories')) {
@@ -27,19 +24,5 @@ class UserLoginHistory extends AbstractMigration
                   ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
                   ->create();
         }
-    }
-
-    /**
-     * Migrate Up.
-     */
-    public function up()
-    {
-    }
-
-    /**
-     * Migrate Down.
-     */
-    public function down()
-    {
     }
 }

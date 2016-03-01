@@ -69,7 +69,7 @@ abstract class AbstractUser extends ACLModel
 
     protected $logged_in = false;
     protected $isSu = false;
-    protected $oldUid = false;
+    protected $oldUserId = false;
     protected static $protectedFields = ['user_email', 'user_password'];
 
     /**
@@ -165,7 +165,7 @@ abstract class AbstractUser extends ACLModel
 
         foreach ($nuke as $tablename) {
             $this->app['db']->delete($tablename)
-                ->where('uid', $this->id())
+                ->where('user_id', $this->id())
                 ->execute();
         }
     }
@@ -192,7 +192,7 @@ abstract class AbstractUser extends ACLModel
     public function isTemporary()
     {
         return UserLink::totalRecords([
-            'uid' => $this->id(),
+            'user_id' => $this->id(),
             'link_type' => UserLink::TEMPORARY, ]) > 0;
     }
 
@@ -208,7 +208,7 @@ abstract class AbstractUser extends ACLModel
         $timeWindow = ($withinTimeWindow) ? time() - UserLink::$verifyTimeWindow : time();
 
         return UserLink::totalRecords([
-            'uid' => $this->id(),
+            'user_id' => $this->id(),
             'link_type' => UserLink::VERIFY_EMAIL,
             'created_at <= "'.U::unixToDb($timeWindow).'"', ]) == 0;
     }
@@ -244,7 +244,7 @@ abstract class AbstractUser extends ACLModel
     {
         $return = ['everyone'];
 
-        $groups = GroupMember::where('uid', $this->id())
+        $groups = GroupMember::where('user_id', $this->id())
             ->sort('`group` ASC')
             ->all();
 
@@ -270,7 +270,7 @@ abstract class AbstractUser extends ACLModel
 
         return GroupMember::totalRecords([
             'group' => $group,
-            'uid' => $this->id(), ]) == 1;
+            'user_id' => $this->id(), ]) == 1;
     }
 
     /**
@@ -309,7 +309,7 @@ abstract class AbstractUser extends ACLModel
         }
 
         $this->isSu = true;
-        $this->oldUid = $this->id();
+        $this->oldUserId = $this->id();
         $this->_id = SUPER_USER;
     }
 
@@ -323,8 +323,8 @@ abstract class AbstractUser extends ACLModel
         }
 
         $this->isSu = false;
-        $this->_id = $this->oldUid;
-        $this->oldUid = false;
+        $this->_id = $this->oldUserId;
+        $this->oldUserId = false;
     }
 
     ///////////////////////////////////
@@ -401,7 +401,7 @@ abstract class AbstractUser extends ACLModel
         // create the temporary link
         $link = new UserLink();
         $link->create([
-            'uid' => $user->id(),
+            'user_id' => $user->id(),
             'link_type' => UserLink::TEMPORARY, ]);
 
         return $user;

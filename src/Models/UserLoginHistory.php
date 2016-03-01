@@ -18,7 +18,7 @@ class UserLoginHistory extends Model
     protected static $autoTimestamps;
 
     protected static $properties = [
-        'uid' => [
+        'user_id' => [
             'relation' => Auth::USER_MODEL,
         ],
         'type' => [],

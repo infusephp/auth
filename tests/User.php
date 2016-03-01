@@ -14,6 +14,12 @@ use App\Auth\Models\AbstractUser;
 
 class User extends AbstractUser
 {
+    public static $testUser = [
+        'first_name' => 'Bob',
+        'last_name' => 'Loblaw',
+        'ip' => '127.0.0.1',
+    ];
+
     /**
      * Gets the user's name.
      *

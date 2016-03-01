@@ -19,11 +19,11 @@ class GroupMember extends ACLModel
     public static $scaffoldApi;
     protected static $autoTimestamps;
 
-    protected static $ids = ['group', 'uid'];
+    protected static $ids = ['group', 'user_id'];
 
     protected static $properties = [
         'group' => [],
-        'uid' => [
+        'user_id' => [
             'type' => Model::TYPE_NUMBER,
             'relation' => Auth::USER_MODEL,
         ],

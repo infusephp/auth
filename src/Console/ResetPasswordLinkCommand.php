@@ -47,7 +47,7 @@ class ResetPasswordLinkCommand extends Command
         }
 
         $link = new UserLink();
-        $link->uid = $user->id();
+        $link->user_id = $user->id();
         $link->link_type = UserLink::FORGOT_PASSWORD;
         if (!$link->save()) {
             $output->writeln("Could not create reset password link for $email");

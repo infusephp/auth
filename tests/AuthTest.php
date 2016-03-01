@@ -113,7 +113,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->save());
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
         $errorStack = Test::$app['errors'];
@@ -134,7 +134,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testGetUserWithCredentialsFailDisabled()
     {
         Test::$app['db']->delete('UserLinks')
-            ->where('uid', self::$user->id())
+            ->where('user_id', self::$user->id())
             ->execute();
 
         self::$user->enabled = false;
@@ -162,7 +162,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::VERIFY_EMAIL, ]));
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
@@ -187,7 +187,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public function testGetUserWithCredentials()
     {
         Test::$app['db']->delete('UserLinks')
-            ->where('uid', self::$user->id())
+            ->where('user_id', self::$user->id())
             ->execute();
 
         self::$user->enabled = true;
@@ -208,7 +208,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->isLoggedIn());
 
         $this->assertEquals(1, UserLoginHistory::totalRecords([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'type' => 'web', ]));
     }
 
@@ -260,7 +260,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
         $user = self::$auth->getTemporaryUser('test@example.com');
@@ -272,12 +272,12 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::VERIFY_EMAIL, ]));
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
@@ -305,7 +305,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::VERIFY_EMAIL, ]));
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
@@ -323,7 +323,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
 
         $this->assertFalse(self::$auth->getUserFromForgotToken('blah'));
@@ -353,7 +353,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         Test::$app['db']->delete('UserLinks')
             ->where('link_type', UserLink::FORGOT_PASSWORD)
-            ->where('uid', self::$user->id())
+            ->where('user_id', self::$user->id())
             ->execute();
 
         $errorStack = Test::$app['errors'];
@@ -385,19 +385,19 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$auth->forgotStep1('test@example.com', '127.0.0.1'));
         $this->assertEquals(1, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,
-            'uid' => self::$user->id(), ]));
+            'user_id' => self::$user->id(), ]));
     }
 
     public function testForgotStep2()
     {
         Test::$app['db']->delete('UserLinks')
             ->where('link_type', UserLink::FORGOT_PASSWORD)
-            ->where('uid', self::$user->id())
+            ->where('user_id', self::$user->id())
             ->execute();
 
         $link = new UserLink();
         $this->assertTrue($link->create([
-            'uid' => self::$user->id(),
+            'user_id' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
 
         $this->assertFalse(self::$auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1'));
@@ -408,6 +408,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertNotEquals($oldUserPassword, self::$user->user_password);
         $this->assertEquals(0, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,
-            'uid' => self::$user->id(), ]));
+            'user_id' => self::$user->id(), ]));
     }
 }

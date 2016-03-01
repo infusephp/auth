@@ -12,9 +12,6 @@ use Phinx\Migration\AbstractMigration;
 
 class UserLoginHistoryType extends AbstractMigration
 {
-    /**
-     * Migrate Up.
-     */
     public function up()
     {
         $this->table('UserLoginHistories')->changeColumn('type', 'string', ['length' => 50]);
@@ -39,12 +36,5 @@ class UserLoginHistoryType extends AbstractMigration
 
             $this->execute('UPDATE UserLoginHistories SET type = "'.$type.'" WHERE id = '.$row['id']);
         }
-    }
-
-    /**
-     * Migrate Down.
-     */
-    public function down()
-    {
     }
 }

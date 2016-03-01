@@ -18,7 +18,7 @@ class UserLinkTest extends PHPUnit_Framework_TestCase
     {
         self::$link = new UserLink();
         $this->assertTrue(self::$link->create([
-            'uid' => -1,
+            'user_id' => -1,
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
     }
 

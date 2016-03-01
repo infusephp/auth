@@ -17,10 +17,11 @@ class UserLoginHistoryTest extends PHPUnit_Framework_TestCase
     public function testCreate()
     {
         self::$history = new UserLoginHistory();
-        $this->assertTrue(self::$history->create([
-            'uid' => -1,
-            'type' => 'web',
-            'ip' => '127.0.0.1', ]));
+        self::$history->user_id = -1;
+        self::$history->type = 'web';
+        self::$history->ip = '127.0.0.1';
+        self::$history->user_agent = 'Firefox';
+        $this->assertTrue(self::$history->save());
     }
 
     /**

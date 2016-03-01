@@ -18,7 +18,7 @@ class GroupMemberTest extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         Test::$app['db']->delete('GroupMembers')
-            ->where('uid', -1)
+            ->where('user_id', -1)
             ->where('group', 'test')
             ->execute();
     }
@@ -34,7 +34,7 @@ class GroupMemberTest extends PHPUnit_Framework_TestCase
     {
         self::$member = new GroupMember();
         self::$member->grantAllPermissions();
-        $this->assertTrue(self::$member->create(['group' => 'test', 'uid' => -1]));
+        $this->assertTrue(self::$member->create(['group' => 'test', 'user_id' => -1]));
     }
 
     /**

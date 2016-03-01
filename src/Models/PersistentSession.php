@@ -32,7 +32,7 @@ class PersistentSession extends Model
             'validate' => 'string:128',
             'admin_hidden_property' => true,
         ],
-        'uid' => [
+        'user_id' => [
             'type' => Model::TYPE_NUMBER,
             'relation' => Auth::USER_MODEL,
         ],
@@ -47,7 +47,7 @@ class PersistentSession extends Model
      */
     public static function garbageCollect()
     {
-        return !!self::$injectedApp['db']->delete('PersistentSessions')
+        return (bool) self::$injectedApp['db']->delete('PersistentSessions')
             ->where('created_at', U::unixToDb(time() - self::$sessionLength), '<')
             ->execute();
     }

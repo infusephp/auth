@@ -269,27 +269,27 @@ class Auth
     }
 
     /**
-     * Returns a logged in user for a given uid.
+     * Returns a logged in user for a given user ID.
      * This method is used for signing in via any
      * provider (traditional, oauth, fb, twitter, etc.).
      *
-     * @param int $uid
-     * @param int $type an integer flag to denote the login type
+     * @param int $userId
+     * @param int $type   an integer flag to denote the login type
      *
      * @return User authenticated user model
      */
-    public function signInUser($uid, $type = 'web')
+    public function signInUser($userId, $type = 'web')
     {
         $userModel = self::USER_MODEL;
-        $user = new $userModel($uid, true);
+        $user = new $userModel($userId, true);
 
         // update the session with the user's id
-        $this->changeSessionUserID($uid);
+        $this->changeSessionUserID($userId);
 
         // create a login history entry
         $history = new UserLoginHistory();
         $history->create([
-            'uid' => $uid,
+            'user_id' => $userId,
             'type' => $type,
             'ip' => $this->request->ip(),
             'user_agent' => $this->request->agent(),
@@ -349,7 +349,7 @@ class Auth
         if ($user->set($updateArray)) {
             // remove temporary and unverified links
             $this->app['db']->delete('UserLinks')
-                ->where('uid', $user->id())
+                ->where('user_id', $user->id())
                 ->where('(link_type = '.UserLink::TEMPORARY.' OR link_type = '.UserLink::VERIFY_EMAIL.')')
                 ->execute();
 
@@ -377,7 +377,7 @@ class Auth
     public function sendVerificationEmail(Model $user)
     {
         $params = [
-            'uid' => $user->id(),
+            'user_id' => $user->id(),
             'link_type' => UserLink::VERIFY_EMAIL,
         ];
 
@@ -417,7 +417,7 @@ class Auth
         }
 
         $userModel = self::USER_MODEL;
-        $user = new $userModel($link->uid);
+        $user = new $userModel($link->user_id);
 
         // enable the user
         $user->enabled = true;
@@ -454,7 +454,7 @@ class Auth
         if ($link) {
             $userModel = self::USER_MODEL;
 
-            return new $userModel($link->uid);
+            return new $userModel($link->user_id);
         } else {
             $this->app['errors']->push(['error' => self::ERROR_FORGOT_EXPIRED_INVALID]);
         }
@@ -497,7 +497,7 @@ class Auth
 
         // make sure there are no other forgot links
         $oldLinks = UserLink::totalRecords([
-            'uid' => $user->id(),
+            'user_id' => $user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD,
             'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ]);
 
@@ -507,7 +507,7 @@ class Auth
 
         $link = new UserLink();
         $success = $link->create([
-            'uid' => $user->id(),
+            'user_id' => $user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD,
         ]);
 
@@ -556,7 +556,7 @@ class Auth
         }
 
         $this->app['db']->delete('UserLinks')
-            ->where('uid', $user->id())
+            ->where('user_id', $user->id())
             ->where('link_type', UserLink::FORGOT_PASSWORD)
             ->execute();
 
@@ -710,9 +710,9 @@ class Auth
     /**
      * Changes the user ID for the session.
      *
-     * @param int $uid
+     * @param int $userId
      */
-    private function changeSessionUserID($uid)
+    private function changeSessionUserID($userId)
     {
         if (!headers_sent() && session_status() == PHP_SESSION_ACTIVE) {
             // regenerate session id to prevent session hijacking
@@ -731,7 +731,7 @@ class Auth
 
         // set the user id
         $this->request->setSession([
-            'user_id' => $uid,
+            'user_id' => $userId,
             'user_agent' => $this->request->agent(), ]);
     }
 
@@ -753,12 +753,12 @@ class Auth
     /**
      * Stores a persistent session cookie on the response.
      *
-     * @param int    $uid
+     * @param int    $userId
      * @param string $email
      * @param string $series
      * @param string $token
      */
-    private function storePersistentCookie($uid, $email, $series = null, $token = null)
+    private function storePersistentCookie($userId, $email, $series = null, $token = null)
     {
         if (!$series) {
             $series = $this->generateToken();
@@ -788,7 +788,7 @@ class Auth
             'user_email' => $email,
             'series' => $this->encrypt($series),
             'token' => $this->encrypt($token),
-            'uid' => $uid,
+            'user_id' => $userId,
         ]);
     }
 }

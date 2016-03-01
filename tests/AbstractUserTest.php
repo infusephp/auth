@@ -165,7 +165,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(self::$user->isVerified(false));
         $this->assertTrue(self::$user->isVerified(true));
 
-        $link = UserLink::where('uid', self::$user->id())
+        $link = UserLink::where('user_id', self::$user->id())
             ->where('link_type', UserLink::VERIFY_EMAIL)
             ->first()
             ->delete();
@@ -206,7 +206,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $this->assertTrue(self::$user->isMemberOf('everyone'));
         $member = new GroupMember();
-        $member->create(['uid' => self::$user->id(), 'group' => 'group']);
+        $member->create(['user_id' => self::$user->id(), 'group' => 'group']);
         $this->assertTrue(self::$user->isMemberOf('group'));
         $this->assertFalse(self::$user->isMemberOf('random'));
     }
@@ -259,7 +259,12 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(User::createTemporary([]));
 
         self::$user = User::createTemporary([
-            'user_email' => 'test3@example.com', ]);
+            'user_email' => 'test3@example.com',
+            'user_password' => '',
+            'first_name' => '',
+            'last_name' => '',
+            'ip' => '',
+            'enabled' => true, ]);
 
         $this->assertInstanceOf('App\Users\Models\User', self::$user);
         $this->assertTrue(self::$user->isTemporary());

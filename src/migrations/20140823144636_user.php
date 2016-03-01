@@ -12,9 +12,6 @@ use Phinx\Migration\AbstractMigration;
 
 class user extends AbstractMigration
 {
-    /**
-     * Change Method.
-     */
     public function change()
     {
         if (!$this->hasTable('Users')) {
@@ -30,19 +27,5 @@ class user extends AbstractMigration
                   ->addIndex('user_email', ['unique' => true])
                   ->create();
         }
-    }
-
-    /**
-     * Migrate Up.
-     */
-    public function up()
-    {
-    }
-
-    /**
-     * Migrate Down.
-     */
-    public function down()
-    {
     }
 }

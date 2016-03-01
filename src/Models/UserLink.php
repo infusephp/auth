@@ -22,10 +22,10 @@ class UserLink extends Model
 
     protected static $autoTimestamps;
 
-    protected static $ids = ['uid', 'link'];
+    protected static $ids = ['user_id', 'link'];
 
     protected static $properties = [
-        'uid' => [
+        'user_id' => [
             'type' => Model::TYPE_NUMBER,
             'required' => true,
             'relation' => Auth::USER_MODEL,
@@ -81,7 +81,7 @@ class UserLink extends Model
      */
     public static function garbageCollect()
     {
-        return !!self::$injectedApp['db']->delete('UserLinks')
+        return (bool) self::$injectedApp['db']->delete('UserLinks')
             ->where('link_type', self::FORGOT_PASSWORD)
             ->where('created_at', U::unixToDb(time() - self::$forgotLinkTimeframe), '<')
             ->execute();
