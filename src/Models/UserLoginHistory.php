@@ -15,8 +15,6 @@ use Pulsar\Model;
 
 class UserLoginHistory extends Model
 {
-    protected static $autoTimestamps;
-
     protected static $properties = [
         'user_id' => [
             'relation' => Auth::USER_MODEL,
@@ -30,4 +28,6 @@ class UserLoginHistory extends Model
             'admin_hidden_property' => true,
         ],
     ];
+
+    protected static $autoTimestamps;
 }

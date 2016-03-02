@@ -16,8 +16,6 @@ use Infuse\Utility as U;
 
 class PersistentSession extends Model
 {
-    protected static $autoTimestamps;
-
     protected static $ids = ['token'];
 
     protected static $properties = [
@@ -38,7 +36,12 @@ class PersistentSession extends Model
         ],
     ];
 
-    public static $sessionLength = 7776000; // 3 months
+    protected static $autoTimestamps;
+
+    /**
+     * @staticvar int
+     */
+    public static $sessionLength = 7776000; // 3 months in seconds
 
     /**
      * Clears out expired user links.

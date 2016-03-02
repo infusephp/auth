@@ -17,13 +17,6 @@ use Pulsar\Validate;
 
 abstract class AbstractUser extends ACLModel
 {
-    /////////////////////////////////////
-    // Model Properties
-    /////////////////////////////////////
-
-    public static $scaffoldApi;
-    protected static $autoTimestamps;
-
     protected static $properties = [
         'user_email' => [
             'validate' => 'email',
@@ -54,16 +47,33 @@ abstract class AbstractUser extends ACLModel
         ],
     ];
 
+    public static $scaffoldApi;
+    protected static $autoTimestamps;
+
+    /**
+     * @staticvar array
+     */
     public static $usernameProperties = ['user_email'];
 
-    /////////////////////////////////////
-    // Protected Class Variables
-    /////////////////////////////////////
-
-    protected $logged_in = false;
-    protected $isSu = false;
-    protected $oldUserId = false;
+    /**
+     * @staticvar array
+     */
     protected static $protectedFields = ['user_email', 'user_password'];
+
+    /**
+     * @var bool
+     */
+    protected $logged_in = false;
+
+    /**
+     * @var bool
+     */
+    protected $isSu = false;
+
+    /**
+     * @var bool
+     */
+    protected $oldUserId = false;
 
     /**
      * Creates a new user.

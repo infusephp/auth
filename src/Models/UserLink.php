@@ -20,8 +20,6 @@ class UserLink extends Model
     const VERIFY_EMAIL = 1;
     const TEMPORARY = 2;
 
-    protected static $autoTimestamps;
-
     protected static $ids = ['user_id', 'link'];
 
     protected static $properties = [
@@ -47,9 +45,17 @@ class UserLink extends Model
         ],
     ];
 
-    public static $verifyTimeWindow = 86400; // one day
+    protected static $autoTimestamps;
 
-    public static $forgotLinkTimeframe = 1800; // 30 minutes
+    /**
+     * @staticvar int
+     */
+    public static $verifyTimeWindow = 86400; // one day in seconds
+
+    /**
+     * @staticvar int
+     */
+    public static $forgotLinkTimeframe = 1800; // 30 minutes in seconds
 
     protected function preCreateHook(&$data)
     {
