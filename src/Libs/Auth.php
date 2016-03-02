@@ -23,9 +23,6 @@ use Pulsar\Validate;
 if (!defined('GUEST')) {
     define('GUEST', -1);
 }
-if (!defined('SUPER_USER')) {
-    define('SUPER_USER', -2);
-}
 
 class Auth
 {

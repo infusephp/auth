@@ -25,7 +25,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $userModel = Auth::USER_MODEL;
 
-        Test::$app['user']->enableSU();
+        Test::$app['user']->promoteToSuperUser();
 
         Test::$app['db']->delete('Users')
             ->where('user_email', 'test@example.com')
@@ -40,7 +40,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         ]);
         self::$user->grantAllPermissions();
 
-        Test::$app['user']->disableSU();
+        Test::$app['user']->demoteToNormalUser();
 
         self::$ogUserId = Test::$app['user']->id();
     }
@@ -65,7 +65,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $userModel = Auth::USER_MODEL;
 
         $app = Test::$app;
-        if (!$app['user']->isLoggedIn()) {
+        if (!$app['user']->isSignedIn()) {
             $app['user'] = new $userModel(self::$ogUserId, true);
         }
     }
@@ -205,7 +205,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals($user->id(), self::$user->id());
-        $this->assertTrue($user->isLoggedIn());
+        $this->assertTrue($user->isSignedIn());
 
         $this->assertEquals(1, UserLoginHistory::totalRecords([
             'user_id' => self::$user->id(),
@@ -218,7 +218,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(self::$auth->login('test@example.com', 'testpassword'));
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
-        $this->assertTrue(Test::$app['user']->isLoggedIn());
+        $this->assertTrue(Test::$app['user']->isSignedIn());
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
     }
 

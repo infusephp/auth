@@ -77,7 +77,7 @@ class TestListener implements PHPUnit_Framework_TestListener
 
     public function startTest(PHPUnit_Framework_Test $test)
     {
-        Test::$app['user']->disableSU();
+        Test::$app['user']->demoteToNormalUser();
     }
 
     public function endTest(PHPUnit_Framework_Test $test, $time)

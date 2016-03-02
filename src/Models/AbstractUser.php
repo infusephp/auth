@@ -63,37 +63,32 @@ abstract class AbstractUser extends ACLModel
     /**
      * @var bool
      */
-    protected $logged_in = false;
+    protected $signedIn = false;
 
     /**
      * @var bool
      */
-    protected $isSu = false;
-
-    /**
-     * @var bool
-     */
-    protected $oldUserId = false;
+    protected $superUser = false;
 
     /**
      * Creates a new user.
      *
      * @param int  $id
-     * @param bool $isLoggedIn when true, signifies that the user is logged in
+     * @param bool $isSignedIn when true, signifies that the user is signed in
      */
-    public function __construct($id = false, $isLoggedIn = false)
+    public function __construct($id = false, $isSignedIn = false)
     {
         parent::__construct($id);
 
-        if ($isLoggedIn && $this->id() > 0) {
-            $this->logged_in = true;
+        if ($isSignedIn && $this->id() > 0) {
+            $this->signedIn = true;
         }
     }
 
     protected function hasPermission($permission, Model $requester)
     {
         // allow user registrations
-        if ($permission == 'create' && !$requester->isLoggedIn()) {
+        if ($permission == 'create' && !$requester->isSignedIn()) {
             return true;
         } elseif (in_array($permission, ['edit']) && $requester->id() == $this->id()) {
             return true;
@@ -217,13 +212,21 @@ abstract class AbstractUser extends ACLModel
     }
 
     /**
-     * Checks if the user is logged in.
+     * Checks if the user is signed in.
      *
-     * @return bool true if logged in
+     * @return bool
+     */
+    public function isSignedIn()
+    {
+        return $this->signedIn;
+    }
+
+    /**
+     * @deprecated
      */
     public function isLoggedIn()
     {
-        return $this->logged_in;
+        return $this->isSignedIn();
     }
 
     /**
@@ -235,7 +238,7 @@ abstract class AbstractUser extends ACLModel
      */
     public function isAdmin()
     {
-        return $this->isSu || $this->isMemberOf('admin');
+        return $this->isSuperUser() || $this->isMemberOf('admin');
     }
 
     /**
@@ -302,32 +305,54 @@ abstract class AbstractUser extends ACLModel
      * to everything. BE CAREFUL. Typically, this is reserved for cron jobs that need
      * to work with models belonging to other users.
      *
-     * WARNING: do not forget to remove super user permissions when done with disableSU()
+     * WARNING: do not forget to remove super user permissions when done with demoteToNormalUser()
      * or else the permissions system will be rendered moot until the request/app exits
+     *
+     * @return self
      */
-    public function enableSU()
+    public function promoteToSuperUser()
     {
-        if ($this->isSu) {
-            return;
-        }
+        $this->superUser = true;
 
-        $this->isSu = true;
-        $this->oldUserId = $this->id();
-        $this->_id = SUPER_USER;
+        return $this;
     }
 
     /**
-     * Removes super user permission.
+     * Demotes the current user back to a normal user.
+     *
+     * @return self
+     */
+    public function demoteToNormalUser()
+    {
+        $this->superUser = false;
+
+        return $this;
+    }
+
+    /**
+     * Checks if this user is a super user.
+     *
+     * @return bool
+     */
+    public function isSuperUser()
+    {
+        return $this->superUser;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function enableSU()
+    {
+        return $this->promoteToSuperUser();
+    }
+
+    /**
+     * @deprecated
      */
     public function disableSU()
     {
-        if (!$this->isSu) {
-            return;
-        }
-
-        $this->isSu = false;
-        $this->_id = $this->oldUserId;
-        $this->oldUserId = false;
+        return $this->demoteToNormalUser();
     }
 
     ///////////////////////////////////

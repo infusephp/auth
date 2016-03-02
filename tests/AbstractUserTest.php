@@ -134,7 +134,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
      */
     public function testEditProtectedFieldAdmin()
     {
-        Test::$app['user']->enableSU();
+        Test::$app['user']->promoteToSuperUser();
 
         $this->assertTrue(self::$user->set([
             'user_password' => 'testpassword',
@@ -177,10 +177,10 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     /**
      * @depends testRegisterUser
      */
-    public function testIsLoggedIn()
+    public function testIsSignedIn()
     {
-        $this->assertFalse(self::$user->isLoggedIn());
-        $this->assertTrue(Test::$app['user']->isLoggedIn());
+        $this->assertFalse(self::$user->isSignedIn());
+        $this->assertTrue(Test::$app['user']->isSignedIn());
     }
 
     /**
@@ -242,15 +242,15 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->deleteConfirm('testpassword'));
     }
 
-    public function testSU()
+    public function testSuperUser()
     {
         $user = Test::$app['user'];
         $this->assertFalse($user->isAdmin());
 
-        $user->enableSU();
+        $user->promoteToSuperUser();
         $this->assertTrue($user->isAdmin());
 
-        $user->disableSU();
+        $user->demoteToNormalUser();
         $this->assertFalse($user->isAdmin());
     }
 
