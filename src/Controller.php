@@ -13,7 +13,6 @@ namespace App\Auth;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\PersistentSession;
 use Infuse\HasApp;
-use Pulsar\ACLModel;
 
 class Controller
 {
@@ -29,20 +28,6 @@ class Controller
     ];
 
     public static $scaffoldAdmin;
-
-    public function middleware($req, $res)
-    {
-        // inject the request/response into auth
-        $auth = $this->app['auth'];
-        $auth->setRequest($req)->setResponse($res);
-
-        $user = $auth->getAuthenticatedUser();
-        $this->app['user'] = $user;
-
-        // use the authenticated user as the requester for model permissions
-        ACLModel::setRequester($user);
-        $this->app['requester'] = $user;
-    }
 
     public function garbageCollection()
     {
