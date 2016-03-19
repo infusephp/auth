@@ -576,7 +576,7 @@ class Auth
      */
     public function encrypt($password)
     {
-        return U::encrypt_password($password, $this->app['config']->get('app.salt'));
+        return U::encryptPassword($password, $this->app['config']->get('app.salt'));
     }
 
     /////////////////////////
