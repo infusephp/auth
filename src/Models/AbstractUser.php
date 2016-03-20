@@ -493,8 +493,6 @@ abstract class AbstractUser extends ACLModel
      */
     public function deleteConfirm($password)
     {
-        $this->app['errors']->setCurrentContext('user.delete');
-
         // Check for the password.
         // Only the current user can delete their account using this method
         $password = $this->app['auth']->encrypt($password);

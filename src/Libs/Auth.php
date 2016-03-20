@@ -140,8 +140,6 @@ class Auth
      */
     public function login($username, $password, $persistent = false)
     {
-        $this->app['errors']->setCurrentContext('auth.login');
-
         $user = $this->getUserWithCredentials($username, $password);
         if ($user) {
             $this->app['user'] = $this->signInUser($user->id(), 'web');
@@ -403,8 +401,6 @@ class Auth
      */
     public function verifyEmailWithLink($verifyLink)
     {
-        $this->app['errors']->setCurrentContext('auth.verify');
-
         $link = UserLink::where('link', $verifyLink)
             ->where('link_type', UserLink::VERIFY_EMAIL)
             ->first();
@@ -470,7 +466,6 @@ class Auth
     public function forgotStep1($email, $ip)
     {
         $errorStack = $this->app['errors'];
-        $errorStack->setCurrentContext('auth.forgot');
 
         if (!Validate::is($email, 'email')) {
             $errorStack->push([
@@ -530,8 +525,6 @@ class Auth
      */
     public function forgotStep2($token, array $password, $ip)
     {
-        $this->app['errors']->setCurrentContext('auth.forgot');
-
         $user = $this->getUserFromForgotToken($token);
 
         if (!$user) {

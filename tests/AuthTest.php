@@ -365,7 +365,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $expected = [[
             'error' => 'validation_failed',
             'message' => 'validation_failed',
-            'context' => 'auth.forgot',
+            'context' => '',
             'params' => ['field' => 'email', 'field_name' => 'Email'], ]];
         $this->assertEquals($expected, $errors);
 
@@ -378,7 +378,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $expected = [[
             'error' => 'user_forgot_email_no_match',
             'message' => 'user_forgot_email_no_match',
-            'context' => 'auth.forgot',
+            'context' => '',
             'params' => [], ]];
         $this->assertEquals($expected, $errors);
 
