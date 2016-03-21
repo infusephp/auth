@@ -17,6 +17,9 @@ use PHPUnit_Framework_Test;
 use PHPUnit_Framework_TestListener;
 use PHPUnit_Framework_TestSuite;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TestListener implements PHPUnit_Framework_TestListener
 {
     /**
