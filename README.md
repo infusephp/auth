@@ -13,31 +13,31 @@ Auth module for Infuse Framework
 
 1. Install the package with [composer](http://getcomposer.org):
 
-```
-composer require infuse/auth
-```
+   ```
+   composer require infuse/auth
+   ```
 
 2. Add the service to `services` in your app's configuration:
 
-```php
-'services' => [
-	// ...
-	'auth' => 'App\Auth\Services\Auth'
-	// ...
-]
-```
+   ```php
+   'services' => [
+	   // ...
+	   'auth' => 'App\Auth\Services\Auth'
+	   // ...
+   ]
+   ```
 
 3. (optional) Add the console command for helper tasks to `console.commands` in your app's configuration:
 
-```php
-'console' => [
-	// ...
-	'commands' => [
-		// ...
-		'App\Auth\Console\ResetPasswordLinkCommand'
-	]
-]
-```
+   ```php
+   'console' => [
+	   // ...
+	   'commands' => [
+		   // ...
+		   'App\Auth\Console\ResetPasswordLinkCommand'
+	   ]
+   ]
+   ```
 
 ## Usage
 
