@@ -25,7 +25,7 @@ class Auth
     public function __invoke($app)
     {
         $auth = new AuthService();
-        $auth->injectApp($app);
+        $auth->setApp($app);
 
         return $auth;
     }

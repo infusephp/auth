@@ -20,6 +20,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
     public static $user;
     public static $auth;
     public static $ogUserId;
+    public static $link;
 
     public static function setUpBeforeClass()
     {
@@ -70,45 +71,43 @@ class AuthTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testConstruct()
+    public function testDI()
     {
-        self::$auth = new Auth();
-        self::$auth->injectApp(Test::$app)
-                   ->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
-                   ->setResponse(new Response());
+        $this->assertInstanceOf('App\Auth\Libs\Auth', Test::$app['auth']);
     }
 
-    public function testGetUserWithCredentialsFail()
+    public function testConstruct()
     {
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
-        $errorStack->setCurrentContext('');
+        $req = new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']);
+        $res = new Response();
 
-        $this->assertFalse(self::$auth->getUserWithCredentials('', ''));
+        self::$auth = new Auth();
+        self::$auth->injectApp(Test::$app)
+                   ->setRequest($req)
+                   ->setResponse($res);
 
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'user_bad_username',
-            'message' => 'user_bad_username',
-            'context' => '',
-            'params' => [], ]];
-        $this->assertEquals($expected, $errors);
+        $this->assertEquals($req, self::$auth->getRequest());
+        $this->assertEquals($res, self::$auth->getResponse());
+    }
 
-        $errorStack->clear();
+    public function testGetUserWithCredentialsBadUsername()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid username.');
 
-        $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', ''));
+        self::$auth->getUserWithCredentials('', '');
+    }
 
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'user_bad_password',
-            'message' => 'user_bad_password',
-            'context' => '',
-            'params' => [], ]];
-        $this->assertEquals($expected, $errors);
+    public function testGetUserWithCredentialsBadPassword()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid password.');
+
+        self::$auth->getUserWithCredentials('test@example.com', '');
     }
 
     public function testGetUserWithCredentialsFailTemporary()
     {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
+
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
         $link = new UserLink();
@@ -116,19 +115,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'user_id' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
-        $errorStack->setCurrentContext('');
-
-        $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', 'testpassword'));
-
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'user_login_temporary',
-            'message' => 'user_login_temporary',
-            'context' => '',
-            'params' => [], ]];
-        $this->assertEquals($expected, $errors);
+        self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
     }
 
     public function testGetUserWithCredentialsFailDisabled()
@@ -140,19 +127,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
         self::$user->enabled = false;
         $this->assertTrue(self::$user->save());
 
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
-        $errorStack->setCurrentContext('');
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
 
-        $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', 'testpassword'));
-
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'user_login_disabled',
-            'message' => 'user_login_disabled',
-            'context' => '',
-            'params' => [], ]];
-        $this->assertEquals($expected, $errors);
+        self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
     }
 
     public function testGetUserWithCredentialsFailNotVerified()
@@ -167,21 +144,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
-        $errorStack->setCurrentContext('');
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
 
-        $this->assertFalse(self::$auth->getUserWithCredentials('test@example.com', 'testpassword'));
-
-        $errors = $errorStack->errors();
-        $expected = [
-            [
-                'error' => 'user_login_unverified',
-                'message' => 'user_login_unverified',
-                'context' => '',
-                'params' => [
-                    'uid' => self::$user->id(), ], ], ];
-        $this->assertEquals($expected, $errors);
+        self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
     }
 
     public function testGetUserWithCredentials()
@@ -212,10 +177,15 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'type' => 'web', ]));
     }
 
+    public function testLoginFail()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
+
+        self::$auth->login('test@example.com', 'bogus');
+    }
+
     public function testLogin()
     {
-        $this->assertFalse(self::$auth->login('test@example.com', 'bogus'));
-
         $this->assertTrue(self::$auth->login('test@example.com', 'testpassword'));
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
         $this->assertTrue(Test::$app['user']->isSignedIn());
@@ -301,91 +271,89 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(self::$user->isVerified(false));
     }
 
-    public function testVerifyEmailWithLink()
+    public function testVerifyEmailWithTokenInvalid()
+    {
+        $this->assertFalse(self::$auth->verifyEmailWithToken('blah'));
+    }
+
+    public function testVerifyEmailWithToken()
     {
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::VERIFY_EMAIL, ]));
-        $link->created_at = '-10 years';
-        $this->assertTrue($link->save());
+            'link_type' => UserLink::VERIFY_EMAIL,
+            'created_at' => '-10 years', ]));
         $this->assertFalse(self::$user->isVerified());
 
-        $this->assertFalse(self::$auth->verifyEmailWithLink('blah'));
-
-        $user = self::$auth->verifyEmailWithLink($link->link);
+        $user = self::$auth->verifyEmailWithToken($link->link);
         $this->assertInstanceOf('App\Users\Models\User', $user);
-        $this->assertEquals($user->id(), self::$user->id());
+        $this->assertEquals(self::$user->id(), $user->id());
         $this->assertTrue(self::$user->isVerified());
+    }
+
+    public function testGetUserFromForgotTokenInvalid()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+
+        self::$auth->getUserFromForgotToken('blah');
     }
 
     public function testGetUserFromForgotToken()
     {
-        $link = new UserLink();
-        $this->assertTrue($link->create([
+        self::$link = new UserLink();
+        $this->assertTrue(self::$link->create([
             'user_id' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
 
-        $this->assertFalse(self::$auth->getUserFromForgotToken('blah'));
-
-        $user = self::$auth->getUserFromForgotToken($link->link);
+        $user = self::$auth->getUserFromForgotToken(self::$link->link);
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
-
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
-        $errorStack->setCurrentContext('');
-
-        $link->created_at = '-10 years';
-        $this->assertTrue($link->save());
-        $this->assertFalse(self::$auth->getUserFromForgotToken($link->link));
-
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'user_forgot_expired_invalid',
-            'message' => 'user_forgot_expired_invalid',
-            'context' => '',
-            'params' => [], ]];
-        $this->assertEquals($expected, $errors);
     }
 
-    public function testForgotStep1()
+    /**
+     * @depends testGetUserFromForgotToken
+     */
+    public function testGetUserFromForgotTokenExpired()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+
+        self::$link->created_at = '-10 years';
+        $this->assertTrue(self::$link->save());
+        self::$auth->getUserFromForgotToken(self::$link->link);
+    }
+
+    public function testForgotStep1ValidationFailed()
     {
         Test::$app['db']->delete('UserLinks')
             ->where('link_type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
 
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid email address.');
 
-        $this->assertFalse(self::$auth->forgotStep1('invalidemail', '127.0.0.1'));
+        self::$auth->forgotStep1('invalidemail', '127.0.0.1');
+    }
 
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'validation_failed',
-            'message' => 'validation_failed',
-            'context' => '',
-            'params' => ['field' => 'email', 'field_name' => 'Email'], ]];
-        $this->assertEquals($expected, $errors);
+    public function testForgotSetp1NoEmailMatch()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'We could not find a match for that email address.');
 
-        $errorStack = Test::$app['errors'];
-        $errorStack->clear();
+        self::$auth->forgotStep1('nomatch@example.com', '127.0.0.1');
+    }
 
-        $this->assertFalse(self::$auth->forgotStep1('nomatch@example.com', '127.0.0.1'));
-
-        $errors = $errorStack->errors();
-        $expected = [[
-            'error' => 'user_forgot_email_no_match',
-            'message' => 'user_forgot_email_no_match',
-            'context' => '',
-            'params' => [], ]];
-        $this->assertEquals($expected, $errors);
-
+    public function testForgotStep1()
+    {
         $this->assertTrue(self::$auth->forgotStep1('test@example.com', '127.0.0.1'));
         $this->assertEquals(1, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
+    }
+
+    public function testForgotStep2Invalid()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+
+        self::$auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1');
     }
 
     public function testForgotStep2()
@@ -400,11 +368,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'user_id' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
 
-        $this->assertFalse(self::$auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1'));
-
         $oldUserPassword = self::$user->user_password;
         $this->assertTrue(self::$auth->forgotStep2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));
-        self::$user->load();
+        self::$user->refresh();
         $this->assertNotEquals($oldUserPassword, self::$user->user_password);
         $this->assertEquals(0, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,

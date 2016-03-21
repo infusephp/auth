@@ -27,12 +27,11 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         self::$ogUserId = Test::$app['user']->id();
 
         $db = Test::$app['db'];
-        $db->delete('Users')
-            ->where('user_email', 'test@example.com')
-            ->execute();
-        $db->delete('Users')
-            ->where('user_email', 'test2@example.com')
-            ->execute();
+        foreach (['test@example.com', 'test2@example.com', 'test3@example.com'] as $email) {
+            $db->delete('Users')
+                ->where('user_email', $email)
+                ->execute();
+        }
 
         Test::$app['auth']->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
             ->setResponse(new Response());
@@ -56,10 +55,13 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testRegisterUser()
+    public function testRegisterUserFail()
     {
         $this->assertFalse(User::registerUser([]));
+    }
 
+    public function testRegisterUser()
+    {
         self::$user = User::registerUser([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
@@ -242,9 +244,9 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->deleteConfirm('testpassword'));
     }
 
-    public function testSuperUser()
+    public function testIsAdminSuperUser()
     {
-        $user = Test::$app['user'];
+        $user = new User(-20);
         $this->assertFalse($user->isAdmin());
 
         $user->promoteToSuperUser();
