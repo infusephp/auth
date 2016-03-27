@@ -11,8 +11,9 @@
 namespace App\Auth\Models;
 
 use App\Auth\Libs\Auth;
-use Pulsar\Model;
+use Infuse\Application;
 use Infuse\Utility as U;
+use Pulsar\Model;
 
 class UserLink extends Model
 {
@@ -87,7 +88,9 @@ class UserLink extends Model
      */
     public static function garbageCollect()
     {
-        return (bool) self::$injectedApp['db']->delete('UserLinks')
+        $app = Application::getDefault();
+
+        return (bool) $app['db']->delete('UserLinks')
             ->where('link_type', self::FORGOT_PASSWORD)
             ->where('created_at', U::unixToDb(time() - self::$forgotLinkTimeframe), '<')
             ->execute();

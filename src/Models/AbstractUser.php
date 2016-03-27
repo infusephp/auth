@@ -10,9 +10,10 @@
  */
 namespace App\Auth\Models;
 
-use Pulsar\Model;
-use Pulsar\ACLModel;
+use Infuse\Application;
 use Infuse\Utility as U;
+use Pulsar\ACLModel;
+use Pulsar\Model;
 use Pulsar\Validate;
 
 abstract class AbstractUser extends ACLModel
@@ -369,11 +370,12 @@ abstract class AbstractUser extends ACLModel
      */
     public static function registerUser(array $data, $verifiedEmail = false)
     {
-        $tempUser = self::$injectedApp['auth']->getTemporaryUser(array_value($data, 'user_email'));
+        $app = Application::getDefault();
+        $tempUser = $app['auth']->getTemporaryUser(array_value($data, 'user_email'));
 
         // upgrade temporary account
         if ($tempUser &&
-            self::$injectedApp['auth']->upgradeTemporaryAccount($tempUser, $data)) {
+            $app['auth']->upgradeTemporaryAccount($tempUser, $data)) {
             return $tempUser;
         }
 
@@ -381,7 +383,7 @@ abstract class AbstractUser extends ACLModel
 
         if ($user->create($data)) {
             if (!$verifiedEmail) {
-                self::$injectedApp['auth']->sendVerificationEmail($user);
+                $app['auth']->sendVerificationEmail($user);
             } else {
                 // send the user a welcome message
                 $user->sendEmail('welcome');
