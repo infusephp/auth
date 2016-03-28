@@ -356,6 +356,23 @@ class AuthTest extends PHPUnit_Framework_TestCase
         self::$auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1');
     }
 
+    public function testForgotStep2BadPassword()
+    {
+        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid password.');
+
+        Test::$app['db']->delete('UserLinks')
+            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('user_id', self::$user->id())
+            ->execute();
+
+        $link = new UserLink();
+        $link->user_id = self::$user->id();
+        $link->link_type = UserLink::FORGOT_PASSWORD;
+        $this->assertTrue($link->save());
+
+        self::$auth->forgotStep2($link->link, ['f', 'f'], '127.0.0.1');
+    }
+
     public function testForgotStep2()
     {
         Test::$app['db']->delete('UserLinks')
@@ -364,9 +381,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
             ->execute();
 
         $link = new UserLink();
-        $this->assertTrue($link->create([
-            'user_id' => self::$user->id(),
-            'link_type' => UserLink::FORGOT_PASSWORD, ]));
+        $link->user_id = self::$user->id();
+        $link->link_type = UserLink::FORGOT_PASSWORD;
+        $this->assertTrue($link->save());
 
         $oldUserPassword = self::$user->user_password;
         $this->assertTrue(self::$auth->forgotStep2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));

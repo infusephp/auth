@@ -34,26 +34,23 @@ class Auth
     const ERROR_BAD_USERNAME = 'auth.bad_username';
     const ERROR_BAD_EMAIL = 'auth.bad_email';
     const ERROR_BAD_PASSWORD = 'auth.bad_password';
+    const ERROR_LOGIN_NO_MATCH = 'auth.login_no_match';
     const ERROR_LOGIN_TEMPORARY = 'auth.login_temporary';
     const ERROR_LOGIN_DISABLED = 'auth.login_disabled';
-    const ERROR_LOGIN_NO_MATCH = 'auth.login_no_match';
     const ERROR_LOGIN_UNVERIFIED = 'auth.login_unverified';
     const ERROR_FORGOT_EMAIL_NO_MATCH = 'auth.forgot_email_no_match';
-    const ERROR_FORGOT_EXPIRED_INVALID = 'auth.forgot_expired_invalid';
+    const ERROR_FORGOT_TOKEN_INVALID = 'auth.forgot_token_invalid';
 
     private static $messages = [
-        'auth.bad_email' => 'Please enter a valid email address.',
-        'auth.bad_username' => 'Please enter a valid username.',
-        'auth.bad_password' => 'Please enter a valid password.',
-        'auth.login_no_match' => 'We could not find a match for that email address and password.',
-        'auth.login_banned' => 'Sorry, your account has been banned or disabled.',
-        'auth.login_disabled' => 'Sorry, your account has been disabled.',
-        'auth.login_temporary' => 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.',
-        'auth.login_unverified' => 'You must verify your account with the email that was sent to you before you can log in.',
-        'auth.forgot_password_success' => 'Success! Your password has been changed.',
-        'auth.forgot_email_no_match' => 'We could not find a match for that email address.',
-        'auth.forgot_expired_invalid' => 'This link has expired or is invalid.',
-        'auth.invalid_password' => 'Oops, looks like the password is incorrect.',
+        self::ERROR_BAD_USERNAME => 'Please enter a valid username.',
+        self::ERROR_BAD_EMAIL => 'Please enter a valid email address.',
+        self::ERROR_BAD_PASSWORD => 'Please enter a valid password.',
+        self::ERROR_LOGIN_NO_MATCH => 'We could not find a match for that email address and password.',
+        self::ERROR_LOGIN_TEMPORARY => 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.',
+        self::ERROR_LOGIN_DISABLED => 'Sorry, your account has been disabled.',
+        self::ERROR_LOGIN_UNVERIFIED => 'You must verify your account with the email that was sent to you before you can log in.',
+        self::ERROR_FORGOT_EMAIL_NO_MATCH => 'We could not find a match for that email address.',
+        self::ERROR_FORGOT_TOKEN_INVALID => 'This link has expired or is invalid.',
     ];
 
     /**
@@ -160,17 +157,14 @@ class Auth
     public function login($username, $password, $persistent = false)
     {
         $user = $this->getUserWithCredentials($username, $password);
-        if ($user) {
-            $this->app['user'] = $this->signInUser($user->id(), 'web');
 
-            if ($persistent) {
-                self::storePersistentCookie($user->id(), $user->user_email);
-            }
+        $this->app['user'] = $this->signInUser($user->id(), 'web');
 
-            return true;
+        if ($persistent) {
+            self::storePersistentCookie($user->id(), $user->user_email);
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -469,7 +463,7 @@ class Auth
             ->first();
 
         if (!$link) {
-            $error = self::ERROR_FORGOT_EXPIRED_INVALID;
+            $error = self::ERROR_FORGOT_TOKEN_INVALID;
             $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
             throw new AuthException($message);
         }
@@ -550,7 +544,9 @@ class Auth
         $user->enforcePermissions();
 
         if (!$success) {
-            return false;
+            $error = self::ERROR_BAD_PASSWORD;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         $this->app['db']->delete('UserLinks')
