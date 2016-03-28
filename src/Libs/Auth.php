@@ -10,6 +10,7 @@
  */
 namespace App\Auth\Libs;
 
+use App\Auth\Exception\AuthException;
 use App\Auth\Models\PersistentSession;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\UserLoginHistory;
@@ -29,14 +30,27 @@ class Auth
 
     const USER_MODEL = 'App\Users\Models\User';
 
-    const ERROR_BAD_USERNAME = 'user_bad_username';
-    const ERROR_BAD_PASSWORD = 'user_bad_password';
-    const ERROR_LOGIN_TEMPORARY = 'user_login_temporary';
-    const ERROR_LOGIN_DISABLED = 'user_login_disabled';
-    const ERROR_LOGIN_NO_MATCH = 'user_login_no_match';
-    const ERROR_LOGIN_UNVERIFIED = 'user_login_unverified';
-    const ERROR_FORGOT_EMAIL_NO_MATCH = 'user_forgot_email_no_match';
-    const ERROR_FORGOT_EXPIRED_INVALID = 'user_forgot_expired_invalid';
+    const ERROR_BAD_USERNAME = 'auth.bad_username';
+    const ERROR_BAD_EMAIL = 'auth.bad_email';
+    const ERROR_BAD_PASSWORD = 'auth.bad_password';
+    const ERROR_LOGIN_NO_MATCH = 'auth.login_no_match';
+    const ERROR_LOGIN_TEMPORARY = 'auth.login_temporary';
+    const ERROR_LOGIN_DISABLED = 'auth.login_disabled';
+    const ERROR_LOGIN_UNVERIFIED = 'auth.login_unverified';
+    const ERROR_FORGOT_EMAIL_NO_MATCH = 'auth.forgot_email_no_match';
+    const ERROR_FORGOT_TOKEN_INVALID = 'auth.forgot_token_invalid';
+
+    private static $messages = [
+        self::ERROR_BAD_USERNAME => 'Please enter a valid username.',
+        self::ERROR_BAD_EMAIL => 'Please enter a valid email address.',
+        self::ERROR_BAD_PASSWORD => 'Please enter a valid password.',
+        self::ERROR_LOGIN_NO_MATCH => 'We could not find a match for that email address and password.',
+        self::ERROR_LOGIN_TEMPORARY => 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.',
+        self::ERROR_LOGIN_DISABLED => 'Sorry, your account has been disabled.',
+        self::ERROR_LOGIN_UNVERIFIED => 'You must verify your account with the email that was sent to you before you can log in.',
+        self::ERROR_FORGOT_EMAIL_NO_MATCH => 'We could not find a match for that email address.',
+        self::ERROR_FORGOT_TOKEN_INVALID => 'This link has expired or is invalid.',
+    ];
 
     /**
      * @var Request
@@ -135,22 +149,21 @@ class Auth
      * @param string $password   password
      * @param bool   $persistent make the session persistent
      *
+     * @throws AuthException when the user cannot be signed in.
+     *
      * @return bool success
      */
     public function login($username, $password, $persistent = false)
     {
         $user = $this->getUserWithCredentials($username, $password);
-        if ($user) {
-            $this->app['user'] = $this->signInUser($user->id(), 'web');
 
-            if ($persistent) {
-                self::storePersistentCookie($user->id(), $user->user_email);
-            }
+        $this->app['user'] = $this->signInUser($user->id(), 'web');
 
-            return true;
+        if ($persistent) {
+            self::storePersistentCookie($user->id(), $user->user_email);
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -201,22 +214,22 @@ class Auth
      * @param string $username username
      * @param string $password password
      *
-     * @return User|false matching user
+     * @throws AuthException when a matching user cannot be found.
+     *
+     * @return User matching user
      */
     public function getUserWithCredentials($username, $password)
     {
-        $errorStack = $this->app['errors'];
-
         if (empty($username)) {
-            $errorStack->push(['error' => self::ERROR_BAD_USERNAME]);
-
-            return false;
+            $error = self::ERROR_BAD_USERNAME;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         if (empty($password)) {
-            $errorStack->push(['error' => self::ERROR_BAD_PASSWORD]);
-
-            return false;
+            $error = self::ERROR_BAD_PASSWORD;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         // build the query string for the username
@@ -232,30 +245,27 @@ class Auth
             ->first();
 
         if (!$user) {
-            $errorStack->push(['error' => self::ERROR_LOGIN_NO_MATCH]);
-
-            return false;
+            $error = self::ERROR_LOGIN_NO_MATCH;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         if ($user->isTemporary()) {
-            $errorStack->push(['error' => self::ERROR_LOGIN_TEMPORARY]);
-
-            return false;
+            $error = self::ERROR_LOGIN_TEMPORARY;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         if (!$user->enabled) {
-            $errorStack->push(['error' => self::ERROR_LOGIN_DISABLED]);
-
-            return false;
+            $error = self::ERROR_LOGIN_DISABLED;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         if (!$user->isVerified()) {
-            $errorStack->push([
-                'error' => self::ERROR_LOGIN_UNVERIFIED,
-                'params' => [
-                    'uid' => $user->id(), ], ]);
-
-            return false;
+            $error = self::ERROR_LOGIN_UNVERIFIED;
+            $message = $this->app['locale']->t($error, ['user_id' => $user->id()], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         // success!
@@ -297,9 +307,9 @@ class Auth
     /////////////////////////
 
     /**
-     * Gets a temporary user from an e-mail address if one exists.
+     * Gets a temporary user from an email address if one exists.
      *
-     * @param string $email e-mail address
+     * @param string $email email address
      *
      * @return User|false
      */
@@ -383,9 +393,7 @@ class Auth
 
         // create new verification link
         $link = new UserLink();
-        if (!$link->create($params)) {
-            return false;
-        }
+        $link->create($params);
 
         // email it
         return $user->sendEmail('verify-email',
@@ -393,15 +401,15 @@ class Auth
     }
 
     /**
-     * Processes a verify e-mail hash.
+     * Processes a verify email hash.
      *
-     * @param string $verifyLink verification hash
+     * @param string $token verification hash
      *
      * @return User|false
      */
-    public function verifyEmailWithLink($verifyLink)
+    public function verifyEmailWithToken($token)
     {
-        $link = UserLink::where('link', $verifyLink)
+        $link = UserLink::where('link', $token)
             ->where('link_type', UserLink::VERIFY_EMAIL)
             ->first();
 
@@ -420,10 +428,18 @@ class Auth
         // delete the verify link
         $link->delete();
 
-        // send a welcome e-mail
+        // send a welcome email
         $user->sendEmail('welcome');
 
         return $user;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function verifyEmailWithLink($token)
+    {
+        return $this->verifyEmailWithToken($token);
     }
 
     /////////////////////////
@@ -435,7 +451,9 @@ class Auth
      *
      * @param string $token
      *
-     * @return User|false
+     * @throws AuthException when the token is invalid.
+     *
+     * @return User
      */
     public function getUserFromForgotToken($token)
     {
@@ -444,38 +462,35 @@ class Auth
             ->where('created_at', U::unixToDb(time() - UserLink::$forgotLinkTimeframe), '>')
             ->first();
 
-        if ($link) {
-            $userModel = self::USER_MODEL;
-
-            return new $userModel($link->user_id);
-        } else {
-            $this->app['errors']->push(['error' => self::ERROR_FORGOT_EXPIRED_INVALID]);
+        if (!$link) {
+            $error = self::ERROR_FORGOT_TOKEN_INVALID;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
-        return false;
+        $userModel = self::USER_MODEL;
+
+        return new $userModel($link->user_id);
     }
 
     /**
      * The first step in the forgot password sequence.
      *
-     * @param string $email e-mail address
+     * @param string $email email address
      * @param string $ip    ip address making the request
+     *
+     * @throws AuthException when the step cannot be completed.
      *
      * @return bool success?
      */
     public function forgotStep1($email, $ip)
     {
-        $errorStack = $this->app['errors'];
         $email = trim(strtolower($email));
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errorStack->push([
-                'error' => Model::ERROR_VALIDATION_FAILED,
-                'params' => [
-                    'field' => 'email',
-                    'field_name' => 'Email', ], ]);
-
-            return false;
+            $error = self::ERROR_BAD_EMAIL;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         $userModel = self::USER_MODEL;
@@ -483,9 +498,9 @@ class Auth
             ->first();
 
         if (!$user || $user->isTemporary()) {
-            $errorStack->push(['error' => self::ERROR_FORGOT_EMAIL_NO_MATCH]);
-
-            return false;
+            $error = self::ERROR_FORGOT_EMAIL_NO_MATCH;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         // make sure there are no other forgot links
@@ -499,14 +514,9 @@ class Auth
         }
 
         $link = new UserLink();
-        $success = $link->create([
-            'user_id' => $user->id(),
-            'link_type' => UserLink::FORGOT_PASSWORD,
-        ]);
-
-        if (!$success) {
-            return false;
-        }
+        $link->user_id = $user->id();
+        $link->link_type = UserLink::FORGOT_PASSWORD;
+        $link->save();
 
         // finally send the user the reset password link
         return $user->sendEmail('forgot-password', [
@@ -522,20 +532,13 @@ class Auth
      * @param array  $password new password
      * @param string $ip       ip address making the request
      *
+     * @throws AuthException when the step cannot be completed.
+     *
      * @return bool success
      */
     public function forgotStep2($token, array $password, $ip)
     {
         $user = $this->getUserFromForgotToken($token);
-
-        if (!$user) {
-            return false;
-        }
-
-        // Password cannot be empty
-        if (strlen(implode($password)) == 0) {
-            return false;
-        }
 
         // Update the password
         $user->user_password = $password;
@@ -543,7 +546,9 @@ class Auth
         $user->enforcePermissions();
 
         if (!$success) {
-            return false;
+            $error = self::ERROR_BAD_PASSWORD;
+            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
+            throw new AuthException($message);
         }
 
         $this->app['db']->delete('UserLinks')

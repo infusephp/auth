@@ -20,9 +20,10 @@ return  [
   ],
   'services' => [
     'auth' => 'App\Auth\Services\Auth',
-    'db' => 'Infuse\Services\Database',
+    'db' => 'JAQB\Services\Database',
+    'errors' => 'App\Auth\Services\ErrorStack',
     'mailer' => 'App\Email\MailerService',
-    'model_driver' => 'Infuse\Services\ModelDriver',
+    'model_driver' => 'App\Auth\Services\ModelDriver',
     'pdo' => 'Infuse\Services\Pdo',
     'queue_driver' => 'Infuse\Services\QueueDriver',
   ],
@@ -31,11 +32,6 @@ return  [
   ],
   'queue' => [
     'driver' => 'Infuse\Queue\Driver\SynchronousDriver',
-  ],
-  'modules' => [
-    'middleware' => [
-      'auth',
-    ],
   ],
   'database' => [
     'type' => 'mysql',
@@ -48,5 +44,8 @@ return  [
   ],
   'sessions' => [
     'enabled' => true,
+  ],
+  'email' => [
+    'type' => 'nop',
   ],
 ];

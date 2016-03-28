@@ -12,23 +12,9 @@ namespace App\Auth;
 
 use App\Auth\Models\UserLink;
 use App\Auth\Models\PersistentSession;
-use Infuse\HasApp;
 
 class Controller
 {
-    use HasApp;
-
-    public static $properties = [
-        'models' => [
-            'UserLink',
-            'UserLoginHistory',
-            'PersistentSession',
-            'GroupMember',
-        ],
-    ];
-
-    public static $scaffoldAdmin;
-
     public function garbageCollection()
     {
         // clear out expired persistent sessions

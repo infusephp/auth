@@ -136,8 +136,7 @@ abstract class AbstractUser extends ACLModel
         }
 
         if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $this->app['user'])) {
-            $errorStack = $this->app['errors'];
-            $errorStack->push(['error' => 'invalid_password']);
+            $this->app['errors']->push('invalid_password');
 
             return false;
         }
