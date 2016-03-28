@@ -18,7 +18,6 @@ use Pulsar\Model;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Utility as U;
-use Pulsar\Validate;
 
 if (!defined('GUEST')) {
     define('GUEST', -1);
@@ -306,7 +305,8 @@ class Auth
      */
     public function getTemporaryUser($email)
     {
-        if (!Validate::is($email, 'email')) {
+        $email = trim(strtolower($email));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return false;
         }
 
@@ -466,8 +466,9 @@ class Auth
     public function forgotStep1($email, $ip)
     {
         $errorStack = $this->app['errors'];
+        $email = trim(strtolower($email));
 
-        if (!Validate::is($email, 'email')) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errorStack->push([
                 'error' => Model::ERROR_VALIDATION_FAILED,
                 'params' => [

@@ -14,7 +14,6 @@ use Infuse\Application;
 use Infuse\Utility as U;
 use Pulsar\ACLModel;
 use Pulsar\Model;
-use Pulsar\Validate;
 
 abstract class AbstractUser extends ACLModel
 {
@@ -404,8 +403,8 @@ abstract class AbstractUser extends ACLModel
      */
     public static function createTemporary($data)
     {
-        $email = array_value($data, 'user_email');
-        if (!Validate::is($email, 'email')) {
+        $email = trim(strtolower(array_value($data, 'user_email')));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return false;
         }
 
