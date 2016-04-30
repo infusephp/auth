@@ -22,7 +22,7 @@
 		"php": ">=5.4.0"
 	},
 	"require-dev": {
-		"infuse/infuse": "dev-master",
+		"infuse/infuse": "~1.4",
 		"pulsar/pulsar": "~0.1",
 		"infuse/email": "~1.1",
 		"robmorgan/phinx": "~0.5",
