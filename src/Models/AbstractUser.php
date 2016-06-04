@@ -103,6 +103,8 @@ abstract class AbstractUser extends ACLModel
 
     protected function preSetHook(&$data)
     {
+        $app = $this->getApp();
+
         if (!is_array($data)) {
             $data = [$data => $value];
         }
@@ -112,7 +114,7 @@ abstract class AbstractUser extends ACLModel
 
         // check if the current password is accurate
         $password = array_value($data, 'current_password');
-        $encryptedPassword = $this->app['auth']->encrypt($password);
+        $encryptedPassword = $app['auth']->encrypt($password);
 
         $passwordValidated = $encryptedPassword == $this->user_password;
 
@@ -135,8 +137,8 @@ abstract class AbstractUser extends ACLModel
             }
         }
 
-        if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $this->app['user'])) {
-            $this->app['errors']->push('invalid_password');
+        if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $app['user'])) {
+            $app['errors']->push('invalid_password');
 
             return false;
         }
@@ -160,10 +162,11 @@ abstract class AbstractUser extends ACLModel
             'UserLoginHistories',
             'UserLinks', ];
 
+        $db = $this->getApp()['db'];
         foreach ($nuke as $tablename) {
-            $this->app['db']->delete($tablename)
-                ->where('user_id', $this->id())
-                ->execute();
+            $db->delete($tablename)
+               ->where('user_id', $this->id())
+               ->execute();
         }
     }
 
@@ -449,9 +452,11 @@ abstract class AbstractUser extends ACLModel
      */
     public function sendEmail($template, $message = [])
     {
+        $app = $this->getApp();
+
         $params = array_replace([
-            'base_url' => $this->app['base_url'],
-            'siteEmail' => $this->app['config']->get('app.email'),
+            'base_url' => $app['base_url'],
+            'siteEmail' => $app['config']->get('app.email'),
             'email' => $this->user_email,
             'username' => $this->name(true),
             'to' => [[
@@ -462,24 +467,24 @@ abstract class AbstractUser extends ACLModel
 
         switch ($template) {
         case 'welcome':
-            $params['subject'] = 'Welcome to '.$this->app['config']->get('app.title');
+            $params['subject'] = 'Welcome to '.$app['config']->get('app.title');
         break;
         case 'verify-email':
             $params['subject'] = 'Please verify your email address';
             $params['verify_link'] = "{$params['base_url']}users/verifyEmail/{$params['verify']}";
         break;
         case 'forgot-password':
-            $params['subject'] = 'Password change request on '.$this->app['config']->get('app.title');
+            $params['subject'] = 'Password change request on '.$app['config']->get('app.title');
             $params['forgot_link'] = "{$params['base_url']}users/forgot/{$params['forgot']}";
         break;
         case 'password-changed':
-            $params['subject'] = 'Your password was changed on '.$this->app['config']->get('app.title');
+            $params['subject'] = 'Your password was changed on '.$app['config']->get('app.title');
         break;
         }
 
         $message = array_replace($params, $message);
 
-        $this->app['mailer']->queueEmail($template, $message);
+        $app['mailer']->queueEmail($template, $message);
 
         return true;
     }
@@ -493,12 +498,14 @@ abstract class AbstractUser extends ACLModel
      */
     public function deleteConfirm($password)
     {
+        $app = $this->getApp();
+
         // Check for the password.
         // Only the current user can delete their account using this method
-        $password = $this->app['auth']->encrypt($password);
+        $password = $app['auth']->encrypt($password);
         if (!$this->exists() ||
             $this->isAdmin() ||
-            $this->app['user']->id() != $this->id() ||
+            $app['user']->id() != $this->id() ||
             $password != $this->user_password) {
             return false;
         }

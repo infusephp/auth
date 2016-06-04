@@ -75,7 +75,7 @@ class UserLink extends Model
     public function url()
     {
         if ($this->link_type === self::FORGOT_PASSWORD) {
-            return $this->app['base_url'].'users/forgot/'.$this->link;
+            return $this->getApp()['base_url'].'users/forgot/'.$this->link;
         }
 
         return false;
