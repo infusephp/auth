@@ -82,7 +82,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         self::$auth = new Auth();
-        self::$auth->injectApp(Test::$app)
+        self::$auth->setApp(Test::$app)
                    ->setRequest($req)
                    ->setResponse($res);
 
