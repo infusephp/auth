@@ -27,7 +27,22 @@ Auth module for Infuse Framework
    ]
    ```
 
-3. (optional) Add the console command for helper tasks to `console.commands` in your app's configuration:
+3. Add the migration to your app's configuration:
+
+   ```php
+   'modules' => [
+      'migrations' => [
+         // ...
+         'Auth'
+      ],
+      'migrationPaths' => [
+         // ...
+         'Auth' => 'vendor/infuse/auth/src/migrations'
+      ]
+   ]
+   ```
+
+4. (optional) Add the console command for helper tasks to `console.commands` in your app's configuration:
 
    ```php
    'console' => [
@@ -39,7 +54,7 @@ Auth module for Infuse Framework
    ]
    ```
 
-4. (optional) Add the garbage collection scheduled job to `cron` in your app's configuration:
+5. (optional) Add the garbage collection scheduled job to `cron` in your app's configuration:
 
    ```php
    'cron' => [
