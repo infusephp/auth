@@ -8,31 +8,31 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth;
+namespace App\Auth\Jobs;
 
 use App\Auth\Models\UserLink;
 use App\Auth\Models\PersistentSession;
 
-class Controller
+class GarbageCollection
 {
-    public function garbageCollection()
+    public function __invoke($run)
     {
         // clear out expired persistent sessions
         $persistentSessionSuccess = PersistentSession::garbageCollect();
 
         if ($persistentSessionSuccess) {
-            echo "Garbage collection of persistent sessions was successful.\n";
+            $run->writeOutput('Garbage collection of persistent sessions was successful.');
         } else {
-            echo "Garbage collection of persistent sessions was NOT successful.\n";
+            $run->writeOutput('Garbage collection of persistent sessions was NOT successful.');
         }
 
         // clear out expired user links
         $userLinkSuccess = UserLink::garbageCollect();
 
         if ($userLinkSuccess) {
-            echo "Garbage collection of user links was successful.\n";
+            $run->writeOutput('Garbage collection of user links was successful.');
         } else {
-            echo "Garbage collection of user links was NOT successful.\n";
+            $run->writeOutput('Garbage collection of user links was NOT successful.');
         }
 
         return $persistentSessionSuccess && $userLinkSuccess;

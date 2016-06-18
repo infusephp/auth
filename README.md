@@ -39,6 +39,21 @@ Auth module for Infuse Framework
    ]
    ```
 
+4. (optional) Add the garbage collection scheduled job to `cron` in your app's configuration:
+
+   ```php
+   'cron' => [
+      // ...
+      [
+         'id' => 'auth:garbageCollection',
+         'class' => 'App\Auth\Jobs\GarbageCollection',
+         'minute' => 30,
+         'hour' => 1,
+         'day' => 1
+      ]
+   ]
+   ```
+
 ## Usage
 
 You can create your own User model located at `App\Users\Models\User` for futher customization.
