@@ -36,7 +36,7 @@ class TestListener implements PHPUnit_Framework_TestListener
     {
         /* Set up a test user */
 
-        $userModel = Auth::USER_MODEL;
+        $userModel = Test::$app['auth']->getUserClass();
         $user = new $userModel();
 
         $params = self::$userParams;

@@ -10,15 +10,12 @@
  */
 namespace App\Auth\Models;
 
-use App\Auth\Libs\Auth;
 use Pulsar\Model;
 
 class UserLoginHistory extends Model
 {
     protected static $properties = [
-        'user_id' => [
-            'relation' => Auth::USER_MODEL,
-        ],
+        'user_id' => [],
         'type' => [],
         'ip' => [
             'admin_hidden_property' => true,

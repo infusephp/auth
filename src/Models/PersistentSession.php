@@ -10,7 +10,6 @@
  */
 namespace App\Auth\Models;
 
-use App\Auth\Libs\Auth;
 use Infuse\Application;
 use Infuse\Utility as U;
 use Pulsar\Model;
@@ -33,7 +32,6 @@ class PersistentSession extends Model
         ],
         'user_id' => [
             'type' => Model::TYPE_NUMBER,
-            'relation' => Auth::USER_MODEL,
         ],
     ];
 

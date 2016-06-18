@@ -11,6 +11,7 @@
 use App\Auth\Libs\Auth;
 use App\Auth\Models\UserLink;
 use App\Auth\Models\UserLoginHistory;
+use App\Users\Models\User;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -24,15 +25,13 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        $userModel = Auth::USER_MODEL;
-
         Test::$app['user']->promoteToSuperUser();
 
         Test::$app['db']->delete('Users')
             ->where('user_email', 'test@example.com')
             ->execute();
 
-        self::$user = $userModel::registerUser([
+        self::$user = User::registerUser([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'user_email' => 'test@example.com',
@@ -58,16 +57,14 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function assertPreConditions()
     {
-        $this->assertInstanceOf(Auth::USER_MODEL, self::$user);
+        $this->assertInstanceOf('App\Users\Models\User', self::$user);
     }
 
     public function assertPostConditions()
     {
-        $userModel = Auth::USER_MODEL;
-
         $app = Test::$app;
         if (!$app['user']->isSignedIn()) {
-            $app['user'] = new $userModel(self::$ogUserId, true);
+            $app['user'] = new User(self::$ogUserId, true);
         }
     }
 
@@ -88,6 +85,15 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($req, self::$auth->getRequest());
         $this->assertEquals($res, self::$auth->getResponse());
+    }
+
+    public function testGetUserClass()
+    {
+        $this->assertEquals('App\Users\Models\User', self::$auth->getUserClass());
+        Test::$app['config']->set('users.model', 'SomeOtherClass');
+        $this->assertEquals('SomeOtherClass', self::$auth->getUserClass());
+        Test::$app['config']->set('users.model', false);
+        $this->assertEquals('App\Users\Models\User', self::$auth->getUserClass());
     }
 
     public function testGetUserWithCredentialsBadUsername()
@@ -160,7 +166,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $user = self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
 
-        $this->assertInstanceOf(Auth::USER_MODEL, $user);
+        $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
     }
 

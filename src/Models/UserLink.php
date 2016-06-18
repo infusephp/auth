@@ -10,7 +10,6 @@
  */
 namespace App\Auth\Models;
 
-use App\Auth\Libs\Auth;
 use Infuse\Application;
 use Infuse\Utility as U;
 use Pulsar\Model;
@@ -27,7 +26,6 @@ class UserLink extends Model
         'user_id' => [
             'type' => Model::TYPE_NUMBER,
             'required' => true,
-            'relation' => Auth::USER_MODEL,
         ],
         'link' => [
             'required' => true,

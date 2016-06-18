@@ -11,7 +11,7 @@ class Auth
     {
         // CLI requests have a super user
         if (defined('STDIN')) {
-            $userModel = AuthService::USER_MODEL;
+            $userModel = $this->getUserClass($app);
             $user = new $userModel(-2, true);
             $user->enableSU();
             $app['user'] = $user;
@@ -28,5 +28,19 @@ class Auth
         $auth->setApp($app);
 
         return $auth;
+    }
+
+    /**
+     * Gets the user model class.
+     *
+     * @return string
+     */
+    private function getUserClass($app)
+    {
+        if ($model = $app['config']->get('users.model')) {
+            return $model;
+        }
+
+        return AuthService::DEFAULT_USER_MODEL;
     }
 }

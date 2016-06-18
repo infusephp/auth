@@ -10,7 +10,6 @@
  */
 namespace App\Auth\Models;
 
-use App\Auth\Libs\Auth;
 use Pulsar\ACLModel;
 use Pulsar\Model;
 
@@ -25,7 +24,6 @@ class GroupMember extends ACLModel
         'group' => [],
         'user_id' => [
             'type' => Model::TYPE_NUMBER,
-            'relation' => Auth::USER_MODEL,
         ],
     ];
 

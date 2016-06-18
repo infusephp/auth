@@ -28,7 +28,7 @@ class Auth
 {
     use HasApp;
 
-    const USER_MODEL = 'App\Users\Models\User';
+    const DEFAULT_USER_MODEL = 'App\Users\Models\User';
 
     const ERROR_BAD_USERNAME = 'auth.bad_username';
     const ERROR_BAD_EMAIL = 'auth.bad_email';
@@ -110,6 +110,20 @@ class Auth
         return $this->response;
     }
 
+    /**
+     * Gets the user model class.
+     *
+     * @return string
+     */
+    public function getUserClass()
+    {
+        if ($model = $this->app['config']->get('users.model')) {
+            return $model;
+        }
+
+        return self::DEFAULT_USER_MODEL;
+    }
+
     /////////////////////////
     // LOGIN
     /////////////////////////
@@ -136,7 +150,7 @@ class Auth
             $this->changeSessionUserID(GUEST);
         }
 
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
 
         return new $userModel(GUEST, false);
     }
@@ -202,7 +216,7 @@ class Auth
 
         $this->changeSessionUserID(GUEST);
 
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
         $this->app['user'] = new $userModel(GUEST, false);
 
         return true;
@@ -239,7 +253,7 @@ class Auth
         $password = $this->encrypt($password);
 
         // look the user up with the matching username/password combo
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
         $user = $userModel::where($usernameWhere)
             ->where('user_password', $password)
             ->first();
@@ -284,7 +298,7 @@ class Auth
      */
     public function signInUser($userId, $type = 'web')
     {
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
         $user = new $userModel($userId, true);
 
         // update the session with the user's id
@@ -320,7 +334,7 @@ class Auth
             return false;
         }
 
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
         $user = $userModel::where('user_email', $email)->first();
 
         if (!$user || !$user->isTemporary()) {
@@ -417,7 +431,7 @@ class Auth
             return false;
         }
 
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
         $user = new $userModel($link->user_id);
 
         // enable the user
@@ -468,7 +482,7 @@ class Auth
             throw new AuthException($message);
         }
 
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
 
         return new $userModel($link->user_id);
     }
@@ -493,7 +507,7 @@ class Auth
             throw new AuthException($message);
         }
 
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
         $user = $userModel::where('user_email', $email)
             ->first();
 
@@ -591,7 +605,7 @@ class Auth
      */
     private function buildUsernameWhere($username)
     {
-        $userModel = self::USER_MODEL;
+        $userModel = $this->getUserClass();
 
         $conditions = array_map(
             function ($prop, $username) { return $prop." = '".$username."'"; },
@@ -612,7 +626,7 @@ class Auth
     {
         // check if the user's session is already logged in and valid
         if ($this->request->session('user_agent') == $this->request->agent()) {
-            $userModel = self::USER_MODEL;
+            $userModel = $this->getUserClass();
             $user = new $userModel($this->request->session('user_id'), true);
 
             if ($user->exists()) {
@@ -637,7 +651,7 @@ class Auth
             $cookieParams = json_decode(base64_decode($cookie));
 
             if ($cookieParams) {
-                $userModel = self::USER_MODEL;
+                $userModel = $this->getUserClass();
                 $user = $userModel::where('user_email', $cookieParams->user_email)
                     ->first();
 
