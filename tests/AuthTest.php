@@ -19,7 +19,6 @@ use Infuse\Test;
 class AuthTest extends PHPUnit_Framework_TestCase
 {
     public static $user;
-    public static $auth;
     public static $ogUserId;
     public static $link;
 
@@ -73,41 +72,46 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('App\Auth\Libs\Auth', Test::$app['auth']);
     }
 
-    public function testConstruct()
+    public function testGetRequest()
     {
-        $req = new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']);
+        $auth = $this->getAuth();
+        $req = new Request();
+        $auth->setRequest($req);
+        $this->assertEquals($req, $auth->getRequest());
+    }
+
+    public function testGetResponse()
+    {
+        $auth = $this->getAuth();
         $res = new Response();
-
-        self::$auth = new Auth();
-        self::$auth->setApp(Test::$app)
-                   ->setRequest($req)
-                   ->setResponse($res);
-
-        $this->assertEquals($req, self::$auth->getRequest());
-        $this->assertEquals($res, self::$auth->getResponse());
+        $auth->setResponse($res);
+        $this->assertEquals($res, $auth->getResponse());
     }
 
     public function testGetUserClass()
     {
-        $this->assertEquals('App\Users\Models\User', self::$auth->getUserClass());
+        $auth = $this->getAuth();
+        $this->assertEquals('App\Users\Models\User', $auth->getUserClass());
         Test::$app['config']->set('users.model', 'SomeOtherClass');
-        $this->assertEquals('SomeOtherClass', self::$auth->getUserClass());
+        $this->assertEquals('SomeOtherClass', $auth->getUserClass());
         Test::$app['config']->set('users.model', false);
-        $this->assertEquals('App\Users\Models\User', self::$auth->getUserClass());
+        $this->assertEquals('App\Users\Models\User', $auth->getUserClass());
     }
 
     public function testGetUserWithCredentialsBadUsername()
     {
         $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid username.');
 
-        self::$auth->getUserWithCredentials('', '');
+        $auth = $this->getAuth();
+        $auth->getUserWithCredentials('', '');
     }
 
     public function testGetUserWithCredentialsBadPassword()
     {
         $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid password.');
 
-        self::$auth->getUserWithCredentials('test@example.com', '');
+        $auth = $this->getAuth();
+        $auth->getUserWithCredentials('test@example.com', '');
     }
 
     public function testGetUserWithCredentialsFailTemporary()
@@ -121,7 +125,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'user_id' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
-        self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
+        $auth = $this->getAuth();
+        $auth->getUserWithCredentials('test@example.com', 'testpassword');
     }
 
     public function testGetUserWithCredentialsFailDisabled()
@@ -135,7 +140,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('App\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
 
-        self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
+        $auth = $this->getAuth();
+        $auth->getUserWithCredentials('test@example.com', 'testpassword');
     }
 
     public function testGetUserWithCredentialsFailNotVerified()
@@ -152,7 +158,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('App\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
 
-        self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
+        $auth = $this->getAuth();
+        $auth->getUserWithCredentials('test@example.com', 'testpassword');
     }
 
     public function testGetUserWithCredentials()
@@ -164,7 +171,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
 
-        $user = self::$auth->getUserWithCredentials('test@example.com', 'testpassword');
+        $auth = $this->getAuth();
+        $user = $auth->getUserWithCredentials('test@example.com', 'testpassword');
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
@@ -172,7 +180,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testSignInUser()
     {
-        $user = self::$auth->signInUser(self::$user->id());
+        $auth = $this->getAuth();
+        $user = $auth->signInUser(self::$user->id());
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals($user->id(), self::$user->id());
@@ -187,12 +196,14 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('App\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
 
-        self::$auth->login('test@example.com', 'bogus');
+        $auth = $this->getAuth();
+        $auth->login('test@example.com', 'bogus');
     }
 
     public function testLogin()
     {
-        $this->assertTrue(self::$auth->login('test@example.com', 'testpassword'));
+        $auth = $this->getAuth();
+        $this->assertTrue($auth->login('test@example.com', 'testpassword'));
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
         $this->assertTrue(Test::$app['user']->isSignedIn());
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
@@ -232,14 +243,15 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testGetTemporaryUser()
     {
-        $this->assertFalse(self::$auth->getTemporaryUser('test@example.com'));
+        $auth = $this->getAuth();
+        $this->assertFalse($auth->getTemporaryUser('test@example.com'));
 
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
             'link_type' => UserLink::TEMPORARY, ]));
 
-        $user = self::$auth->getTemporaryUser('test@example.com');
+        $user = $auth->getTemporaryUser('test@example.com');
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
     }
@@ -261,7 +273,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->isTemporary());
         $this->assertFalse(self::$user->isVerified());
 
-        $this->assertTrue(self::$auth->upgradeTemporaryAccount(self::$user, [
+        $auth = $this->getAuth();
+
+        $this->assertTrue($auth->upgradeTemporaryAccount(self::$user, [
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'user_password' => ['testpassword', 'testpassword'],
@@ -273,13 +287,15 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testSendVerificationEmail()
     {
-        $this->assertTrue(self::$auth->sendVerificationEmail(self::$user));
+        $auth = $this->getAuth();
+        $this->assertTrue($auth->sendVerificationEmail(self::$user));
         $this->assertFalse(self::$user->isVerified(false));
     }
 
     public function testVerifyEmailWithTokenInvalid()
     {
-        $this->assertFalse(self::$auth->verifyEmailWithToken('blah'));
+        $auth = $this->getAuth();
+        $this->assertFalse($auth->verifyEmailWithToken('blah'));
     }
 
     public function testVerifyEmailWithToken()
@@ -291,7 +307,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'created_at' => '-10 years', ]));
         $this->assertFalse(self::$user->isVerified());
 
-        $user = self::$auth->verifyEmailWithToken($link->link);
+        $auth = $this->getAuth();
+
+        $user = $auth->verifyEmailWithToken($link->link);
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
         $this->assertTrue(self::$user->isVerified());
@@ -301,7 +319,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
-        self::$auth->getUserFromForgotToken('blah');
+        $auth = $this->getAuth();
+        $auth->getUserFromForgotToken('blah');
     }
 
     public function testGetUserFromForgotToken()
@@ -311,7 +330,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'user_id' => self::$user->id(),
             'link_type' => UserLink::FORGOT_PASSWORD, ]));
 
-        $user = self::$auth->getUserFromForgotToken(self::$link->link);
+        $auth = $this->getAuth();
+        $user = $auth->getUserFromForgotToken(self::$link->link);
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
     }
@@ -325,7 +345,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         self::$link->created_at = '-10 years';
         $this->assertTrue(self::$link->save());
-        self::$auth->getUserFromForgotToken(self::$link->link);
+
+        $auth = $this->getAuth();
+        $auth->getUserFromForgotToken(self::$link->link);
     }
 
     public function testForgotStep1ValidationFailed()
@@ -337,19 +359,22 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid email address.');
 
-        self::$auth->forgotStep1('invalidemail', '127.0.0.1');
+        $auth = $this->getAuth();
+        $auth->forgotStep1('invalidemail', '127.0.0.1');
     }
 
     public function testForgotSetp1NoEmailMatch()
     {
         $this->setExpectedException('App\Auth\Exception\AuthException', 'We could not find a match for that email address.');
 
-        self::$auth->forgotStep1('nomatch@example.com', '127.0.0.1');
+        $auth = $this->getAuth();
+        $auth->forgotStep1('nomatch@example.com', '127.0.0.1');
     }
 
     public function testForgotStep1()
     {
-        $this->assertTrue(self::$auth->forgotStep1('test@example.com', '127.0.0.1'));
+        $auth = $this->getAuth();
+        $this->assertTrue($auth->forgotStep1('test@example.com', '127.0.0.1'));
         $this->assertEquals(1, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
@@ -359,7 +384,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
-        self::$auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1');
+        $auth = $this->getAuth();
+        $auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1');
     }
 
     public function testForgotStep2BadPassword()
@@ -376,7 +402,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link->link_type = UserLink::FORGOT_PASSWORD;
         $this->assertTrue($link->save());
 
-        self::$auth->forgotStep2($link->link, ['f', 'f'], '127.0.0.1');
+        $auth = $this->getAuth();
+        $auth->forgotStep2($link->link, ['f', 'f'], '127.0.0.1');
     }
 
     public function testForgotStep2()
@@ -391,12 +418,24 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link->link_type = UserLink::FORGOT_PASSWORD;
         $this->assertTrue($link->save());
 
+        $auth = $this->getAuth();
+
         $oldUserPassword = self::$user->user_password;
-        $this->assertTrue(self::$auth->forgotStep2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));
+        $this->assertTrue($auth->forgotStep2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));
         self::$user->refresh();
         $this->assertNotEquals($oldUserPassword, self::$user->user_password);
         $this->assertEquals(0, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
+    }
+
+    private function getAuth()
+    {
+        $auth = new Auth();
+        $auth->setApp(Test::$app)
+             ->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
+             ->setResponse(new Response());
+
+        return $auth;
     }
 }
