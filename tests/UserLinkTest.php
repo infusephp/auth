@@ -9,17 +9,35 @@
  * @license MIT
  */
 use App\Auth\Models\UserLink;
+use App\Users\Models\User;
 
 class UserLinkTest extends PHPUnit_Framework_TestCase
 {
+    public static $user;
     public static $link;
+
+    public static function setUpBeforeClass()
+    {
+        self::$user = new User();
+        self::$user->user_email = 'test@example.com';
+        self::$user->user_password = ['password', 'password'];
+        self::$user->ip = '127.0.0.1';
+        self::$user->first_name = 'Bob';
+        self::$user->last_name = 'Loblaw';
+        self::$user->save();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        self::$user->delete();
+    }
 
     public function testCreate()
     {
         self::$link = new UserLink();
-        $this->assertTrue(self::$link->create([
-            'user_id' => -1,
-            'link_type' => UserLink::FORGOT_PASSWORD, ]));
+        self::$link->user_id = self::$user->id();
+        self::$link->link_type = UserLink::FORGOT_PASSWORD;
+        $this->assertTrue(self::$link->save());
     }
 
     /**

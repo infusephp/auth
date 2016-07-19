@@ -9,18 +9,28 @@
  * @license MIT
  */
 use App\Auth\Models\GroupMember;
+use App\Users\Models\User;
 use Infuse\Test;
 
 class GroupMemberTest extends PHPUnit_Framework_TestCase
 {
+    public static $user;
     public static $member;
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('GroupMembers')
-            ->where('user_id', -1)
-            ->where('group', 'test')
-            ->execute();
+        self::$user = new User();
+        self::$user->user_email = 'test@example.com';
+        self::$user->user_password = ['password', 'password'];
+        self::$user->ip = '127.0.0.1';
+        self::$user->first_name = 'Bob';
+        self::$user->last_name = 'Loblaw';
+        self::$user->save();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        self::$user->delete();
     }
 
     public function testHasPermission()
@@ -34,7 +44,7 @@ class GroupMemberTest extends PHPUnit_Framework_TestCase
     {
         self::$member = new GroupMember();
         self::$member->grantAllPermissions();
-        $this->assertTrue(self::$member->create(['group' => 'test', 'user_id' => -1]));
+        $this->assertTrue(self::$member->create(['group' => 'test', 'user_id' => self::$user->id()]));
     }
 
     /**

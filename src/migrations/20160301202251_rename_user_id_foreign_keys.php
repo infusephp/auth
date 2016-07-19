@@ -11,7 +11,6 @@ class RenameUserIdForeignKeys extends AbstractMigration
             'PersistentSessions',
             'UserLinks',
             'UserLoginHistories',
-
         ];
         foreach ($tables as $table) {
             $this->table($table)

@@ -147,23 +147,6 @@ abstract class AbstractUser extends ACLModel
         return true;
     }
 
-    protected function postDeleteHook()
-    {
-        // nuke all related models
-        $nuke = [
-            'GroupMembers',
-            'PersistentSessions',
-            'UserLoginHistories',
-            'UserLinks', ];
-
-        $db = $this->getApp()['db'];
-        foreach ($nuke as $tablename) {
-            $db->delete($tablename)
-               ->where('user_id', $this->id())
-               ->execute();
-        }
-    }
-
     /////////////////////////////////////
     // GETTERS
     /////////////////////////////////////
