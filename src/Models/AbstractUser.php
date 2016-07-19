@@ -8,6 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
+
 namespace App\Auth\Models;
 
 use Infuse\Application;
@@ -142,13 +143,6 @@ abstract class AbstractUser extends ACLModel
 
             return false;
         }
-
-        return true;
-    }
-
-    protected function preDeleteHook()
-    {
-        $this->deleteCache = $this->toArray();
 
         return true;
     }
