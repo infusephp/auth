@@ -8,6 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
+
 namespace App\Auth\Models;
 
 use Infuse\Application;
@@ -56,13 +57,19 @@ class UserLink extends Model
      */
     public static $forgotLinkTimeframe = 1800; // 30 minutes in seconds
 
-    protected function preCreateHook(&$data)
+    protected function initialize()
     {
-        if (!isset($data['link'])) {
-            $data['link'] = strtolower(U::guid(false));
-        }
+        parent::initialize();
 
-        return true;
+        self::creating([self::class, 'generateLink']);
+    }
+
+    public static function generateLink($event)
+    {
+        $model = $event->getModel();
+        if (!$model->link) {
+            $model->link = strtolower(U::guid(false));
+        }
     }
 
     /**
