@@ -8,10 +8,11 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth\Console;
 
-use App\Auth\Libs\Auth;
-use App\Auth\Models\UserLink;
+namespace Infuse\Auth\Console;
+
+use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

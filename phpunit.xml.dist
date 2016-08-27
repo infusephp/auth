@@ -5,7 +5,7 @@
 
   <listeners>
     <listener class="Infuse\Test"></listener>
-    <listener class="App\Auth\Libs\TestListener"></listener>
+    <listener class="Infuse\Auth\Libs\TestListener"></listener>
   </listeners>
 
   <testsuites>

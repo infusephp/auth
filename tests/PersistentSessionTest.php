@@ -8,8 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use App\Auth\Models\PersistentSession;
 use App\Users\Models\User;
+use Infuse\Auth\Models\PersistentSession;
 use Infuse\Test;
 
 class PersistentSessionTest extends PHPUnit_Framework_TestCase

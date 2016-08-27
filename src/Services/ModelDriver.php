@@ -8,7 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth\Services;
+
+namespace Infuse\Auth\Services;
 
 use Pulsar\Model;
 use Pulsar\Validate;

@@ -8,7 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth\Models;
+
+namespace Infuse\Auth\Models;
 
 use Infuse\Application;
 use Infuse\Utility as U;

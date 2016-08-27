@@ -8,9 +8,10 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
+
 namespace App\Users\Models;
 
-use App\Auth\Models\AbstractUser;
+use Infuse\Auth\Models\AbstractUser;
 
 class User extends AbstractUser
 {

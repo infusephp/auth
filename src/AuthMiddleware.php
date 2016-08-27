@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth;
+namespace Infuse\Auth;
 
 use Infuse\HasApp;
 use Pulsar\ACLModel;

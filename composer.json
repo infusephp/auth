@@ -16,7 +16,7 @@
 		"source": "https://github.com/infusephp/auth"
 	},
     "autoload": {
-        "psr-4": {"App\\Auth\\": "src/"}
+        "psr-4": {"Infuse\\Auth\\": "src/"}
     },
 	"require": {
 		"php": ">=5.4.0"

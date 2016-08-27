@@ -8,8 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use App\Auth\Models\GroupMember;
 use App\Users\Models\User;
+use Infuse\Auth\Models\GroupMember;
 use Infuse\Test;
 
 class GroupMemberTest extends PHPUnit_Framework_TestCase

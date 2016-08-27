@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Exception;
+namespace Infuse\Auth\Exception;
 
 use Exception;
 

@@ -8,7 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth\Libs;
+
+namespace Infuse\Auth\Libs;
 
 use Exception;
 use Infuse\Test;

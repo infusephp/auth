@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-namespace App\Auth\Models;
+namespace Infuse\Auth\Models;
 
 use Infuse\Application;
 use Infuse\Utility as U;
@@ -61,7 +61,7 @@ class UserLink extends Model
     {
         parent::initialize();
 
-        self::creating([self::class, 'generateLink']);
+        self::creating(['Infuse\Auth\Models\UserLink', 'generateLink']);
     }
 
     public static function generateLink($event)

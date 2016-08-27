@@ -8,12 +8,13 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth\Libs;
 
-use App\Auth\Exception\AuthException;
-use App\Auth\Models\PersistentSession;
-use App\Auth\Models\UserLink;
-use App\Auth\Models\UserLoginHistory;
+namespace Infuse\Auth\Libs;
+
+use Infuse\Auth\Exception\AuthException;
+use Infuse\Auth\Models\PersistentSession;
+use Infuse\Auth\Models\UserLink;
+use Infuse\Auth\Models\UserLoginHistory;
 use Infuse\HasApp;
 use Pulsar\Model;
 use Infuse\Request;

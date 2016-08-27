@@ -8,10 +8,10 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use App\Auth\Libs\Auth;
-use App\Auth\Models\GroupMember;
 use App\Users\Models\User;
-use App\Auth\Models\UserLink;
+use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Models\GroupMember;
+use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;

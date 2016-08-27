@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Auth\Services;
+namespace Infuse\Auth\Services;
 
-use App\Auth\Libs\Auth as AuthService;
+use Infuse\Auth\Libs\Auth as AuthService;
 use Pulsar\ACLModel;
 
 class Auth

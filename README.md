@@ -22,7 +22,7 @@ Auth module for Infuse Framework
    ```php
    'services' => [
 	   // ...
-	   'auth' => 'App\Auth\Services\Auth'
+	   'auth' => 'Infuse\Auth\Services\Auth'
 	   // ...
    ]
    ```
@@ -49,7 +49,7 @@ Auth module for Infuse Framework
 	   // ...
 	   'commands' => [
 		   // ...
-		   'App\Auth\Console\ResetPasswordLinkCommand'
+		   'Infuse\Auth\Console\ResetPasswordLinkCommand'
 	   ]
    ]
    ```
@@ -61,7 +61,7 @@ Auth module for Infuse Framework
       // ...
       [
          'id' => 'auth:garbageCollection',
-         'class' => 'App\Auth\Jobs\GarbageCollection',
+         'class' => 'Infuse\Auth\Jobs\GarbageCollection',
          'minute' => 30,
          'hour' => 1,
          'day' => 1

@@ -8,8 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use App\Auth\Models\UserLink;
 use App\Users\Models\User;
+use Infuse\Auth\Models\UserLink;
 
 class UserLinkTest extends PHPUnit_Framework_TestCase
 {

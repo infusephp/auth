@@ -8,10 +8,11 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\Auth\Jobs;
 
-use App\Auth\Models\UserLink;
-use App\Auth\Models\PersistentSession;
+namespace Infuse\Auth\Jobs;
+
+use Infuse\Auth\Models\UserLink;
+use Infuse\Auth\Models\PersistentSession;
 
 class GarbageCollection
 {

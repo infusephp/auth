@@ -8,10 +8,10 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use App\Auth\Libs\Auth;
-use App\Auth\Models\UserLink;
-use App\Auth\Models\UserLoginHistory;
 use App\Users\Models\User;
+use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Models\UserLink;
+use Infuse\Auth\Models\UserLoginHistory;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -69,7 +69,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testDI()
     {
-        $this->assertInstanceOf('App\Auth\Libs\Auth', Test::$app['auth']);
+        $this->assertInstanceOf('Infuse\Auth\Libs\Auth', Test::$app['auth']);
     }
 
     public function testGetRequest()
@@ -100,7 +100,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsBadUsername()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid username.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid username.');
 
         $auth = $this->getAuth();
         $auth->getUserWithCredentials('', '');
@@ -108,7 +108,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsBadPassword()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid password.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
 
         $auth = $this->getAuth();
         $auth->getUserWithCredentials('test@example.com', '');
@@ -116,7 +116,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testGetUserWithCredentialsFailTemporary()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
 
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
@@ -138,7 +138,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         self::$user->enabled = false;
         $this->assertTrue(self::$user->save());
 
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
 
         $auth = $this->getAuth();
         $auth->getUserWithCredentials('test@example.com', 'testpassword');
@@ -156,7 +156,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
 
         $auth = $this->getAuth();
         $auth->getUserWithCredentials('test@example.com', 'testpassword');
@@ -194,7 +194,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testLoginFail()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
 
         $auth = $this->getAuth();
         $auth->login('test@example.com', 'bogus');
@@ -317,7 +317,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testGetUserFromForgotTokenInvalid()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
         $auth = $this->getAuth();
         $auth->getUserFromForgotToken('blah');
@@ -341,7 +341,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
      */
     public function testGetUserFromForgotTokenExpired()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
         self::$link->created_at = '-10 years';
         $this->assertTrue(self::$link->save());
@@ -357,7 +357,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
             ->where('user_id', self::$user->id())
             ->execute();
 
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid email address.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid email address.');
 
         $auth = $this->getAuth();
         $auth->forgotStep1('invalidemail', '127.0.0.1');
@@ -365,7 +365,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testForgotSetp1NoEmailMatch()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'We could not find a match for that email address.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address.');
 
         $auth = $this->getAuth();
         $auth->forgotStep1('nomatch@example.com', '127.0.0.1');
@@ -382,7 +382,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testForgotStep2Invalid()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
         $auth = $this->getAuth();
         $auth->forgotStep2('blah', ['password', 'password'], '127.0.0.1');
@@ -390,7 +390,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testForgotStep2BadPassword()
     {
-        $this->setExpectedException('App\Auth\Exception\AuthException', 'Please enter a valid password.');
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
 
         Test::$app['db']->delete('UserLinks')
             ->where('link_type', UserLink::FORGOT_PASSWORD)
