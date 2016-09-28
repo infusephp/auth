@@ -94,7 +94,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->can('edit', $user));
         $this->assertFalse($user->can('skip-password-required', $user));
 
-        $this->assertFalse($user->can('create', $testUser));
+        $this->assertTrue($user->can('create', $testUser));
         $this->assertFalse($user->can('edit', $testUser));
         $this->assertFalse($user->can('skip-password-required', $testUser));
 

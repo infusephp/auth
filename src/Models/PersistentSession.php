@@ -11,8 +11,6 @@
 
 namespace Infuse\Auth\Models;
 
-use Infuse\Application;
-use Infuse\Utility as U;
 use Pulsar\Model;
 
 class PersistentSession extends Model
@@ -42,18 +40,4 @@ class PersistentSession extends Model
      * @staticvar int
      */
     public static $sessionLength = 7776000; // 3 months in seconds
-
-    /**
-     * Clears out expired user links.
-     *
-     * @return bool
-     */
-    public static function garbageCollect()
-    {
-        $app = Application::getDefault();
-
-        return (bool) $app['db']->delete('PersistentSessions')
-            ->where('created_at', U::unixToDb(time() - self::$sessionLength), '<')
-            ->execute();
-    }
 }

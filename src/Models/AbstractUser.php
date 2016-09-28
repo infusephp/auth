@@ -88,13 +88,17 @@ abstract class AbstractUser extends ACLModel
 
     protected function hasPermission($permission, Model $requester)
     {
-        // allow user registrations
-        if ($permission == 'create' && !$requester->isSignedIn()) {
-            return true;
-        } elseif (in_array($permission, ['edit']) && $requester->id() == $this->id()) {
+        // always allow new user registrations
+        if ($permission == 'create') {
             return true;
         }
 
+        // users can only edit themselves
+        if ($permission === 'edit' && $requester instanceof self && $requester->id() == $this->id()) {
+            return true;
+        }
+
+        // otherwise, defer to admin permissions
         return $requester->isAdmin();
     }
 
@@ -115,7 +119,8 @@ abstract class AbstractUser extends ACLModel
 
         // check if the current password is accurate
         $password = array_value($data, 'current_password');
-        $encryptedPassword = $app['auth']->encrypt($password);
+        $encryptedPassword = $app['auth']->getStrategy('traditional')
+                                         ->encrypt($password);
 
         $passwordValidated = $encryptedPassword == $this->user_password;
 
@@ -479,11 +484,14 @@ abstract class AbstractUser extends ACLModel
 
         // Check for the password.
         // Only the current user can delete their account using this method
-        $password = $app['auth']->encrypt($password);
+
+        $encryptedPassword = $app['auth']->getStrategy('traditional')
+                                         ->encrypt($password);
+
         if (!$this->exists() ||
             $this->isAdmin() ||
             $app['user']->id() != $this->id() ||
-            $password != $this->user_password) {
+            $encryptedPassword != $this->user_password) {
             return false;
         }
 

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * @author Jared King <j@jaredtking.com>
+ *
+ * @link http://jaredtking.com
+ *
+ * @copyright 2015 Jared King
+ * @license MIT
+ */
+
 namespace Infuse\Auth\Services;
 
 use Infuse\Auth\Libs\Auth as AuthService;
@@ -27,6 +36,12 @@ class Auth
         $auth = new AuthService();
         $auth->setApp($app);
 
+        // register authentication strategies
+        $strategies = $app['config']->get('auth.strategies', []);
+        foreach ($strategies as $id => $class) {
+            $auth->registerStrategy($id, $class);
+        }
+
         return $auth;
     }
 
@@ -37,10 +52,6 @@ class Auth
      */
     private function getUserClass($app)
     {
-        if ($model = $app['config']->get('users.model')) {
-            return $model;
-        }
-
-        return AuthService::DEFAULT_USER_MODEL;
+        return $app['config']->get('users.model', AuthService::DEFAULT_USER_MODEL);
     }
 }

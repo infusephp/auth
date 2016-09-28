@@ -12,7 +12,6 @@
 namespace Infuse\Auth\Console;
 
 use Infuse\Auth\Libs\Auth;
-use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -47,14 +46,8 @@ class ResetPasswordLinkCommand extends Command
             return 1;
         }
 
-        $link = new UserLink();
-        $link->user_id = $user->id();
-        $link->link_type = UserLink::FORGOT_PASSWORD;
-        if (!$link->save()) {
-            $output->writeln("Could not create reset password link for $email");
-
-            return 1;
-        }
+        $link = $this->app['auth']->getPasswordReset()
+                                  ->buildLink($user->id());
 
         $output->writeln("Reset password link for $email: {$link->url()}");
 

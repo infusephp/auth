@@ -12,14 +12,16 @@
 namespace Infuse\Auth\Libs;
 
 use Infuse\Auth\Exception\AuthException;
-use Infuse\Auth\Models\PersistentSession;
+use Infuse\Auth\Libs\Storage\SessionStorage;
+use Infuse\Auth\Libs\Storage\StorageInterface;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Auth\Models\UserLoginHistory;
 use Infuse\HasApp;
-use Pulsar\Model;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Utility as U;
+use InvalidArgumentException;
+use Pulsar\Model;
 
 if (!defined('GUEST')) {
     define('GUEST', -1);
@@ -31,27 +33,22 @@ class Auth
 
     const DEFAULT_USER_MODEL = 'App\Users\Models\User';
 
-    const ERROR_BAD_USERNAME = 'auth.bad_username';
-    const ERROR_BAD_EMAIL = 'auth.bad_email';
-    const ERROR_BAD_PASSWORD = 'auth.bad_password';
-    const ERROR_LOGIN_NO_MATCH = 'auth.login_no_match';
-    const ERROR_LOGIN_TEMPORARY = 'auth.login_temporary';
-    const ERROR_LOGIN_DISABLED = 'auth.login_disabled';
-    const ERROR_LOGIN_UNVERIFIED = 'auth.login_unverified';
-    const ERROR_FORGOT_EMAIL_NO_MATCH = 'auth.forgot_email_no_match';
-    const ERROR_FORGOT_TOKEN_INVALID = 'auth.forgot_token_invalid';
+    /**
+     * @var StorageInterface
+     */
+    private $storage;
 
-    private static $messages = [
-        self::ERROR_BAD_USERNAME => 'Please enter a valid username.',
-        self::ERROR_BAD_EMAIL => 'Please enter a valid email address.',
-        self::ERROR_BAD_PASSWORD => 'Please enter a valid password.',
-        self::ERROR_LOGIN_NO_MATCH => 'We could not find a match for that email address and password.',
-        self::ERROR_LOGIN_TEMPORARY => 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.',
-        self::ERROR_LOGIN_DISABLED => 'Sorry, your account has been disabled.',
-        self::ERROR_LOGIN_UNVERIFIED => 'You must verify your account with the email that was sent to you before you can log in.',
-        self::ERROR_FORGOT_EMAIL_NO_MATCH => 'We could not find a match for that email address.',
-        self::ERROR_FORGOT_TOKEN_INVALID => 'This link has expired or is invalid.',
+    /**
+     * @var array
+     */
+    private $availableStrategies = [
+        'traditional' => 'Infuse\Auth\Libs\Strategy\TraditionalStrategy',
     ];
+
+    /**
+     * @var array
+     */
+    private $strategies = [];
 
     /**
      * @var Request
@@ -62,6 +59,90 @@ class Auth
      * @var Response
      */
     private $response;
+
+    /**
+     * @var PasswordRest
+     */
+    private $reset;
+
+    /**
+     * Gets the user model class.
+     *
+     * @return string
+     */
+    public function getUserClass()
+    {
+        return $this->app['config']->get('users.model', self::DEFAULT_USER_MODEL);
+    }
+
+    /**
+     * Registers an authentication strategy.
+     *
+     * @param string $id
+     * @param string $class
+     *
+     * @return self
+     */
+    public function registerStrategy($id, $class)
+    {
+        $this->availableStrategies[$id] = $class;
+
+        return $this;
+    }
+
+    /**
+     * Gets an authentication strategy.
+     *
+     * @param string $id
+     *
+     * @throws InvalidArgumentException if the strategy does not exist
+     *
+     * @return Infuse\Auth\Strategy\StrategyInterface
+     */
+    public function getStrategy($id)
+    {
+        if (isset($this->strategies[$id])) {
+            return $this->strategies[$id];
+        }
+
+        if (!isset($this->availableStrategies[$id])) {
+            throw new InvalidArgumentException("Auth strategy '$id' does not exist or has not been registered.");
+        }
+
+        $class = $this->availableStrategies[$id];
+        $strategy = new $class($this);
+        $this->strategies[$id] = $strategy;
+
+        return $strategy;
+    }
+
+    /**
+     * Sets the session storage adapter.
+     *
+     * @param StorageInterface $storage
+     *
+     * @return self
+     */
+    public function setStorage(StorageInterface $storage)
+    {
+        $this->storage = $storage;
+
+        return $this;
+    }
+
+    /**
+     * Gets the session storage adapter.
+     *
+     * @return StorageInterface
+     */
+    public function getStorage()
+    {
+        if (!$this->storage) {
+            $this->storage = new SessionStorage($this);
+        }
+
+        return $this->storage;
+    }
 
     /**
      * Sets the request object.
@@ -111,74 +192,58 @@ class Auth
         return $this->response;
     }
 
-    /**
-     * Gets the user model class.
-     *
-     * @return string
-     */
-    public function getUserClass()
-    {
-        if ($model = $this->app['config']->get('users.model')) {
-            return $model;
-        }
-
-        return self::DEFAULT_USER_MODEL;
-    }
-
     /////////////////////////
     // LOGIN
     /////////////////////////
 
     /**
-     * Gets the currently authenticated user using the
-     * available authentication strategies.
+     * Handles a user authentication request.
+     *
+     * @param string $strategy strategy identifier
+     *
+     * @throws Infuse\Auth\Exception\AuthException when unable to authenticate the user.
+     *
+     * @return User|Response
+     */
+    public function authenticate($strategy)
+    {
+        return $this->getStrategy($strategy)
+                    ->authenticate($this->request, $this->response);
+    }
+
+    /**
+     * Gets the currently authenticated user.
      *
      * @return User
      */
     public function getAuthenticatedUser()
     {
-        if ($user = $this->authenticateSession()) {
-            return $user;
+        $user = $this->getStorage()
+                     ->getAuthenticatedUser($this->request, $this->response);
+
+        // if no current user then sign in a guest
+        if (!$user) {
+            return $this->signInUser(GUEST);
         }
 
-        if ($user = $this->authenticatePersistentSession()) {
-            return $user;
-        }
-
-        // change session user id back to guest if we thought
-        // user was someone else
-        if ($this->request->session('user_id') != GUEST) {
-            $this->changeSessionUserID(GUEST);
-        }
-
-        $userModel = $this->getUserClass();
-
-        return new $userModel(GUEST, false);
+        return $user;
     }
 
     /**
-     * Performs a traditional username/password login and
-     * creates a signed in user.
+     * Signs in a user using the traditional strategy.
      *
-     * @param string $username   username
-     * @param string $password   password
-     * @param bool   $persistent make the session persistent
+     * @param string $username username
+     * @param string $password password
+     * @param bool   $remember whether to enable remember me on this session
      *
      * @throws AuthException when the user cannot be signed in.
      *
      * @return bool success
      */
-    public function login($username, $password, $persistent = false)
+    public function login($username, $password, $remember = false)
     {
-        $user = $this->getUserWithCredentials($username, $password);
-
-        $this->app['user'] = $this->signInUser($user->id(), 'web');
-
-        if ($persistent) {
-            self::storePersistentCookie($user->id(), $user->user_email);
-        }
-
-        return true;
+        return $this->getStrategy('traditional')
+                    ->login($username, $password, $remember);
     }
 
     /**
@@ -188,137 +253,59 @@ class Auth
      */
     public function logout()
     {
-        // empty the session cookie
-        $sessionCookie = session_get_cookie_params();
-        $this->response->setCookie(
-            session_name(),
-            '',
-            time() - 86400,
-            $sessionCookie['path'],
-            $sessionCookie['domain'],
-            $sessionCookie['secure'],
-            $sessionCookie['httponly']);
+        $result = $this->getStorage()
+                       ->signOut($this->request, $this->response);
 
-        // destroy the session variables
-        $this->request->destroySession();
+        $this->signInUser(GUEST);
 
-        // actually destroy the session now
-        session_destroy();
-
-        // delete persistent session cookie
-        $this->response->setCookie(
-            'persistent',
-            '',
-            time() - 86400,
-            $sessionCookie['path'],
-            $sessionCookie['domain'],
-            $sessionCookie['secure'],
-            true);
-
-        $this->changeSessionUserID(GUEST);
-
-        $userModel = $this->getUserClass();
-        $this->app['user'] = new $userModel(GUEST, false);
-
-        return true;
+        return $result;
     }
 
     /**
-     * Fetches the user for a given username/password combination.
+     * Builds a signed in user object for a given user ID and signs
+     * the user into the session storage. This method should be used
+     * by authentication strategies to build a signed in session once
+     * a user is authenticated.
      *
-     * @param string $username username
-     * @param string $password password
-     *
-     * @throws AuthException when a matching user cannot be found.
-     *
-     * @return User matching user
-     */
-    public function getUserWithCredentials($username, $password)
-    {
-        if (empty($username)) {
-            $error = self::ERROR_BAD_USERNAME;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        if (empty($password)) {
-            $error = self::ERROR_BAD_PASSWORD;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        // build the query string for the username
-        $usernameWhere = $this->buildUsernameWhere($username);
-
-        // encrypt password
-        $password = $this->encrypt($password);
-
-        // look the user up with the matching username/password combo
-        $userModel = $this->getUserClass();
-        $user = $userModel::where($usernameWhere)
-            ->where('user_password', $password)
-            ->first();
-
-        if (!$user) {
-            $error = self::ERROR_LOGIN_NO_MATCH;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        if ($user->isTemporary()) {
-            $error = self::ERROR_LOGIN_TEMPORARY;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        if (!$user->enabled) {
-            $error = self::ERROR_LOGIN_DISABLED;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        if (!$user->isVerified()) {
-            $error = self::ERROR_LOGIN_UNVERIFIED;
-            $message = $this->app['locale']->t($error, ['user_id' => $user->id()], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        // success!
-        return $user;
-    }
-
-    /**
-     * Returns a logged in user for a given user ID.
-     * This method is used for signing in via any
-     * provider (traditional, oauth, fb, twitter, etc.).
-     *
-     * @param int $userId
-     * @param int $type   an integer flag to denote the login type
+     * @param int    $userId
+     * @param string $strategy
+     * @param bool   $remember whether to enable remember me on this session
      *
      * @return User authenticated user model
      */
-    public function signInUser($userId, $type = 'web')
+    public function signInUser($userId, $strategy = 'web', $remember = false)
     {
+        // build the user model
         $userModel = $this->getUserClass();
-        $user = new $userModel($userId, true);
+        $signedIn = $userId > 0;
+        $user = new $userModel($userId, $signedIn);
 
-        // update the session with the user's id
-        $this->changeSessionUserID($userId);
+        // sign in the user with the session storage
+        $storage = $this->getStorage();
 
-        // create a login history entry
-        $history = new UserLoginHistory();
-        $history->create([
-            'user_id' => $userId,
-            'type' => $type,
-            'ip' => $this->request->ip(),
-            'user_agent' => $this->request->agent(),
-        ]);
+        $storage->signIn($userId, $this->request, $this->response);
+
+        if ($remember) {
+            $storage->remember($user, $this->request, $this->response);
+        }
+
+        // record the login event
+        if ($userId > 0) {
+            $history = new UserLoginHistory();
+            $history->user_id = $userId;
+            $history->type = $strategy;
+            $history->ip = $this->request->ip();
+            $history->user_agent = $this->request->agent();
+            $history->save();
+        }
+
+        $this->app['user'] = $user;
 
         return $user;
     }
 
     /////////////////////////
-    // TEMPORARY USERS
+    // REGISTRATION
     /////////////////////////
 
     /**
@@ -338,7 +325,11 @@ class Auth
         $userModel = $this->getUserClass();
         $user = $userModel::where('user_email', $email)->first();
 
-        if (!$user || !$user->isTemporary()) {
+        if (!$user) {
+            return false;
+        }
+
+        if (!$user->isTemporary()) {
             return false;
         }
 
@@ -351,12 +342,14 @@ class Auth
      * @param User  $user user
      * @param array $data user data
      *
+     * @throws InvalidArgumentException when trying to upgrade a non-temporary account.
+     *
      * @return bool true if successful
      */
     public function upgradeTemporaryAccount(Model $user, $data)
     {
         if (!$user->isTemporary()) {
-            return true;
+            throw new InvalidArgumentException('Cannot upgrade a non-temporary account');
         }
 
         $updateArray = array_replace($data, [
@@ -449,17 +442,37 @@ class Auth
         return $user;
     }
 
-    /**
-     * @deprecated
-     */
-    public function verifyEmailWithLink($token)
-    {
-        return $this->verifyEmailWithToken($token);
-    }
-
     /////////////////////////
     // FORGOT PASSWORD
     /////////////////////////
+
+    /**
+     * Gets a reset password instance.
+     *
+     * @param ResetPassword $reset
+     *
+     * @return self
+     */
+    public function setPasswordReset(ResetPassword $reset)
+    {
+        $this->reset = $reset;
+
+        return $this;
+    }
+
+    /**
+     * Gets a reset password instance.
+     *
+     * @return ResetPassword
+     */
+    public function getPasswordReset()
+    {
+        if (!$this->reset) {
+            $this->reset = new ResetPassword($this);
+        }
+
+        return $this->reset;
+    }
 
     /**
      * Looks up a user from a given forgot token.
@@ -472,20 +485,8 @@ class Auth
      */
     public function getUserFromForgotToken($token)
     {
-        $link = UserLink::where('link', $token)
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
-            ->where('created_at', U::unixToDb(time() - UserLink::$forgotLinkTimeframe), '>')
-            ->first();
-
-        if (!$link) {
-            $error = self::ERROR_FORGOT_TOKEN_INVALID;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        $userModel = $this->getUserClass();
-
-        return new $userModel($link->user_id);
+        return $this->getPasswordReset()
+                    ->getUserFromToken($token);
     }
 
     /**
@@ -496,47 +497,12 @@ class Auth
      *
      * @throws AuthException when the step cannot be completed.
      *
-     * @return bool success?
+     * @return bool
      */
     public function forgotStep1($email, $ip)
     {
-        $email = trim(strtolower($email));
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = self::ERROR_BAD_EMAIL;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        $userModel = $this->getUserClass();
-        $user = $userModel::where('user_email', $email)
-            ->first();
-
-        if (!$user || $user->isTemporary()) {
-            $error = self::ERROR_FORGOT_EMAIL_NO_MATCH;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        // make sure there are no other forgot links
-        $oldLinks = UserLink::totalRecords([
-            'user_id' => $user->id(),
-            'link_type' => UserLink::FORGOT_PASSWORD,
-            'created_at > "'.U::unixToDb(time() - UserLink::$forgotLinkTimeframe).'"', ]);
-
-        if ($oldLinks > 0) {
-            return true;
-        }
-
-        $link = new UserLink();
-        $link->user_id = $user->id();
-        $link->link_type = UserLink::FORGOT_PASSWORD;
-        $link->save();
-
-        // finally send the user the reset password link
-        return $user->sendEmail('forgot-password', [
-            'ip' => $ip,
-            'forgot' => $link->link, ]);
+        return $this->getPasswordReset()
+                    ->step1($email, $ip);
     }
 
     /**
@@ -549,257 +515,11 @@ class Auth
      *
      * @throws AuthException when the step cannot be completed.
      *
-     * @return bool success
+     * @return bool
      */
     public function forgotStep2($token, array $password, $ip)
     {
-        $user = $this->getUserFromForgotToken($token);
-
-        // Update the password
-        $user->user_password = $password;
-        $success = $user->grantAllPermissions()->save();
-        $user->enforcePermissions();
-
-        if (!$success) {
-            $error = self::ERROR_BAD_PASSWORD;
-            $message = $this->app['locale']->t($error, [], false, self::$messages[$error]);
-            throw new AuthException($message);
-        }
-
-        $this->app['db']->delete('UserLinks')
-            ->where('user_id', $user->id())
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
-            ->execute();
-
-        $user->sendEmail('password-changed',
-            ['ip' => $ip]);
-
-        return true;
-    }
-
-    /////////////////////////
-    // UTILITY FUNCTIONS
-    /////////////////////////
-
-    /**
-     * Encrypts a password.
-     *
-     * @param string $password
-     *
-     * @return string encrypted password
-     */
-    public function encrypt($password)
-    {
-        return U::encryptPassword($password, $this->app['config']->get('app.salt'));
-    }
-
-    /////////////////////////
-    // PRIVATE FUNCTIONS
-    /////////////////////////
-
-    /**
-     * Builds a query string for matching the username.
-     *
-     * @param string $username username to match
-     *
-     * @return string
-     */
-    private function buildUsernameWhere($username)
-    {
-        $userModel = $this->getUserClass();
-
-        $conditions = array_map(
-            function ($prop, $username) { return $prop." = '".$username."'"; },
-            $userModel::$usernameProperties,
-            array_fill(0, count($userModel::$usernameProperties),
-            addslashes($username)));
-
-        return '('.implode(' OR ', $conditions).')';
-    }
-
-    /**
-     * Attempts to authenticate the user
-     * using the session strategy.
-     *
-     * @return User|false
-     */
-    private function authenticateSession()
-    {
-        // check if the user's session is already logged in and valid
-        if ($this->request->session('user_agent') == $this->request->agent()) {
-            $userModel = $this->getUserClass();
-            $user = new $userModel($this->request->session('user_id'), true);
-
-            if ($user->exists()) {
-                return $user;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Attempts to authenticate the user
-     * using the persistent session strategy.
-     *
-     * @return User|false
-     */
-    private function authenticatePersistentSession()
-    {
-        // check for persistent sessions
-        if ($cookie = $this->request->cookies('persistent')) {
-            // decode the cookie
-            $cookieParams = json_decode(base64_decode($cookie));
-
-            if ($cookieParams) {
-                $userModel = $this->getUserClass();
-                $user = $userModel::where('user_email', $cookieParams->user_email)
-                    ->first();
-
-                if ($user) {
-                    // encrypt series and token for matching with the db
-                    $seriesEnc = $this->encrypt($cookieParams->series);
-                    $tokenEnc = $this->encrypt($cookieParams->token);
-
-                    // first, make sure all of the parameters match, except the token
-                    // we match the token separately in case all of the other information matches,
-                    // which means an older session is being used, and then we run away
-                    $select = $this->app['db']->select('token')
-                        ->from('PersistentSessions')
-                        ->where('user_email', $cookieParams->user_email)
-                        ->where('created_at', U::unixToDb(time() - PersistentSession::$sessionLength), '>')
-                        ->where('series', $seriesEnc);
-
-                    $tokenDB = $select->scalar();
-
-                    if ($select->rowCount() == 1 && $cookieParams->agent == $this->request->agent()) {
-                        // if there is a match, sign the user in
-                        if ($tokenDB == $tokenEnc) {
-                            // remove the token
-                            $this->app['db']->delete('PersistentSessions')
-                                ->where('user_email', $cookieParams->user_email)
-                                ->where('series', $seriesEnc)
-                                ->where('token', $tokenEnc)
-                                ->execute();
-
-                            $user = $this->signInUser($user->id(), 'persistent');
-
-                            // generate a new cookie for the next time
-                            self::storePersistentCookie($user->id(), $cookieParams->user_email, $cookieParams->series);
-
-                            // mark this session as persistent (useful for security checks)
-                            $this->request->setSession('persistent', true);
-
-                            return $user;
-                        } else {
-                            // same series, but different token.
-                            // the user is trying to use an older token
-                            // most likely an attack, so flush all sessions
-                            $this->app['db']->delete('PersistentSessions')
-                                ->where('user_email', $cookieParams->user_email)
-                                ->execute();
-                        }
-                    }
-                }
-            }
-
-            // delete persistent session cookie
-            $sessionCookie = session_get_cookie_params();
-            $this->response->setCookie(
-                'persistent',
-                '',
-                time() - 86400,
-                $sessionCookie['path'],
-                $sessionCookie['domain'],
-                $sessionCookie['secure'],
-                true);
-        }
-
-        return false;
-    }
-
-    /**
-     * Changes the user ID for the session.
-     *
-     * @param int $userId
-     */
-    private function changeSessionUserID($userId)
-    {
-        if (!headers_sent() && session_status() == PHP_SESSION_ACTIVE) {
-            // regenerate session id to prevent session hijacking
-            session_regenerate_id(true);
-
-            // hang on to the new session id
-            $sid = session_id();
-
-            // close the old and new sessions
-            session_write_close();
-
-            // re-open the new session
-            session_id($sid);
-            session_start();
-        }
-
-        // set the user id
-        $this->request->setSession([
-            'user_id' => $userId,
-            'user_agent' => $this->request->agent(), ]);
-    }
-
-    /**
-     * Generates a random 32-digit token for persistent sessions.
-     *
-     * @return string
-     */
-    private function generateToken()
-    {
-        $str = '';
-        for ($i = 0; $i < 16; ++$i) {
-            $str .= base_convert(mt_rand(1, 36), 10, 36);
-        }
-
-        return $str;
-    }
-
-    /**
-     * Stores a persistent session cookie on the response.
-     *
-     * @param int    $userId
-     * @param string $email
-     * @param string $series
-     * @param string $token
-     */
-    private function storePersistentCookie($userId, $email, $series = null, $token = null)
-    {
-        if (!$series) {
-            $series = $this->generateToken();
-        }
-
-        if (!$token) {
-            $token = $this->generateToken();
-        }
-
-        $sessionCookie = session_get_cookie_params();
-        $this->response->setCookie(
-            'persistent',
-            base64_encode(json_encode([
-                'user_email' => $email,
-                'series' => $series,
-                'token' => $token,
-                'agent' => $this->request->agent(), ])),
-            time() + PersistentSession::$sessionLength,
-            $sessionCookie['path'],
-            $sessionCookie['domain'],
-            $sessionCookie['secure'],
-            true);
-
-        $config = $this->app['config'];
-        $session = new PersistentSession();
-        $session->create([
-            'user_email' => $email,
-            'series' => $this->encrypt($series),
-            'token' => $this->encrypt($token),
-            'user_id' => $userId,
-        ]);
+        return $this->getPasswordReset()
+                    ->step2($token, $password, $ip);
     }
 }

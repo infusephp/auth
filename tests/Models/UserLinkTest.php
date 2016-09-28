@@ -47,9 +47,4 @@ class UserLinkTest extends PHPUnit_Framework_TestCase
     {
         $this->assertTrue(self::$link->delete());
     }
-
-    public function testGarbageCollect()
-    {
-        $this->assertTrue(UserLink::garbageCollect());
-    }
 }

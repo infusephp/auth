@@ -50,9 +50,4 @@ class PersistentSessionTest extends PHPUnit_Framework_TestCase
     {
         $this->assertTrue(self::$sesh->delete());
     }
-
-    public function testGarbageCollect()
-    {
-        $this->assertTrue(PersistentSession::garbageCollect());
-    }
 }

@@ -11,31 +11,55 @@
 
 namespace Infuse\Auth\Jobs;
 
-use Infuse\Auth\Models\UserLink;
 use Infuse\Auth\Models\PersistentSession;
+use Infuse\Auth\Models\UserLink;
+use Infuse\HasApp;
+use Infuse\Utility as U;
 
 class GarbageCollection
 {
+    use HasApp;
+
     public function __invoke($run)
     {
-        // clear out expired persistent sessions
-        $persistentSessionSuccess = PersistentSession::garbageCollect();
+        return $this->run();
+    }
 
-        if ($persistentSessionSuccess) {
-            $run->writeOutput('Garbage collection of persistent sessions was successful.');
-        } else {
-            $run->writeOutput('Garbage collection of persistent sessions was NOT successful.');
-        }
+    /**
+     * Runs the auth garbage collection.
+     *
+     * @return array
+     */
+    public function run()
+    {
+        $res1 = $this->gcPersistent();
+        $res2 = $this->gcUserLinks();
 
-        // clear out expired user links
-        $userLinkSuccess = UserLink::garbageCollect();
+        return $res1 && $res2;
+    }
 
-        if ($userLinkSuccess) {
-            $run->writeOutput('Garbage collection of user links was successful.');
-        } else {
-            $run->writeOutput('Garbage collection of user links was NOT successful.');
-        }
+    /**
+     * Clears out expired persistent sessions.
+     *
+     * @return bool
+     */
+    private function gcPersistent()
+    {
+        return (bool) $this->app['db']->delete('PersistentSessions')
+            ->where('created_at', U::unixToDb(time() - PersistentSession::$sessionLength), '<')
+            ->execute();
+    }
 
-        return $persistentSessionSuccess && $userLinkSuccess;
+    /**
+     * Clears out expired user links.
+     *
+     * @return bool
+     */
+    private function gcUserLinks()
+    {
+        return (bool) $this->app['db']->delete('UserLinks')
+            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('created_at', U::unixToDb(time() - UserLink::$forgotLinkTimeframe), '<')
+            ->execute();
     }
 }

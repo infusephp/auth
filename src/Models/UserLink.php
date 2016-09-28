@@ -11,7 +11,6 @@
 
 namespace Infuse\Auth\Models;
 
-use Infuse\Application;
 use Infuse\Utility as U;
 use Pulsar\Model;
 
@@ -84,20 +83,5 @@ class UserLink extends Model
         }
 
         return false;
-    }
-
-    /**
-     * Clears out expired user links.
-     *
-     * @return bool
-     */
-    public static function garbageCollect()
-    {
-        $app = Application::getDefault();
-
-        return (bool) $app['db']->delete('UserLinks')
-            ->where('link_type', self::FORGOT_PASSWORD)
-            ->where('created_at', U::unixToDb(time() - self::$forgotLinkTimeframe), '<')
-            ->execute();
     }
 }
