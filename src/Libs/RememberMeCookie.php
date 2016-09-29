@@ -16,6 +16,7 @@ use Infuse\Auth\Models\PersistentSession;
 use Infuse\Request;
 use Infuse\Utility as U;
 use RandomLib\Factory;
+use RandomLib\Generator;
 
 class RememberMeCookie
 {
@@ -281,7 +282,7 @@ class RememberMeCookie
             $this->random = $factory->getMediumStrengthGenerator();
         }
 
-        return $this->random->generateString($len);
+        return $this->random->generateString($len, Generator::CHAR_ALNUM);
     }
 
     /**

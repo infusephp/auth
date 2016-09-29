@@ -13,6 +13,7 @@ namespace Infuse\Auth\Models;
 
 use Pulsar\Model;
 use RandomLib\Factory;
+use RandomLib\Generator;
 
 class UserLink extends Model
 {
@@ -62,7 +63,7 @@ class UserLink extends Model
         if (!$model->link) {
             $factory = new Factory();
             $generator = $factory->getMediumStrengthGenerator();
-            $model->link = $generator->generateString(32);
+            $model->link = $generator->generateString(32, Generator::CHAR_ALNUM);
         }
     }
 
