@@ -10,6 +10,7 @@
  */
 use App\Users\Models\User;
 use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\GroupMember;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
@@ -131,6 +132,11 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
             'current_password' => 'testpassword',
             'password' => 'testpassword2',
             'email' => '', ]));
+
+        // should create a security event
+        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
+            'user_id' => self::$user->id(),
+            'type' => 'user.change_password', ]));
     }
 
     /**
