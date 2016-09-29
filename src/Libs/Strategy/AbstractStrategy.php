@@ -40,7 +40,7 @@ abstract class AbstractStrategy implements StrategyInterface
      *
      * @return User
      */
-    protected function signInUser($userId, $remember)
+    protected function signInUser($userId, $remember = false)
     {
         return $this->auth->signInUser($userId, $this->getId(), $remember);
     }
