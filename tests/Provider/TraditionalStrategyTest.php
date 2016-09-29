@@ -88,7 +88,7 @@ class TraditionalStrategyTest extends PHPUnit_Framework_TestCase
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::TEMPORARY, ]));
+            'type' => UserLink::TEMPORARY, ]));
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', 'testpassword');
@@ -117,7 +117,7 @@ class TraditionalStrategyTest extends PHPUnit_Framework_TestCase
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::VERIFY_EMAIL, ]));
+            'type' => UserLink::VERIFY_EMAIL, ]));
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 

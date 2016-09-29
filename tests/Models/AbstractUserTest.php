@@ -168,7 +168,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->isVerified(true));
 
         $link = UserLink::where('user_id', self::$user->id())
-            ->where('link_type', UserLink::VERIFY_EMAIL)
+            ->where('type', UserLink::VERIFY_EMAIL)
             ->first()
             ->delete();
 

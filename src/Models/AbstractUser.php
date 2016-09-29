@@ -172,7 +172,7 @@ abstract class AbstractUser extends ACLModel
     {
         return UserLink::totalRecords([
             'user_id' => $this->id(),
-            'link_type' => UserLink::TEMPORARY, ]) > 0;
+            'type' => UserLink::TEMPORARY, ]) > 0;
     }
 
     /**
@@ -188,7 +188,7 @@ abstract class AbstractUser extends ACLModel
 
         return UserLink::totalRecords([
             'user_id' => $this->id(),
-            'link_type' => UserLink::VERIFY_EMAIL,
+            'type' => UserLink::VERIFY_EMAIL,
             'created_at <= "'.U::unixToDb($timeWindow).'"', ]) == 0;
     }
 
@@ -396,7 +396,7 @@ abstract class AbstractUser extends ACLModel
         $link = new UserLink();
         $link->create([
             'user_id' => $user->id(),
-            'link_type' => UserLink::TEMPORARY, ]);
+            'type' => UserLink::TEMPORARY, ]);
 
         return $user;
     }

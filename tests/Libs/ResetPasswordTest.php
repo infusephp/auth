@@ -113,7 +113,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
     public function testStep1ValidationFailed()
     {
         Test::$app['db']->delete('UserLinks')
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
 
@@ -136,7 +136,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         $reset = $this->getSequence();
         $this->assertTrue($reset->step1('test@example.com', '127.0.0.1'));
         $this->assertEquals(1, UserLink::totalRecords([
-            'link_type' => UserLink::FORGOT_PASSWORD,
+            'type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
 
         // repeat calls should do nothing
@@ -145,7 +145,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         }
 
         $this->assertEquals(1, UserLink::totalRecords([
-            'link_type' => UserLink::FORGOT_PASSWORD,
+            'type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
     }
 
@@ -162,7 +162,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
 
         Test::$app['db']->delete('UserLinks')
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
 
@@ -176,7 +176,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
     public function testStep2()
     {
         Test::$app['db']->delete('UserLinks')
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
 
@@ -189,7 +189,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         self::$user->refresh();
         $this->assertNotEquals($oldUserPassword, self::$user->password);
         $this->assertEquals(0, UserLink::totalRecords([
-            'link_type' => UserLink::FORGOT_PASSWORD,
+            'type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
     }
 

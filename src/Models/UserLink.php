@@ -16,9 +16,9 @@ use Pulsar\Model;
 
 class UserLink extends Model
 {
-    const FORGOT_PASSWORD = 0;
-    const VERIFY_EMAIL = 1;
-    const TEMPORARY = 2;
+    const FORGOT_PASSWORD = 'reset_password';
+    const VERIFY_EMAIL = 'verify_email';
+    const TEMPORARY = 'temporary';
 
     protected static $ids = ['user_id', 'link'];
 
@@ -31,9 +31,8 @@ class UserLink extends Model
             'required' => true,
             'validate' => 'string:32',
         ],
-        'link_type' => [
-            'type' => Model::TYPE_NUMBER,
-            'validate' => 'enum:0,1,2',
+        'type' => [
+            'validate' => 'enum:reset_password,verify_email,temporary',
             'required' => true,
         ],
     ];
@@ -72,7 +71,7 @@ class UserLink extends Model
      */
     public function url()
     {
-        if ($this->link_type === self::FORGOT_PASSWORD) {
+        if ($this->type === self::FORGOT_PASSWORD) {
             return $this->getApp()['base_url'].'users/forgot/'.$this->link;
         }
 

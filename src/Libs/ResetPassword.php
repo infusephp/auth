@@ -47,7 +47,7 @@ class ResetPassword
     {
         $expiration = U::unixToDb(time() - UserLink::$forgotLinkTimeframe);
         $link = UserLink::where('link', $token)
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('created_at', $expiration, '>')
             ->first();
 
@@ -89,7 +89,7 @@ class ResetPassword
         $expiration = U::unixToDb(time() - UserLink::$forgotLinkTimeframe);
         $nExisting = UserLink::totalRecords([
             'user_id' => $user->id(),
-            'link_type' => UserLink::FORGOT_PASSWORD,
+            'type' => UserLink::FORGOT_PASSWORD,
             'created_at > "'.$expiration.'"',
         ]);
 
@@ -134,7 +134,7 @@ class ResetPassword
 
         $this->app['db']->delete('UserLinks')
             ->where('user_id', $user->id())
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('type', UserLink::FORGOT_PASSWORD)
             ->execute();
 
         $user->sendEmail('password-changed', ['ip' => $ip]);
@@ -153,7 +153,7 @@ class ResetPassword
     {
         $link = new UserLink();
         $link->user_id = $userId;
-        $link->link_type = UserLink::FORGOT_PASSWORD;
+        $link->type = UserLink::FORGOT_PASSWORD;
 
         try {
             $link->save();

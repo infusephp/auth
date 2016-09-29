@@ -58,7 +58,7 @@ class GarbageCollection
     private function gcUserLinks()
     {
         return (bool) $this->app['db']->delete('UserLinks')
-            ->where('link_type', UserLink::FORGOT_PASSWORD)
+            ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('created_at', U::unixToDb(time() - UserLink::$forgotLinkTimeframe), '<')
             ->execute();
     }

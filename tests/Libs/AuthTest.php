@@ -277,7 +277,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::TEMPORARY, ]));
+            'type' => UserLink::TEMPORARY, ]));
 
         $user = $auth->getTemporaryUser('test@example.com');
         $this->assertInstanceOf('App\Users\Models\User', $user);
@@ -289,12 +289,12 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::TEMPORARY, ]));
+            'type' => UserLink::TEMPORARY, ]));
 
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::VERIFY_EMAIL, ]));
+            'type' => UserLink::VERIFY_EMAIL, ]));
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
@@ -344,7 +344,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $link = new UserLink();
         $this->assertTrue($link->create([
             'user_id' => self::$user->id(),
-            'link_type' => UserLink::VERIFY_EMAIL,
+            'type' => UserLink::VERIFY_EMAIL,
             'created_at' => '-10 years', ]));
         $this->assertFalse(self::$user->isVerified());
 

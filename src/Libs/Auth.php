@@ -364,7 +364,10 @@ class Auth
             // remove temporary and unverified links
             $this->app['db']->delete('UserLinks')
                 ->where('user_id', $user->id())
-                ->where('(link_type = '.UserLink::TEMPORARY.' OR link_type = '.UserLink::VERIFY_EMAIL.')')
+                ->where(function ($query) {
+                    return $query->where('type', UserLink::TEMPORARY)
+                                 ->orWhere('type', UserLink::VERIFY_EMAIL);
+                })
                 ->execute();
 
             // send the user a welcome message
@@ -392,7 +395,7 @@ class Auth
     {
         $params = [
             'user_id' => $user->id(),
-            'link_type' => UserLink::VERIFY_EMAIL,
+            'type' => UserLink::VERIFY_EMAIL,
         ];
 
         // delete previous verify links
@@ -419,7 +422,7 @@ class Auth
     public function verifyEmailWithToken($token)
     {
         $link = UserLink::where('link', $token)
-            ->where('link_type', UserLink::VERIFY_EMAIL)
+            ->where('type', UserLink::VERIFY_EMAIL)
             ->first();
 
         if (!$link) {
