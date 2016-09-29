@@ -23,6 +23,8 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
             'test' => 'TestStrategy',
         ]);
 
+        Test::$app['config']->set('auth.storage', 'Infuse\Auth\Libs\Storage\InMemoryStorage');
+
         $service = new AuthService(Test::$app);
         $auth = $service(Test::$app);
 

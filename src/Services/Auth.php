@@ -42,6 +42,12 @@ class Auth
             $auth->registerStrategy($id, $class);
         }
 
+        // specify storage type
+        if ($class = $app['config']->get('auth.storage')) {
+            $storage = new $class($auth);
+            $auth->setStorage($storage);
+        }
+
         return $auth;
     }
 
