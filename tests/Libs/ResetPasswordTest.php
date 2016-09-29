@@ -78,7 +78,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('Exception');
         $sequence = $this->getSequence();
-        $sequence->buildLink(123412341234, '127.0.0.1');
+        $sequence->buildLink(123412341234, '127.0.0.1', 'Firefox');
     }
 
     public function testGetUserFromTokenInvalid()
@@ -93,7 +93,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
     {
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1', 'Firefox');
 
         $user = $reset->getUserFromToken($link->link);
         $this->assertInstanceOf('App\Users\Models\User', $user);
@@ -109,7 +109,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1', 'Firefox');
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
@@ -126,7 +126,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid email address.');
 
         $reset = $this->getSequence();
-        $reset->step1('invalidemail', '127.0.0.1');
+        $reset->step1('invalidemail', '127.0.0.1', 'Firefox');
     }
 
     public function testStep1NoEmailMatch()
@@ -134,20 +134,20 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address.');
 
         $reset = $this->getSequence();
-        $reset->step1('nomatch@example.com', '127.0.0.1');
+        $reset->step1('nomatch@example.com', '127.0.0.1', 'Firefox');
     }
 
     public function testStep1()
     {
         $reset = $this->getSequence();
-        $this->assertTrue($reset->step1('test@example.com', '127.0.0.1'));
+        $this->assertTrue($reset->step1('test@example.com', '127.0.0.1', 'Firefox'));
         $this->assertEquals(1, UserLink::totalRecords([
             'type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));
 
         // repeat calls should do nothing
         for ($i = 0; $i < 5; ++$i) {
-            $this->assertTrue($reset->step1('test@example.com', '127.0.0.1'));
+            $this->assertTrue($reset->step1('test@example.com', '127.0.0.1', 'Firefox'));
         }
 
         $this->assertEquals(1, UserLink::totalRecords([
@@ -174,7 +174,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1', 'Firefox');
 
         $reset->step2($link->link, ['f', 'f'], '127.0.0.1');
     }
@@ -188,7 +188,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1', 'Firefox');
 
         $oldUserPassword = self::$user->password;
         $this->assertTrue($reset->step2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));

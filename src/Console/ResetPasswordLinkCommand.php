@@ -47,7 +47,7 @@ class ResetPasswordLinkCommand extends Command
         }
 
         $link = $this->app['auth']->getPasswordReset()
-                                  ->buildLink($user->id(), 'N/A');
+                                  ->buildLink($user->id(), 'N/A', 'Infuse/Console');
 
         $output->writeln("Reset password link for $email: {$link->url()}");
 

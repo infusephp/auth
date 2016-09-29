@@ -64,15 +64,15 @@ class ResetPassword
     /**
      * The first step in the forgot password sequence.
      *
-     * @param string      $email     email address
-     * @param string      $ip        ip address making the request
-     * @param string|null $userAgent user agent used to make the request
+     * @param string $email     email address
+     * @param string $ip        ip address making the request
+     * @param string $userAgent user agent used to make the request
      *
      * @throws AuthException when the step cannot be completed.
      *
      * @return bool
      */
-    public function step1($email, $ip, $userAgent = null)
+    public function step1($email, $ip, $userAgent)
     {
         $email = trim(strtolower($email));
 
@@ -147,13 +147,13 @@ class ResetPassword
     /**
      * Builds a reset password link.
      *
-     * @param int         $userId
-     * @param string      $ip
-     * @param string|null $userAgent
+     * @param int    $userId
+     * @param string $ip
+     * @param string $userAgent
      *
      * @return UserLink
      */
-    public function buildLink($userId, $ip, $userAgent = null)
+    public function buildLink($userId, $ip, $userAgent)
     {
         $link = new UserLink();
         $link->user_id = $userId;

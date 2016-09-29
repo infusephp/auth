@@ -507,16 +507,18 @@ class Auth
      * The first step in the forgot password sequence.
      *
      * @param string $email email address
-     * @param string $ip    ip address making the request
      *
      * @throws AuthException when the step cannot be completed.
      *
      * @return bool
      */
-    public function forgotStep1($email, $ip)
+    public function forgotStep1($email)
     {
+        $ip = $this->request->ip();
+        $userAgent = $this->request->agent();
+
         return $this->getPasswordReset()
-                    ->step1($email, $ip);
+                    ->step1($email, $ip, $userAgent);
     }
 
     /**
@@ -525,14 +527,15 @@ class Auth
      *
      * @param string $token    token
      * @param array  $password new password
-     * @param string $ip       ip address making the request
      *
      * @throws AuthException when the step cannot be completed.
      *
      * @return bool
      */
-    public function forgotStep2($token, array $password, $ip)
+    public function forgotStep2($token, array $password)
     {
+        $ip = $this->request->ip();
+
         return $this->getPasswordReset()
                     ->step2($token, $password, $ip);
     }

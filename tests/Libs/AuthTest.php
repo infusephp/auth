@@ -377,13 +377,13 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $reset = Mockery::mock('Infuse\Auth\Libs\ResetPassword');
         $reset->shouldReceive('step1')
-              ->withArgs(['test@example.com', '127.0.0.1'])
+              ->withArgs(['test@example.com', '127.0.0.1', 'infuse/1.0'])
               ->andReturn(true)
               ->once();
 
         $auth = $this->getAuth()->setPasswordReset($reset);
 
-        $this->assertTrue($auth->forgotStep1('test@example.com', '127.0.0.1'));
+        $this->assertTrue($auth->forgotStep1('test@example.com'));
     }
 
     public function testForgotStep2()
@@ -396,7 +396,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $auth = $this->getAuth()->setPasswordReset($reset);
 
-        $this->assertTrue($auth->forgotStep2('forgot_token_1234', ['testpassword2', 'testpassword2'], '127.0.0.1'));
+        $this->assertTrue($auth->forgotStep2('forgot_token_1234', ['testpassword2', 'testpassword2']));
     }
 
     private function getAuth()
