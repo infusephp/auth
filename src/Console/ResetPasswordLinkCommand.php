@@ -38,8 +38,8 @@ class ResetPasswordLinkCommand extends Command
     {
         $email = $input->getArgument('email');
 
-        $userModel = $this->app['auth']->getUserClass();
-        $user = $userModel::where('email', $email)->first();
+        $userClass = $this->app['auth']->getUserClass();
+        $user = $userClass::where('email', $email)->first();
         if (!$user) {
             $output->writeln("User not found for $email");
 

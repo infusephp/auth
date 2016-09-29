@@ -48,7 +48,7 @@ class TraditionalStrategy extends AbstractStrategy
     {
         $user = $this->getUserWithCredentials($username, $password);
 
-        $this->signInUser($user->id(), $remember);
+        $this->signInUser($user, $remember);
 
         return true;
     }
@@ -80,8 +80,8 @@ class TraditionalStrategy extends AbstractStrategy
         $password = $this->encrypt($password);
 
         // look the user up with the matching username/password combo
-        $userModel = $this->auth->getUserClass();
-        $user = $userModel::where($usernameWhere)
+        $userClass = $this->auth->getUserClass();
+        $user = $userClass::where($usernameWhere)
             ->where('password', $password)
             ->first();
 
@@ -128,12 +128,12 @@ class TraditionalStrategy extends AbstractStrategy
      */
     private function buildUsernameWhere($username)
     {
-        $userModel = $this->auth->getUserClass();
+        $userClass = $this->auth->getUserClass();
 
         $conditions = array_map(
             function ($prop, $username) { return $prop." = '".$username."'"; },
-            $userModel::$usernameProperties,
-            array_fill(0, count($userModel::$usernameProperties),
+            $userClass::$usernameProperties,
+            array_fill(0, count($userClass::$usernameProperties),
             addslashes($username)));
 
         return '('.implode(' OR ', $conditions).')';

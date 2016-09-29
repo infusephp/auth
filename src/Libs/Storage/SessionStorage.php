@@ -123,14 +123,14 @@ class SessionStorage extends AbstractStorage
         }
 
         $userClass = $this->auth->getUserClass();
-        $user = new $userClass($userId, true);
+        $user = new $userClass($userId);
 
         // check if the user exists
         if (!$user->exists()) {
             return false;
         }
 
-        return $user;
+        return $user->signIn();
     }
 
     /**
@@ -154,7 +154,7 @@ class SessionStorage extends AbstractStorage
             return false;
         }
 
-        $signedInUser = $this->auth->signInUser($user->id(), 'persistent');
+        $signedInUser = $this->auth->signInUser($user, 'persistent');
 
         // generate a new remember me cookie for the next time, using
         // the same series

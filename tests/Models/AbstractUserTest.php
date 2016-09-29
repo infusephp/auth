@@ -51,7 +51,8 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $app = Test::$app;
         if ($app['user']->id() != self::$ogUserId) {
-            $app['user'] = new User(self::$ogUserId, true);
+            $app['user'] = new User(self::$ogUserId);
+            $app['user']->signIn();
         }
     }
 
@@ -89,7 +90,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $testUser = Test::$app['user'];
 
-        $user = new User(GUEST);
+        $user = new User(-1);
         $this->assertTrue($user->can('create', $user));
         $this->assertTrue($user->can('edit', $user));
         $this->assertFalse($user->can('skip-password-required', $user));
@@ -115,7 +116,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
      */
     public function testEditProtectedFieldFail()
     {
-        $this->logInAsUser(self::$user);
+        Test::$app['auth']->signInUser(self::$user);
         $this->assertFalse(self::$user->set(['password' => 'testpassword2', 'email' => '']));
     }
 
@@ -124,7 +125,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
      */
     public function testEditProtectedField()
     {
-        $this->logInAsUser(self::$user);
+        Test::$app['auth']->signInUser(self::$user);
         $this->assertTrue(self::$user->set([
             'current_password' => 'testpassword',
             'password' => 'testpassword2',
@@ -181,8 +182,12 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
      */
     public function testIsSignedIn()
     {
-        $this->assertFalse(self::$user->isSignedIn());
-        $this->assertTrue(Test::$app['user']->isSignedIn());
+        $user = new User(10);
+        $this->assertFalse($user->isSignedIn());
+        $this->assertEquals($user, $user->signIn());
+        $this->assertTrue($user->isSignedIn());
+        $this->assertEquals($user, $user->signOut());
+        $this->assertFalse($user->isSignedIn());
     }
 
     /**
@@ -239,7 +244,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $this->assertFalse(self::$user->deleteConfirm('testpassword'));
 
-        $this->logInAsUser(self::$user);
+        Test::$app['auth']->signInUser(self::$user);
 
         $this->assertTrue(self::$user->deleteConfirm('testpassword'));
     }
@@ -283,11 +288,5 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(self::$user->id(), $upgradedUser->id());
         self::$user->load();
         $this->assertFalse(self::$user->isTemporary());
-    }
-
-    private function logInAsUser($user)
-    {
-        $app = Test::$app;
-        $app['user'] = Test::$app['auth']->signInUser($user->id());
     }
 }

@@ -13,6 +13,7 @@ namespace Infuse\Auth\Libs\Strategy;
 
 use Infuse\Auth\Libs\Auth;
 use Infuse\HasApp;
+use Pulsar\Model;
 
 abstract class AbstractStrategy implements StrategyInterface
 {
@@ -35,13 +36,13 @@ abstract class AbstractStrategy implements StrategyInterface
     /**
      * Helper method to start a new user session from this strategy.
      *
-     * @param int  $userId
-     * @param bool $remember whether to enable remember me on this session
+     * @param Model $user
+     * @param bool  $remember whether to enable remember me on this session
      *
      * @return User
      */
-    protected function signInUser($userId, $remember = false)
+    protected function signInUser(Model $user, $remember = false)
     {
-        return $this->auth->signInUser($userId, $this->getId(), $remember);
+        return $this->auth->signInUser($user, $this->getId(), $remember);
     }
 }

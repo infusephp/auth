@@ -23,15 +23,12 @@ use Infuse\Utility as U;
 use InvalidArgumentException;
 use Pulsar\Model;
 
-if (!defined('GUEST')) {
-    define('GUEST', -1);
-}
-
 class Auth
 {
     use HasApp;
 
     const DEFAULT_USER_MODEL = 'App\Users\Models\User';
+    const GUEST_USER_ID = -1;
 
     /**
      * @var StorageInterface
@@ -223,7 +220,7 @@ class Auth
 
         // if no current user then sign in a guest
         if (!$user) {
-            return $this->signInUser(GUEST);
+            return $this->signInUser($this->getGuestUser());
         }
 
         return $user;
@@ -256,7 +253,7 @@ class Auth
         $result = $this->getStorage()
                        ->signOut($this->request, $this->response);
 
-        $this->signInUser(GUEST);
+        $this->signInUser($this->getGuestUser());
 
         return $result;
     }
@@ -267,42 +264,55 @@ class Auth
      * by authentication strategies to build a signed in session once
      * a user is authenticated.
      *
-     * @param int    $userId
+     * @param Model  $user
      * @param string $strategy
      * @param bool   $remember whether to enable remember me on this session
      *
      * @return User authenticated user model
      */
-    public function signInUser($userId, $strategy = 'web', $remember = false)
+    public function signInUser(Model $user, $strategy = 'web', $remember = false)
     {
-        // build the user model
-        $userModel = $this->getUserClass();
-        $signedIn = $userId > 0;
-        $user = new $userModel($userId, $signedIn);
-
         // sign in the user with the session storage
         $storage = $this->getStorage();
-
         $storage->signIn($user, $this->request, $this->response);
 
+        // use a remember me session (lasts longer)
         if ($remember) {
             $storage->remember($user, $this->request, $this->response);
         }
 
-        // record the login event
-        if ($userId > 0) {
+        if ($user->id() > 0) {
+            // mark the user model as signed in
+            $user->signIn();
+
+            // record the login event
             $event = new AccountSecurityEvent();
-            $event->user_id = $userId;
+            $event->user_id = $user->id();
             $event->type = AccountSecurityEvent::LOGIN;
             $event->ip = $this->request->ip();
             $event->user_agent = $this->request->agent();
             $event->auth_strategy = $strategy;
             $event->save();
+        } else {
+            // mark the user model as not signed in
+            $user->signOut();
         }
 
         $this->app['user'] = $user;
 
         return $user;
+    }
+
+    /**
+     * Gets a guest user model.
+     *
+     * @return Model
+     */
+    private function getGuestUser()
+    {
+        $userClass = $this->getUserClass();
+
+        return new $userClass(self::GUEST_USER_ID);
     }
 
     /////////////////////////
@@ -323,8 +333,8 @@ class Auth
             return false;
         }
 
-        $userModel = $this->getUserClass();
-        $user = $userModel::where('email', $email)->first();
+        $userClass = $this->getUserClass();
+        $user = $userClass::where('email', $email)->first();
 
         if (!$user) {
             return false;
@@ -429,8 +439,8 @@ class Auth
             return false;
         }
 
-        $userModel = $this->getUserClass();
-        $user = new $userModel($link->user_id);
+        $userClass = $this->getUserClass();
+        $user = new $userClass($link->user_id);
 
         // enable the user
         $user->enabled = true;

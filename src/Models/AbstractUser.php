@@ -67,21 +67,6 @@ abstract class AbstractUser extends ACLModel
      */
     protected $superUser = false;
 
-    /**
-     * Creates a new user.
-     *
-     * @param int  $id
-     * @param bool $isSignedIn when true, signifies that the user is signed in
-     */
-    public function __construct($id = false, $isSignedIn = false)
-    {
-        parent::__construct($id);
-
-        if ($isSignedIn && $this->id() > 0) {
-            $this->signedIn = true;
-        }
-    }
-
     protected function hasPermission($permission, Model $requester)
     {
         // always allow new user registrations
@@ -199,6 +184,30 @@ abstract class AbstractUser extends ACLModel
     public function isSignedIn()
     {
         return $this->signedIn;
+    }
+
+    /**
+     * Marks the user as signed in.
+     *
+     * @return self
+     */
+    public function signIn()
+    {
+        $this->signedIn = true;
+
+        return $this;
+    }
+
+    /**
+     * Marks the user as signed out.
+     *
+     * @return self
+     */
+    public function signOut()
+    {
+        $this->signedIn = false;
+
+        return $this;
     }
 
     /**

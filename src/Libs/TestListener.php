@@ -37,8 +37,8 @@ class TestListener implements PHPUnit_Framework_TestListener
     {
         /* Set up a test user */
 
-        $userModel = Test::$app['auth']->getUserClass();
-        $user = new $userModel();
+        $userClass = Test::$app['auth']->getUserClass();
+        $user = new $userClass();
 
         $params = self::$userParams;
         if (property_exists($user, 'testUser')) {
@@ -47,7 +47,7 @@ class TestListener implements PHPUnit_Framework_TestListener
 
         /* Delete any existing test users */
 
-        $existingUser = $userModel::where('email', $params['email'])
+        $existingUser = $userClass::where('email', $params['email'])
             ->first();
         if ($existingUser) {
             $existingUser->grantAllPermissions()->delete();
@@ -56,7 +56,8 @@ class TestListener implements PHPUnit_Framework_TestListener
         /* Create and sign in the test user */
 
         $user->create($params);
-        Test::$app['user'] = new $userModel($user->id(), true);
+        $user->signIn();
+        Test::$app['user'] = $user;
     }
 
     public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)

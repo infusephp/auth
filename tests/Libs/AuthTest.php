@@ -56,7 +56,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
     {
         $app = Test::$app;
         if (!$app['user']->isSignedIn()) {
-            $app['user'] = new User(self::$ogUserId, true);
+            $app['user'] = new User(self::$ogUserId);
+            $app['user']->signIn();
         }
     }
 
@@ -179,7 +180,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
                 ->once();
         $auth->setStorage($storage);
 
-        $user = $auth->signInUser(self::$user->id());
+        $user = $auth->signInUser(self::$user);
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
@@ -205,7 +206,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
                 ->once();
         $auth->setStorage($storage);
 
-        $user = $auth->signInUser(self::$user->id(), 'test_strat', true);
+        $user = $auth->signInUser(self::$user, 'test_strat', true);
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
@@ -228,7 +229,8 @@ class AuthTest extends PHPUnit_Framework_TestCase
                 ->once();
         $auth->setStorage($storage);
 
-        $user = $auth->signInUser(-1);
+        $user = new User(-1);
+        $user = $auth->signInUser($user);
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(-1, $user->id());
