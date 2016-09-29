@@ -45,7 +45,6 @@ abstract class AbstractUser extends ACLModel
         ],
     ];
 
-    public static $scaffoldApi;
     protected static $autoTimestamps;
 
     /**
@@ -200,14 +199,6 @@ abstract class AbstractUser extends ACLModel
     public function isSignedIn()
     {
         return $this->signedIn;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function isLoggedIn()
-    {
-        return $this->isSignedIn();
     }
 
     /**

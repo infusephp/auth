@@ -27,13 +27,13 @@ class UserLink extends Model
             'type' => Model::TYPE_NUMBER,
             'required' => true,
         ],
-        'link' => [
-            'required' => true,
-            'validate' => 'string:32',
-        ],
         'type' => [
             'validate' => 'enum:reset_password,verify_email,temporary',
             'required' => true,
+        ],
+        'link' => [
+            'required' => true,
+            'validate' => 'string:32',
         ],
     ];
 

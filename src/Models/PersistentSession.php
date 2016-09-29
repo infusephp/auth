@@ -18,8 +18,8 @@ class PersistentSession extends Model
     protected static $ids = ['token'];
 
     protected static $properties = [
-        'token' => [
-            'required' => true,
+        'user_id' => [
+            'type' => Model::TYPE_NUMBER,
         ],
         'email' => [
             'validate' => 'email',
@@ -28,8 +28,9 @@ class PersistentSession extends Model
             'required' => true,
             'validate' => 'string:128',
         ],
-        'user_id' => [
-            'type' => Model::TYPE_NUMBER,
+        'token' => [
+            'required' => true,
+            'validate' => 'string:128',
         ],
     ];
 

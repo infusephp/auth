@@ -16,7 +16,6 @@ use Pulsar\Model;
 
 class GroupMember extends ACLModel
 {
-    public static $scaffoldApi;
     protected static $autoTimestamps;
 
     protected static $ids = ['group', 'user_id'];
