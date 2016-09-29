@@ -31,7 +31,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test@example.com',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
 
@@ -184,10 +184,10 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $link = $reset->buildLink(self::$user->id());
 
-        $oldUserPassword = self::$user->user_password;
+        $oldUserPassword = self::$user->password;
         $this->assertTrue($reset->step2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));
         self::$user->refresh();
-        $this->assertNotEquals($oldUserPassword, self::$user->user_password);
+        $this->assertNotEquals($oldUserPassword, self::$user->password);
         $this->assertEquals(0, UserLink::totalRecords([
             'link_type' => UserLink::FORGOT_PASSWORD,
             'user_id' => self::$user->id(), ]));

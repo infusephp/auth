@@ -20,7 +20,7 @@ class UserLinkTest extends PHPUnit_Framework_TestCase
     {
         self::$user = new User();
         self::$user->email = 'test@example.com';
-        self::$user->user_password = ['password', 'password'];
+        self::$user->password = ['password', 'password'];
         self::$user->ip = '127.0.0.1';
         self::$user->first_name = 'Bob';
         self::$user->last_name = 'Loblaw';

@@ -66,7 +66,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test@example.com',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
 
@@ -77,7 +77,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test2@example.com',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ], true);
 
@@ -116,7 +116,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     public function testEditProtectedFieldFail()
     {
         $this->logInAsUser(self::$user);
-        $this->assertFalse(self::$user->set(['user_password' => 'testpassword2', 'email' => '']));
+        $this->assertFalse(self::$user->set(['password' => 'testpassword2', 'email' => '']));
     }
 
     /**
@@ -127,7 +127,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->logInAsUser(self::$user);
         $this->assertTrue(self::$user->set([
             'current_password' => 'testpassword',
-            'user_password' => 'testpassword2',
+            'password' => 'testpassword2',
             'email' => '', ]));
     }
 
@@ -139,7 +139,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         Test::$app['user']->promoteToSuperUser();
 
         $this->assertTrue(self::$user->set([
-            'user_password' => 'testpassword',
+            'password' => 'testpassword',
             'email' => '', ]));
     }
 
@@ -262,7 +262,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
 
         self::$user = User::createTemporary([
             'email' => 'test3@example.com',
-            'user_password' => '',
+            'password' => '',
             'first_name' => '',
             'last_name' => '',
             'ip' => '',
@@ -275,7 +275,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
                 'first_name' => 'Bob',
                 'last_name' => 'Loblaw',
                 'email' => 'test3@example.com',
-                'user_password' => ['testpassword', 'testpassword'],
+                'password' => ['testpassword', 'testpassword'],
                 'ip' => '127.0.0.1',
             ]);
 

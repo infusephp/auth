@@ -124,7 +124,7 @@ class ResetPassword
         $user = $this->getUserFromToken($token);
 
         // Update the password
-        $user->user_password = $password;
+        $user->password = $password;
         $success = $user->grantAllPermissions()->save();
         $user->enforcePermissions();
 

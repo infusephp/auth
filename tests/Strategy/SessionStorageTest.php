@@ -30,7 +30,7 @@ class SessionStorageTest extends PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test@example.com',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
 

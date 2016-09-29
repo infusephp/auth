@@ -25,7 +25,7 @@ abstract class AbstractUser extends ACLModel
             'unique' => true,
             'title' => 'Email',
         ],
-        'user_password' => [
+        'password' => [
             'validate' => 'matching|password:8',
             'required' => true,
             'title' => 'Password',
@@ -56,7 +56,7 @@ abstract class AbstractUser extends ACLModel
     /**
      * @staticvar array
      */
-    protected static $protectedFields = ['email', 'user_password'];
+    protected static $protectedFields = ['email', 'password'];
 
     /**
      * @var bool
@@ -119,7 +119,7 @@ abstract class AbstractUser extends ACLModel
         $encryptedPassword = $app['auth']->getStrategy('traditional')
                                          ->encrypt($password);
 
-        $passwordValidated = $encryptedPassword == $this->user_password;
+        $passwordValidated = $encryptedPassword == $this->password;
 
         $passwordRequired = false;
 
@@ -488,7 +488,7 @@ abstract class AbstractUser extends ACLModel
         if (!$this->exists() ||
             $this->isAdmin() ||
             $app['user']->id() != $this->id() ||
-            $encryptedPassword != $this->user_password) {
+            $encryptedPassword != $this->password) {
             return false;
         }
 

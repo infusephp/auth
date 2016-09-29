@@ -82,7 +82,7 @@ class TraditionalStrategy extends AbstractStrategy
         // look the user up with the matching username/password combo
         $userModel = $this->auth->getUserClass();
         $user = $userModel::where($usernameWhere)
-            ->where('user_password', $password)
+            ->where('password', $password)
             ->first();
 
         if (!$user) {

@@ -31,7 +31,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test@example.com',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
 
@@ -306,7 +306,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($auth->upgradeTemporaryAccount(self::$user, [
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1', ]));
 
         $this->assertFalse(self::$user->isTemporary());
@@ -322,7 +322,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $auth->upgradeTemporaryAccount(self::$user, [
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
-            'user_password' => ['testpassword', 'testpassword'],
+            'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1', ]);
     }
 

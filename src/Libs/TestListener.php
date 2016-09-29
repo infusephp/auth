@@ -28,7 +28,7 @@ class TestListener implements PHPUnit_Framework_TestListener
      */
     public static $userParams = [
         'email' => 'test@example.com',
-        'user_password' => ['testpassword', 'testpassword'],
+        'password' => ['testpassword', 'testpassword'],
         'first_name' => 'Bob',
         'ip' => '127.0.0.1',
     ];
