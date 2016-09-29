@@ -9,9 +9,9 @@
  * @license MIT
  */
 use App\Users\Models\User;
-use Infuse\Auth\Models\UserLoginHistory;
+use Infuse\Auth\Models\AccountSecurityEvent;
 
-class UserLoginHistoryTest extends PHPUnit_Framework_TestCase
+class AccountSecurityEventTest extends PHPUnit_Framework_TestCase
 {
     public static $user;
     public static $history;
@@ -34,9 +34,10 @@ class UserLoginHistoryTest extends PHPUnit_Framework_TestCase
 
     public function testCreate()
     {
-        self::$history = new UserLoginHistory();
+        self::$history = new AccountSecurityEvent();
         self::$history->user_id = self::$user->id();
-        self::$history->type = 'web';
+        self::$history->type = 'user.login';
+        self::$history->auth_strategy = 'web';
         self::$history->ip = '127.0.0.1';
         self::$history->user_agent = 'Firefox';
         $this->assertTrue(self::$history->save());

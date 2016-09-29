@@ -14,8 +14,8 @@ namespace Infuse\Auth\Libs;
 use Infuse\Auth\Exception\AuthException;
 use Infuse\Auth\Libs\Storage\SessionStorage;
 use Infuse\Auth\Libs\Storage\StorageInterface;
+use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
-use Infuse\Auth\Models\UserLoginHistory;
 use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
@@ -291,12 +291,13 @@ class Auth
 
         // record the login event
         if ($userId > 0) {
-            $history = new UserLoginHistory();
-            $history->user_id = $userId;
-            $history->type = $strategy;
-            $history->ip = $this->request->ip();
-            $history->user_agent = $this->request->agent();
-            $history->save();
+            $event = new AccountSecurityEvent();
+            $event->user_id = $userId;
+            $event->type = AccountSecurityEvent::LOGIN;
+            $event->ip = $this->request->ip();
+            $event->user_agent = $this->request->agent();
+            $event->auth_strategy = $strategy;
+            $event->save();
         }
 
         $this->app['user'] = $user;

@@ -10,8 +10,8 @@
  */
 use App\Users\Models\User;
 use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
-use Infuse\Auth\Models\UserLoginHistory;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -189,9 +189,10 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(1, UserLoginHistory::totalRecords([
+        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
             'user_id' => self::$user->id(),
-            'type' => 'web', ]));
+            'type' => 'user.login',
+            'auth_strategy' => 'web', ]));
     }
 
     public function testSignInUserRemember()
@@ -215,9 +216,10 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(1, UserLoginHistory::totalRecords([
+        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
             'user_id' => self::$user->id(),
-            'type' => 'test_strat', ]));
+            'type' => 'user.login',
+            'auth_strategy' => 'test_strat', ]));
     }
 
     public function testSignInUserGuest()
@@ -238,7 +240,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(0, UserLoginHistory::totalRecords(['user_id' => -1]));
+        $this->assertEquals(0, AccountSecurityEvent::totalRecords(['user_id' => -1]));
     }
 
     public function testLogin()

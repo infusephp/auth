@@ -35,12 +35,6 @@ class UserLink extends Model
             'type' => Model::TYPE_NUMBER,
             'validate' => 'enum:0,1,2',
             'required' => true,
-            'admin_type' => 'enum',
-            'admin_enum' => [
-                self::FORGOT_PASSWORD => 'Forgot Password',
-                self::VERIFY_EMAIL => 'Verify E-mail',
-                self::TEMPORARY => 'Temporary',
-            ],
         ],
     ];
 

@@ -24,13 +24,11 @@ abstract class AbstractUser extends ACLModel
             'required' => true,
             'unique' => true,
             'title' => 'Email',
-            'admin_html' => '<a href="mailto:{user_email}">{user_email}</a>',
         ],
         'user_password' => [
             'validate' => 'matching|password:8',
             'required' => true,
             'title' => 'Password',
-            'admin_type' => 'password',
         ],
         'first_name' => [
             'validate' => 'string:1',
@@ -38,7 +36,6 @@ abstract class AbstractUser extends ACLModel
         'last_name' => [],
         'ip' => [
             'required' => true,
-            'admin_html' => '<a href="http://www.infobyip.com/ip-{ip}.html" target="_blank">{ip}</a>',
         ],
         'enabled' => [
             'type' => Model::TYPE_BOOLEAN,

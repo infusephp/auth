@@ -27,7 +27,6 @@ class PersistentSession extends Model
         'series' => [
             'required' => true,
             'validate' => 'string:128',
-            'admin_hidden_property' => true,
         ],
         'user_id' => [
             'type' => Model::TYPE_NUMBER,

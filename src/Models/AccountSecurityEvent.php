@@ -13,17 +13,29 @@ namespace Infuse\Auth\Models;
 
 use Pulsar\Model;
 
-class UserLoginHistory extends Model
+class AccountSecurityEvent extends Model
 {
+    const LOGIN = 'user.login';
+
     protected static $properties = [
-        'user_id' => [],
-        'type' => [],
+        'user_id' => [
+            'required' => true,
+        ],
+        'type' => [
+            'required' => true,
+        ],
         'ip' => [
             'admin_hidden_property' => true,
+            'required' => true,
         ],
         'user_agent' => [
             'null' => true,
-            'admin_hidden_property' => true,
+            'required' => true,
+        ],
+        'auth_strategy' => [
+            'null' => true,
+        ],
+        'description' => [
         ],
     ];
 
