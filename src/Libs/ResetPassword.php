@@ -12,6 +12,7 @@
 namespace Infuse\Auth\Libs;
 
 use Infuse\Auth\Exception\AuthException;
+use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
 use Infuse\Utility as U;
@@ -63,14 +64,15 @@ class ResetPassword
     /**
      * The first step in the forgot password sequence.
      *
-     * @param string $email email address
-     * @param string $ip    ip address making the request
+     * @param string      $email     email address
+     * @param string      $ip        ip address making the request
+     * @param string|null $userAgent user agent used to make the request
      *
      * @throws AuthException when the step cannot be completed.
      *
      * @return bool
      */
-    public function step1($email, $ip)
+    public function step1($email, $ip, $userAgent = null)
     {
         $email = trim(strtolower($email));
 
@@ -98,7 +100,7 @@ class ResetPassword
         }
 
         // generate a reset password link
-        $link = $this->buildLink($user->id());
+        $link = $this->buildLink($user->id(), $ip, $userAgent);
 
         // and send it
         return $user->sendEmail('forgot-password', [
@@ -145,11 +147,13 @@ class ResetPassword
     /**
      * Builds a reset password link.
      *
-     * @param int $userId
+     * @param int         $userId
+     * @param string      $ip
+     * @param string|null $userAgent
      *
      * @return UserLink
      */
-    public function buildLink($userId)
+    public function buildLink($userId, $ip, $userAgent = null)
     {
         $link = new UserLink();
         $link->user_id = $userId;
@@ -160,6 +164,14 @@ class ResetPassword
         } catch (\Exception $e) {
             throw new \Exception("Could not create reset password link for user # $userId: ".$e->getMessage());
         }
+
+        // record the reset password request event
+        $event = new AccountSecurityEvent();
+        $event->user_id = $userId;
+        $event->type = AccountSecurityEvent::RESET_PASSWORD_REQUEST;
+        $event->ip = $ip;
+        $event->user_agent = $userAgent;
+        $event->save();
 
         return $link;
     }

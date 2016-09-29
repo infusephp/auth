@@ -11,6 +11,7 @@
 use App\Users\Models\User;
 use Infuse\Auth\Libs\Auth;
 use Infuse\Auth\Libs\ResetPassword;
+use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
@@ -64,16 +65,20 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
     public function testBuildLink()
     {
         $sequence = $this->getSequence();
-        $link = $sequence->buildLink(self::$user->id());
+        $link = $sequence->buildLink(self::$user->id(), '127.0.0.1', 'Firefox');
         $this->assertInstanceOf('Infuse\Auth\Models\UserLink', $link);
         $this->assertTrue($link->exists());
+
+        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
+            'user_id' => self::$user->id(),
+            'type' => 'user.request_password_reset', ]));
     }
 
     public function testBuildLinkFail()
     {
         $this->setExpectedException('Exception');
         $sequence = $this->getSequence();
-        $sequence->buildLink(123412341234);
+        $sequence->buildLink(123412341234, '127.0.0.1');
     }
 
     public function testGetUserFromTokenInvalid()
@@ -88,7 +93,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
     {
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id());
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
 
         $user = $reset->getUserFromToken($link->link);
         $this->assertInstanceOf('App\Users\Models\User', $user);
@@ -104,7 +109,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id());
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
@@ -169,7 +174,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id());
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
 
         $reset->step2($link->link, ['f', 'f'], '127.0.0.1');
     }
@@ -183,7 +188,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
         $reset = $this->getSequence();
 
-        $link = $reset->buildLink(self::$user->id());
+        $link = $reset->buildLink(self::$user->id(), '127.0.0.1');
 
         $oldUserPassword = self::$user->password;
         $this->assertTrue($reset->step2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));

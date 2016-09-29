@@ -27,7 +27,6 @@ class AccountSecurityEvent extends Model
             'required' => true,
         ],
         'ip' => [
-            'admin_hidden_property' => true,
             'required' => true,
         ],
         'user_agent' => [
@@ -37,8 +36,7 @@ class AccountSecurityEvent extends Model
         'auth_strategy' => [
             'null' => true,
         ],
-        'description' => [
-        ],
+        'description' => [],
     ];
 
     protected static $autoTimestamps;
