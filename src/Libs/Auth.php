@@ -315,38 +315,6 @@ class Auth
     }
 
     /////////////////////////
-    // REGISTRATION
-    /////////////////////////
-
-    /**
-     * Gets a temporary user from an email address if one exists.
-     *
-     * @param string $email email address
-     *
-     * @return User|false
-     */
-    public function getTemporaryUser($email)
-    {
-        $email = trim(strtolower($email));
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return false;
-        }
-
-        $userClass = $this->getUserClass();
-        $user = $userClass::where('email', $email)->first();
-
-        if (!$user) {
-            return false;
-        }
-
-        if (!$user->isTemporary()) {
-            return false;
-        }
-
-        return $user;
-    }
-
-    /////////////////////////
     // EMAIL VERIFICATION
     /////////////////////////
 

@@ -267,21 +267,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(Test::$app['user']->isSignedIn());
     }
 
-    public function testGetTemporaryUser()
-    {
-        $auth = $this->getAuth();
-        $this->assertFalse($auth->getTemporaryUser('test@example.com'));
-
-        $link = new UserLink();
-        $this->assertTrue($link->create([
-            'user_id' => self::$user->id(),
-            'type' => UserLink::TEMPORARY, ]));
-
-        $user = $auth->getTemporaryUser('test@example.com');
-        $this->assertInstanceOf('App\Users\Models\User', $user);
-        $this->assertEquals(self::$user->id(), $user->id());
-    }
-
     public function testSendVerificationEmail()
     {
         $auth = $this->getAuth();

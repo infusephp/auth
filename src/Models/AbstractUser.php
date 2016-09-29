@@ -382,7 +382,8 @@ abstract class AbstractUser extends ACLModel
     public static function registerUser(array $data, $verifiedEmail = false)
     {
         $app = Application::getDefault();
-        $tempUser = $app['auth']->getTemporaryUser(array_value($data, 'email'));
+        $email = array_value($data, 'email');
+        $tempUser = static::getTemporaryUser($email);
 
         // upgrade temporary account
         if ($tempUser && $tempUser->upgradeTemporaryAccount($data)) {
@@ -403,6 +404,33 @@ abstract class AbstractUser extends ACLModel
         }
 
         return false;
+    }
+
+    /**
+     * Gets a temporary user from an email address if one exists.
+     *
+     * @param string $email email address
+     *
+     * @return self|false
+     */
+    public static function getTemporaryUser($email)
+    {
+        $email = trim(strtolower($email));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        $user = static::where('email', $email)->first();
+
+        if (!$user) {
+            return false;
+        }
+
+        if (!$user->isTemporary()) {
+            return false;
+        }
+
+        return $user;
     }
 
     /**

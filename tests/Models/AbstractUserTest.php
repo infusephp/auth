@@ -266,24 +266,31 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $this->assertFalse(User::createTemporary([]));
 
+        $this->assertFalse(User::getTemporaryUser('test@example.com'));
+
         self::$user = User::createTemporary([
             'email' => 'test3@example.com',
             'password' => '',
             'first_name' => '',
             'last_name' => '',
             'ip' => '',
-            'enabled' => true, ]);
+            'enabled' => true,
+        ]);
 
         $this->assertInstanceOf('App\Users\Models\User', self::$user);
         $this->assertTrue(self::$user->isTemporary());
 
+        $user = User::getTemporaryUser('test3@example.com');
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(self::$user->id(), $user->id());
+
         $upgradedUser = User::registerUser([
-                'first_name' => 'Bob',
-                'last_name' => 'Loblaw',
-                'email' => 'test3@example.com',
-                'password' => ['testpassword', 'testpassword'],
-                'ip' => '127.0.0.1',
-            ]);
+            'first_name' => 'Bob',
+            'last_name' => 'Loblaw',
+            'email' => 'test3@example.com',
+            'password' => ['testpassword', 'testpassword'],
+            'ip' => '127.0.0.1',
+        ]);
 
         $this->assertInstanceOf('App\Users\Models\User', $upgradedUser);
         $this->assertEquals(self::$user->id(), $upgradedUser->id());
