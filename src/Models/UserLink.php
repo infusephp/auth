@@ -11,8 +11,8 @@
 
 namespace Infuse\Auth\Models;
 
-use Infuse\Utility as U;
 use Pulsar\Model;
+use RandomLib\Factory;
 
 class UserLink extends Model
 {
@@ -60,7 +60,9 @@ class UserLink extends Model
     {
         $model = $event->getModel();
         if (!$model->link) {
-            $model->link = strtolower(U::guid(false));
+            $factory = new Factory();
+            $generator = $factory->getMediumStrengthGenerator();
+            $model->link = $generator->generateString(32);
         }
     }
 
