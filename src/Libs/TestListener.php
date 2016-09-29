@@ -27,7 +27,7 @@ class TestListener implements PHPUnit_Framework_TestListener
      * @staticvar array
      */
     public static $userParams = [
-        'user_email' => 'test@example.com',
+        'email' => 'test@example.com',
         'user_password' => ['testpassword', 'testpassword'],
         'first_name' => 'Bob',
         'ip' => '127.0.0.1',
@@ -47,7 +47,7 @@ class TestListener implements PHPUnit_Framework_TestListener
 
         /* Delete any existing test users */
 
-        $existingUser = $userModel::where('user_email', $params['user_email'])
+        $existingUser = $userModel::where('email', $params['email'])
             ->first();
         if ($existingUser) {
             $existingUser->grantAllPermissions()->delete();

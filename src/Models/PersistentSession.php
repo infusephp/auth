@@ -21,7 +21,7 @@ class PersistentSession extends Model
         'token' => [
             'required' => true,
         ],
-        'user_email' => [
+        'email' => [
             'validate' => 'email',
         ],
         'series' => [

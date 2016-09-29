@@ -19,7 +19,7 @@ use Pulsar\Model;
 abstract class AbstractUser extends ACLModel
 {
     protected static $properties = [
-        'user_email' => [
+        'email' => [
             'validate' => 'email',
             'required' => true,
             'unique' => true,
@@ -51,12 +51,12 @@ abstract class AbstractUser extends ACLModel
     /**
      * @staticvar array
      */
-    public static $usernameProperties = ['user_email'];
+    public static $usernameProperties = ['email'];
 
     /**
      * @staticvar array
      */
-    protected static $protectedFields = ['user_email', 'user_password'];
+    protected static $protectedFields = ['email', 'user_password'];
 
     /**
      * @var bool
@@ -100,7 +100,7 @@ abstract class AbstractUser extends ACLModel
     }
 
     ///////////////////////////////
-    // HOOKS
+    // Hooks
     ///////////////////////////////
 
     protected function preSetHook(&$data)
@@ -150,7 +150,7 @@ abstract class AbstractUser extends ACLModel
     }
 
     /////////////////////////////////////
-    // GETTERS
+    // Getters
     /////////////////////////////////////
 
     /**
@@ -272,13 +272,13 @@ abstract class AbstractUser extends ACLModel
     public function profilePicture($size = 200)
     {
         // use Gravatar
-        $hash = md5(strtolower(trim($this->user_email)));
+        $hash = md5(strtolower(trim($this->email)));
 
         return "https://secure.gravatar.com/avatar/$hash?s=$size&d=mm";
     }
 
     ///////////////////////////////////
-    // SUPER USER PERMISSIONS
+    // Super User Permissions
     ///////////////////////////////////
 
     /**
@@ -320,24 +320,8 @@ abstract class AbstractUser extends ACLModel
         return $this->superUser;
     }
 
-    /**
-     * @deprecated
-     */
-    public function enableSU()
-    {
-        return $this->promoteToSuperUser();
-    }
-
-    /**
-     * @deprecated
-     */
-    public function disableSU()
-    {
-        return $this->demoteToNormalUser();
-    }
-
     ///////////////////////////////////
-    // ACCOUNT CREATION
+    // Registration
     ///////////////////////////////////
 
     /**
@@ -351,7 +335,7 @@ abstract class AbstractUser extends ACLModel
     public static function registerUser(array $data, $verifiedEmail = false)
     {
         $app = Application::getDefault();
-        $tempUser = $app['auth']->getTemporaryUser(array_value($data, 'user_email'));
+        $tempUser = $app['auth']->getTemporaryUser(array_value($data, 'email'));
 
         // upgrade temporary account
         if ($tempUser &&
@@ -384,7 +368,7 @@ abstract class AbstractUser extends ACLModel
      */
     public static function createTemporary($data)
     {
-        $email = trim(strtolower(array_value($data, 'user_email')));
+        $email = trim(strtolower(array_value($data, 'email')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return false;
         }
@@ -418,7 +402,7 @@ abstract class AbstractUser extends ACLModel
     }
 
     ///////////////////////////////////
-    // UTILITIES
+    // Utilities
     ///////////////////////////////////
 
     /**
@@ -433,16 +417,10 @@ abstract class AbstractUser extends ACLModel
     {
         $app = $this->getApp();
 
-        $params = array_replace([
-            'base_url' => $app['base_url'],
-            'siteEmail' => $app['config']->get('app.email'),
-            'email' => $this->user_email,
-            'username' => $this->name(true),
-            'to' => [[
-                'email' => $this->user_email,
-                'name' => $this->name(true), ]],
-            'tags' => array_merge([$template], (array) array_value($message, 'tags')),
-        ], $message);
+        $message['tags'] = array_merge(
+            [$template],
+            (array) array_value($message, 'tags'));
+        $params = array_replace($this->getMailerParams(), $message);
 
         switch ($template) {
         case 'welcome':
@@ -469,6 +447,29 @@ abstract class AbstractUser extends ACLModel
     }
 
     /**
+     * Gets the mailer parameters when sending email to this user.
+     *
+     * @return array
+     */
+    protected function getMailerParams()
+    {
+        $app = $this->getApp();
+
+        return [
+            'base_url' => $app['base_url'],
+            'siteEmail' => $app['config']->get('app.email'),
+            'email' => $this->email,
+            'username' => $this->name(true),
+            'to' => [
+                [
+                    'email' => $this->email,
+                    'name' => $this->name(true),
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Deletes the user account permanently (DANGER!).
      *
      * @param string $password
@@ -481,7 +482,6 @@ abstract class AbstractUser extends ACLModel
 
         // Check for the password.
         // Only the current user can delete their account using this method
-
         $encryptedPassword = $app['auth']->getStrategy('traditional')
                                          ->encrypt($password);
 

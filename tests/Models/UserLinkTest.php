@@ -19,7 +19,7 @@ class UserLinkTest extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         self::$user = new User();
-        self::$user->user_email = 'test@example.com';
+        self::$user->email = 'test@example.com';
         self::$user->user_password = ['password', 'password'];
         self::$user->ip = '127.0.0.1';
         self::$user->first_name = 'Bob';

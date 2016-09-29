@@ -324,7 +324,7 @@ class Auth
         }
 
         $userModel = $this->getUserClass();
-        $user = $userModel::where('user_email', $email)->first();
+        $user = $userModel::where('email', $email)->first();
 
         if (!$user) {
             return false;

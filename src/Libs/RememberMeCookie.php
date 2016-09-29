@@ -199,7 +199,7 @@ class RememberMeCookie
 
         // look up the user with a matching email address
         $userClass = $auth->getUserClass();
-        $user = $userClass::where('user_email', $this->email)
+        $user = $userClass::where('email', $this->email)
                           ->first();
 
         if (!$user) {
@@ -216,7 +216,7 @@ class RememberMeCookie
         $db = $auth->getApp()['db'];
         $query = $db->select('token')
                     ->from('PersistentSessions')
-                    ->where('user_email', $this->email)
+                    ->where('email', $this->email)
                     ->where('created_at', U::unixToDb($expiration), '>')
                     ->where('series', $seriesEnc);
 
@@ -234,7 +234,7 @@ class RememberMeCookie
         // all sessions.
         if ($tokenDB != $tokenEnc) {
             $db->delete('PersistentSessions')
-               ->where('user_email', $this->email)
+               ->where('email', $this->email)
                ->execute();
 
             return false;
@@ -242,7 +242,7 @@ class RememberMeCookie
 
         // remove the token once used
         $db->delete('PersistentSessions')
-           ->where('user_email', $this->email)
+           ->where('email', $this->email)
            ->where('series', $seriesEnc)
            ->where('token', $tokenEnc)
            ->execute();
@@ -253,7 +253,7 @@ class RememberMeCookie
     public function persist($userId)
     {
         $session = new PersistentSession();
-        $session->user_email = $this->email;
+        $session->email = $this->email;
         $session->series = $this->encrypt($this->series);
         $session->token = $this->encrypt($this->token);
         $session->user_id = $userId;

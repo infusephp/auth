@@ -96,7 +96,7 @@ class SessionStorage extends AbstractStorage
 
     public function remember(Model $user, Request $req, Response $res)
     {
-        $cookie = new RememberMeCookie($user->user_email, $req->agent());
+        $cookie = new RememberMeCookie($user->email, $req->agent());
         $this->sendRememberMeCookie($user->id(), $cookie, $res);
 
         return true;
@@ -157,7 +157,7 @@ class SessionStorage extends AbstractStorage
 
         // generate a new remember me cookie for the next time, using
         // the same series
-        $new = new RememberMeCookie($user->user_email, $req->agent(), $cookie->getSeries());
+        $new = new RememberMeCookie($user->email, $req->agent(), $cookie->getSeries());
         $this->sendRememberMeCookie($user->id(), $new, $res);
 
         // mark this session as persistent (could be useful to know)

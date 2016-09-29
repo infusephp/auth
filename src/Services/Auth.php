@@ -22,7 +22,7 @@ class Auth
         if (defined('STDIN')) {
             $userModel = $this->getUserClass($app);
             $user = new $userModel(-2, true);
-            $user->enableSU();
+            $user->promoteToSuperUser();
             $app['user'] = $user;
 
             // use the super user as the requester for model permissions

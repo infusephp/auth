@@ -79,7 +79,7 @@ class ResetPassword
         }
 
         $userClass = $this->auth->getUserClass();
-        $user = $userClass::where('user_email', $email)->first();
+        $user = $userClass::where('email', $email)->first();
 
         if (!$user || $user->isTemporary()) {
             throw new AuthException('We could not find a match for that email address.');
@@ -137,8 +137,7 @@ class ResetPassword
             ->where('link_type', UserLink::FORGOT_PASSWORD)
             ->execute();
 
-        $user->sendEmail('password-changed',
-            ['ip' => $ip]);
+        $user->sendEmail('password-changed', ['ip' => $ip]);
 
         return true;
     }

@@ -29,7 +29,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $db = Test::$app['db'];
         foreach (['test@example.com', 'test2@example.com', 'test3@example.com'] as $email) {
             $db->delete('Users')
-                ->where('user_email', $email)
+                ->where('email', $email)
                 ->execute();
         }
 
@@ -65,7 +65,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         self::$user = User::registerUser([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
-            'user_email' => 'test@example.com',
+            'email' => 'test@example.com',
             'user_password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
@@ -76,7 +76,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         self::$user2 = User::registerUser([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
-            'user_email' => 'test2@example.com',
+            'email' => 'test2@example.com',
             'user_password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ], true);
@@ -116,7 +116,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     public function testEditProtectedFieldFail()
     {
         $this->logInAsUser(self::$user);
-        $this->assertFalse(self::$user->set(['user_password' => 'testpassword2', 'user_email' => '']));
+        $this->assertFalse(self::$user->set(['user_password' => 'testpassword2', 'email' => '']));
     }
 
     /**
@@ -128,7 +128,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user->set([
             'current_password' => 'testpassword',
             'user_password' => 'testpassword2',
-            'user_email' => '', ]));
+            'email' => '', ]));
     }
 
     /**
@@ -140,7 +140,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(self::$user->set([
             'user_password' => 'testpassword',
-            'user_email' => '', ]));
+            'email' => '', ]));
     }
 
     /**
@@ -261,7 +261,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(User::createTemporary([]));
 
         self::$user = User::createTemporary([
-            'user_email' => 'test3@example.com',
+            'email' => 'test3@example.com',
             'user_password' => '',
             'first_name' => '',
             'last_name' => '',
@@ -274,7 +274,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $upgradedUser = User::registerUser([
                 'first_name' => 'Bob',
                 'last_name' => 'Loblaw',
-                'user_email' => 'test3@example.com',
+                'email' => 'test3@example.com',
                 'user_password' => ['testpassword', 'testpassword'],
                 'ip' => '127.0.0.1',
             ]);

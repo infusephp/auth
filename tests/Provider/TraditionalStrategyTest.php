@@ -23,13 +23,13 @@ class TraditionalStrategyTest extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         Test::$app['db']->delete('Users')
-            ->where('user_email', 'test@example.com')
+            ->where('email', 'test@example.com')
             ->execute();
 
         self::$user = User::registerUser([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
-            'user_email' => 'test@example.com',
+            'email' => 'test@example.com',
             'user_password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
