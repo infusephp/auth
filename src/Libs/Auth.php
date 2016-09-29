@@ -19,7 +19,6 @@ use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
-use Infuse\Utility as U;
 use InvalidArgumentException;
 use Pulsar\Model;
 
@@ -345,49 +344,6 @@ class Auth
         }
 
         return $user;
-    }
-
-    /**
-     * Upgrades the user from temporary to a fully registered account.
-     *
-     * @param User  $user user
-     * @param array $data user data
-     *
-     * @throws InvalidArgumentException when trying to upgrade a non-temporary account.
-     *
-     * @return bool true if successful
-     */
-    public function upgradeTemporaryAccount(Model $user, $data)
-    {
-        if (!$user->isTemporary()) {
-            throw new InvalidArgumentException('Cannot upgrade a non-temporary account');
-        }
-
-        $updateArray = array_replace($data, [
-            'created_at' => U::unixToDb(time()),
-            'enabled' => 1, ]);
-
-        $success = false;
-
-        $user->grantAllPermissions();
-        if ($user->set($updateArray)) {
-            // remove temporary and unverified links
-            $this->app['db']->delete('UserLinks')
-                ->where('user_id', $user->id())
-                ->where(function ($query) {
-                    return $query->where('type', UserLink::TEMPORARY)
-                                 ->orWhere('type', UserLink::VERIFY_EMAIL);
-                })
-                ->execute();
-
-            // send the user a welcome message
-            $user->sendEmail('welcome');
-
-            $success = true;
-        }
-        $user->enforcePermissions();
-
-        return $success;
     }
 
     /////////////////////////

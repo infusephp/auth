@@ -126,6 +126,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     public function testEditProtectedField()
     {
         Test::$app['auth']->signInUser(self::$user);
+
         $this->assertTrue(self::$user->set([
             'current_password' => 'testpassword',
             'password' => 'testpassword2',
@@ -288,5 +289,16 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(self::$user->id(), $upgradedUser->id());
         self::$user->load();
         $this->assertFalse(self::$user->isTemporary());
+    }
+
+    public function testUpgradeTemporaryAccountFail()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        self::$user->upgradeTemporaryAccount([
+            'first_name' => 'Bob',
+            'last_name' => 'Loblaw',
+            'password' => ['testpassword', 'testpassword'],
+            'ip' => '127.0.0.1', ]);
     }
 }

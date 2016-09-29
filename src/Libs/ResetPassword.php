@@ -139,8 +139,6 @@ class ResetPassword
             ->where('type', UserLink::FORGOT_PASSWORD)
             ->execute();
 
-        $user->sendEmail('password-changed', ['ip' => $ip]);
-
         return true;
     }
 

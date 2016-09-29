@@ -13,8 +13,10 @@ namespace Infuse\Auth\Models;
 
 use Infuse\Application;
 use Infuse\Utility as U;
+use InvalidArgumentException;
 use Pulsar\ACLModel;
 use Pulsar\Model;
+use Pulsar\ModelEvent;
 
 abstract class AbstractUser extends ACLModel
 {
@@ -67,6 +69,22 @@ abstract class AbstractUser extends ACLModel
      */
     protected $superUser = false;
 
+    /**
+     * @var bool
+     */
+    private $_changedPassword;
+
+    /**
+     * @var bool
+     */
+    private $_isUpgrade;
+
+    protected function initialize()
+    {
+        parent::initialize();
+        static::updated([static::class, 'passwordChanged']);
+    }
+
     protected function hasPermission($permission, Model $requester)
     {
         // always allow new user registrations
@@ -90,10 +108,6 @@ abstract class AbstractUser extends ACLModel
     protected function preSetHook(&$data)
     {
         $app = $this->getApp();
-
-        if (!is_array($data)) {
-            $data = [$data => $value];
-        }
 
         $params = [];
         $protectedFields = static::$protectedFields;
@@ -130,7 +144,40 @@ abstract class AbstractUser extends ACLModel
             return false;
         }
 
+        $this->_changedPassword = isset($data['password']) && !$this->_isUpgrade;
+
         return true;
+    }
+
+    /**
+     * Sends the user a notification and records a security event
+     * if the password was changed.
+     *
+     * @param ModelEvent $event
+     */
+    public static function passwordChanged(ModelEvent $event)
+    {
+        $user = $event->getModel();
+
+        if (!$user->_changedPassword) {
+            return;
+        }
+
+        $app = $user->getApp();
+        $req = $app['auth']->getRequest();
+        $ip = $req->ip();
+        $userAgent = $req->agent();
+
+        // record the reset password request event
+        $event = new AccountSecurityEvent();
+        $event->user_id = $user->id();
+        $event->type = AccountSecurityEvent::CHANGE_PASSWORD;
+        $event->ip = $ip;
+        $event->user_agent = $userAgent;
+        $event->save();
+
+        // send the user an email about it
+        $user->sendEmail('password-changed', ['ip' => $ip]);
     }
 
     /////////////////////////////////////
@@ -338,8 +385,7 @@ abstract class AbstractUser extends ACLModel
         $tempUser = $app['auth']->getTemporaryUser(array_value($data, 'email'));
 
         // upgrade temporary account
-        if ($tempUser &&
-            $app['auth']->upgradeTemporaryAccount($tempUser, $data)) {
+        if ($tempUser && $tempUser->upgradeTemporaryAccount($data)) {
             return $tempUser;
         }
 
@@ -399,6 +445,51 @@ abstract class AbstractUser extends ACLModel
             'type' => UserLink::TEMPORARY, ]);
 
         return $user;
+    }
+
+    /**
+     * Upgrades the user from temporary to a fully registered account.
+     *
+     * @param array $data user data
+     *
+     * @throws InvalidArgumentException when trying to upgrade a non-temporary account.
+     *
+     * @return bool true if successful
+     */
+    public function upgradeTemporaryAccount($data)
+    {
+        if (!$this->isTemporary()) {
+            throw new InvalidArgumentException('Cannot upgrade a non-temporary account');
+        }
+
+        $updateArray = array_replace($data, [
+            'created_at' => U::unixToDb(time()),
+            'enabled' => true,
+        ]);
+
+        $success = false;
+
+        $this->grantAllPermissions();
+        $this->_isUpgrade = true;
+        if ($this->set($updateArray)) {
+            // remove temporary and unverified links
+            $this->app['db']->delete('UserLinks')
+                ->where('user_id', $this->id())
+                ->where(function ($query) {
+                    return $query->where('type', UserLink::TEMPORARY)
+                                 ->orWhere('type', UserLink::VERIFY_EMAIL);
+                })
+                ->execute();
+
+            // send the user a welcome message
+            $this->sendEmail('welcome');
+
+            $success = true;
+        }
+        $this->_isUpgrade = false;
+        $this->enforcePermissions();
+
+        return $success;
     }
 
     ///////////////////////////////////

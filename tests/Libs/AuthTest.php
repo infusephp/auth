@@ -282,48 +282,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(self::$user->id(), $user->id());
     }
 
-    public function testUpgradeTemporaryAccount()
-    {
-        $link = new UserLink();
-        $this->assertTrue($link->create([
-            'user_id' => self::$user->id(),
-            'type' => UserLink::TEMPORARY, ]));
-
-        $link = new UserLink();
-        $this->assertTrue($link->create([
-            'user_id' => self::$user->id(),
-            'type' => UserLink::VERIFY_EMAIL, ]));
-        $link->created_at = '-10 years';
-        $this->assertTrue($link->save());
-
-        $this->assertTrue(self::$user->isTemporary());
-        $this->assertFalse(self::$user->isVerified());
-
-        $auth = $this->getAuth();
-
-        $this->assertTrue($auth->upgradeTemporaryAccount(self::$user, [
-            'first_name' => 'Bob',
-            'last_name' => 'Loblaw',
-            'password' => ['testpassword', 'testpassword'],
-            'ip' => '127.0.0.1', ]));
-
-        $this->assertFalse(self::$user->isTemporary());
-        $this->assertTrue(self::$user->isVerified());
-    }
-
-    public function testUpgradeTemporaryAccountFail()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $auth = $this->getAuth();
-
-        $auth->upgradeTemporaryAccount(self::$user, [
-            'first_name' => 'Bob',
-            'last_name' => 'Loblaw',
-            'password' => ['testpassword', 'testpassword'],
-            'ip' => '127.0.0.1', ]);
-    }
-
     public function testSendVerificationEmail()
     {
         $auth = $this->getAuth();
