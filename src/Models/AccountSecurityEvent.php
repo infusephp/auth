@@ -16,6 +16,8 @@ use Pulsar\Model;
 class AccountSecurityEvent extends Model
 {
     const LOGIN = 'user.login';
+    const CHANGE_PASSWORD = 'user.change_password';
+    const RESET_PASSWORD_REQUEST = 'user.request_password_reset';
 
     protected static $properties = [
         'user_id' => [
