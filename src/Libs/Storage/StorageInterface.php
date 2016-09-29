@@ -30,13 +30,13 @@ interface StorageInterface
     /**
      * Starts a new user session.
      *
-     * @param int      $userId
+     * @param Model    $user
      * @param Request  $req
      * @param Response $res
      *
      * @return bool
      */
-    public function signIn($userId, Request $req, Response $res);
+    public function signIn(Model $user, Request $req, Response $res);
 
     /**
      * Saves a remember me token on the user's session.

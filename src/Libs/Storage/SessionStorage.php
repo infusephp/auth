@@ -34,9 +34,10 @@ class SessionStorage extends AbstractStorage
         return false;
     }
 
-    public function signIn($userId, Request $req, Response $res)
+    public function signIn(Model $user, Request $req, Response $res)
     {
         // nothing to do if the user ID is already signed in
+        $userId = $user->id();
         if ($req->session(self::SESSION_USER_ID_KEY) == $userId) {
             return true;
         }

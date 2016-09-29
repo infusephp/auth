@@ -27,10 +27,9 @@ class InMemoryStorage extends AbstractStorage
         return $this->user;
     }
 
-    public function signIn($userId, Request $req, Response $res)
+    public function signIn(Model $user, Request $req, Response $res)
     {
-        $userClass = $this->auth->getUserClass();
-        $this->user = new $userClass($userId, true);
+        $this->user = $user;
 
         return true;
     }

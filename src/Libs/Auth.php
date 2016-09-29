@@ -283,7 +283,7 @@ class Auth
         // sign in the user with the session storage
         $storage = $this->getStorage();
 
-        $storage->signIn($userId, $this->request, $this->response);
+        $storage->signIn($user, $this->request, $this->response);
 
         if ($remember) {
             $storage->remember($user, $this->request, $this->response);

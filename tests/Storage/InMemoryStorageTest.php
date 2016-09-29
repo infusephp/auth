@@ -8,6 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
+use App\Users\Models\User;
 use Infuse\Auth\Libs\Storage\InMemoryStorage;
 use Infuse\Request;
 use Infuse\Response;
@@ -24,11 +25,11 @@ class InMemoryStorageTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($storage->getAuthenticatedUser($req, $res));
 
-        $this->assertTrue($storage->signIn(10, $req, $res));
+        $user = new User(10);
+        $this->assertTrue($storage->signIn($user, $req, $res));
 
-        $user = $storage->getAuthenticatedUser($req, $res);
-        $this->assertInstanceOf('App\Users\Models\User', $user);
-        $this->assertEquals(10, $user->id());
+        $user2 = $storage->getAuthenticatedUser($req, $res);
+        $this->assertEquals($user, $user2);
 
         $this->assertTrue($storage->remember($user, $req, $res));
 

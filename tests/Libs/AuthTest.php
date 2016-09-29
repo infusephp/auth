@@ -159,7 +159,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
                 ->andReturn(false)
                 ->once();
         $storage->shouldReceive('signIn')
-                ->withArgs([-1, $auth->getRequest(), $auth->getResponse()])
                 ->andReturn(true)
                 ->once();
         $auth->setStorage($storage);
@@ -176,7 +175,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Libs\Storage\StorageInterface');
         $storage->shouldReceive('signIn')
-                ->withArgs([self::$user->id(), $auth->getRequest(), $auth->getResponse()])
                 ->andReturn(true)
                 ->once();
         $auth->setStorage($storage);
@@ -200,7 +198,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Libs\Storage\StorageInterface');
         $storage->shouldReceive('signIn')
-                ->withArgs([self::$user->id(), $auth->getRequest(), $auth->getResponse()])
                 ->andReturn(true)
                 ->once();
         $storage->shouldReceive('remember')
@@ -227,7 +224,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Libs\Storage\StorageInterface');
         $storage->shouldReceive('signIn')
-                ->withArgs([-1, $auth->getRequest(), $auth->getResponse()])
                 ->andReturn(true)
                 ->once();
         $auth->setStorage($storage);
