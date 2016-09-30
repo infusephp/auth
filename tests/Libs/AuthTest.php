@@ -241,12 +241,6 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, AccountSecurityEvent::totalRecords(['user_id' => -1]));
     }
 
-    public function testLogin()
-    {
-        $auth = $this->getAuth();
-        $this->assertTrue($auth->login('test@example.com', 'testpassword'));
-    }
-
     public function testLogout()
     {
         $auth = $this->getAuth();

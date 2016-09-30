@@ -226,23 +226,6 @@ class Auth
     }
 
     /**
-     * Signs in a user using the traditional strategy.
-     *
-     * @param string $username username
-     * @param string $password password
-     * @param bool   $remember whether to enable remember me on this session
-     *
-     * @throws AuthException when the user cannot be signed in.
-     *
-     * @return bool success
-     */
-    public function login($username, $password, $remember = false)
-    {
-        return $this->getStrategy('traditional')
-                    ->login($username, $password, $remember);
-    }
-
-    /**
      * Logs the authenticated user out.
      *
      * @return bool success
