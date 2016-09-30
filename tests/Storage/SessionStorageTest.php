@@ -118,13 +118,19 @@ class SessionStorageTest extends PHPUnit_Framework_TestCase
         $req = new Request();
         $res = new Response();
 
+        $req->setSession(['test' => 1]);
+
         $this->assertTrue($storage->signIn(self::$user, $req, $res));
         $this->assertEquals(self::$user->id(), $req->session('user_id'));
+        $this->assertNull($req->session('test'));
 
         // repeat calls should do nothing
+        $req->setSession(['test' => 2]);
         for ($i = 0; $i < 5; ++$i) {
             $this->assertTrue($storage->signIn(self::$user, $req, $res));
         }
+
+        $this->assertEquals(2, $req->session('test'));
     }
 
     public function testRemember()

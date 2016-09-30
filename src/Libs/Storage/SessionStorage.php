@@ -42,7 +42,10 @@ class SessionStorage extends AbstractStorage
             return true;
         }
 
-        if (!headers_sent() && session_status() == PHP_SESSION_ACTIVE) {
+        // we are going to kill the current session and start a new one
+        $req->destroySession();
+
+        if (session_status() == PHP_SESSION_ACTIVE) {
             // regenerate session id to prevent session hijacking
             session_regenerate_id(true);
 
