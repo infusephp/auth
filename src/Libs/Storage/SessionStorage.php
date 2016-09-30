@@ -22,19 +22,6 @@ class SessionStorage extends AbstractStorage
     const SESSION_USER_ID_KEY = 'user_id';
     const REMEMBER_ME_COOKIE_NAME = 'persistent';
 
-    public function getAuthenticatedUser(Request $req, Response $res)
-    {
-        if ($user = $this->getUserSession($req)) {
-            return $user;
-        }
-
-        if ($user = $this->getUserRememberMe($req, $res)) {
-            return $user;
-        }
-
-        return false;
-    }
-
     public function signIn(Model $user, Request $req, Response $res)
     {
         // nothing to do if the user ID is already signed in
@@ -83,6 +70,27 @@ class SessionStorage extends AbstractStorage
         return true;
     }
 
+    public function remember(Model $user, Request $req, Response $res)
+    {
+        $cookie = new RememberMeCookie($user->email, $req->agent());
+        $this->sendRememberMeCookie($user->id(), $cookie, $res);
+
+        return true;
+    }
+
+    public function getAuthenticatedUser(Request $req, Response $res)
+    {
+        if ($user = $this->getUserSession($req)) {
+            return $user;
+        }
+
+        if ($user = $this->getUserRememberMe($req, $res)) {
+            return $user;
+        }
+
+        return false;
+    }
+
     public function signOut(Request $req, Response $res)
     {
         // things to destroy:
@@ -118,14 +126,6 @@ class SessionStorage extends AbstractStorage
         return true;
     }
 
-    public function remember(Model $user, Request $req, Response $res)
-    {
-        $cookie = new RememberMeCookie($user->email, $req->agent());
-        $this->sendRememberMeCookie($user->id(), $cookie, $res);
-
-        return true;
-    }
-
     ///////////////////////////////
     // Private Methods
     ///////////////////////////////
@@ -152,8 +152,7 @@ class SessionStorage extends AbstractStorage
         $userClass = $this->auth->getUserClass();
         $user = new $userClass($userId);
 
-        // if this user does not exist in the DB then return
-        // a guest user
+        // if this is a guest user then just return it now
         if ($userId <= 0) {
             return $user;
         }
@@ -165,7 +164,13 @@ class SessionStorage extends AbstractStorage
 
         // refresh the active session
         if (session_status() == PHP_SESSION_ACTIVE) {
-            $this->refreshSession(session_id());
+            // check if the session valid
+            $sid = session_id();
+            if (!$this->sessionIsValid($sid)) {
+                return false;
+            }
+
+            $this->refreshSession($sid);
         }
 
         return $user->signIn();
@@ -194,6 +199,22 @@ class SessionStorage extends AbstractStorage
         $session->save();
 
         return $session;
+    }
+
+    /**
+     * Checks if a session has been invalidated.
+     *
+     * @param string $sid
+     *
+     * @return bool
+     */
+    private function sessionIsValid($sid)
+    {
+        return $this->app['db']->select('count(*)')
+                               ->from('ActiveSessions')
+                               ->where('id', $sid)
+                               ->where('valid', false)
+                               ->scalar() == 0;
     }
 
     /**

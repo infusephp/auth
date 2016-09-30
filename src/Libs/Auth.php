@@ -297,6 +297,31 @@ class Auth
         return new $userClass(self::GUEST_USER_ID);
     }
 
+    /**
+     * Invalidates all sessions for a given user.
+     *
+     * @param Model $user
+     *
+     * @return bool
+     */
+    public function signOutAllSessions(Model $user)
+    {
+        $db = $this->app['db'];
+
+        // invalidate any active sessions
+        $db->update('ActiveSessions')
+           ->values(['valid' => 0])
+           ->where('user_id', $user->id())
+           ->execute();
+
+        // invalidate any remember me sessions
+        $db->delete('PersistentSessions')
+           ->where('user_id', $user->id())
+           ->execute();
+
+        return true;
+    }
+
     /////////////////////////
     // EMAIL VERIFICATION
     /////////////////////////

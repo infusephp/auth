@@ -32,6 +32,10 @@ class ActiveSession extends Model
         'expires' => [
             'type' => Model::TYPE_DATE,
         ],
+        'valid' => [
+            'type' => Model::TYPE_BOOLEAN,
+            'default' => true,
+        ],
     ];
 
     protected static $autoTimestamps;

@@ -18,16 +18,6 @@ use Pulsar\Model;
 interface StorageInterface
 {
     /**
-     * Gets the authenticated user for the current session.
-     *
-     * @param Request  $req
-     * @param Response $res
-     *
-     * @return Model|false
-     */
-    public function getAuthenticatedUser(Request $req, Response $res);
-
-    /**
      * Starts a new user session.
      *
      * @param Model    $user
@@ -48,6 +38,16 @@ interface StorageInterface
      * @return bool
      */
     public function remember(Model $user, Request $req, Response $res);
+
+    /**
+     * Gets the authenticated user for the current session.
+     *
+     * @param Request  $req
+     * @param Response $res
+     *
+     * @return Model|false
+     */
+    public function getAuthenticatedUser(Request $req, Response $res);
 
     /**
      * Signs out the current user session.

@@ -208,6 +208,7 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
             'ip' => '127.0.0.1',
             'user_agent' => 'Firefox',
             'expires' => $expectedExpires,
+            'valid' => true,
         ];
         $arr = $session->toArray();
         unset($arr['created_at']);
@@ -263,12 +264,38 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
             'ip' => '127.0.0.1',
             'user_agent' => 'Firefox',
             'expires' => $expectedExpires,
+            'valid' => true,
         ];
         $arr = $session->toArray();
         unset($arr['created_at']);
         unset($arr['updated_at']);
         $this->assertEquals($expected, $arr);
         $this->assertNotEquals($session->created_at, $session->updated_at);
+    }
+
+    /**
+     * @depends testGetAuthenticatedUserSession
+     */
+    public function testGetAuthenticatedUserSessionInvalidated()
+    {
+        $storage = $this->getStorage();
+
+        $req = Request::create('/', 'GET', [], [], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $req->setSession('user_id', self::$user->id());
+        $req->setSession('user_agent', 'Firefox');
+        $res = new Response();
+
+        self::$mock->shouldReceive('session_status')
+                   ->andReturn(PHP_SESSION_ACTIVE);
+
+        self::$mock->shouldReceive('session_id')
+                   ->andReturn('sesh_1234');
+
+        $session = new ActiveSession('sesh_1234');
+        $session->valid = false;
+        $this->assertTrue($session->save());
+
+        $this->assertFalse($storage->getAuthenticatedUser($req, $res));
     }
 
     public function testRemember()

@@ -22,11 +22,6 @@ class InMemoryStorage extends AbstractStorage
      */
     private $user = false;
 
-    public function getAuthenticatedUser(Request $req, Response $res)
-    {
-        return $this->user;
-    }
-
     public function signIn(Model $user, Request $req, Response $res)
     {
         $this->user = $user;
@@ -34,15 +29,20 @@ class InMemoryStorage extends AbstractStorage
         return true;
     }
 
+    public function remember(Model $user, Request $req, Response $res)
+    {
+        return true;
+    }
+
+    public function getAuthenticatedUser(Request $req, Response $res)
+    {
+        return $this->user;
+    }
+
     public function signOut(Request $req, Response $res)
     {
         $this->user = false;
 
-        return true;
-    }
-
-    public function remember(Model $user, Request $req, Response $res)
-    {
         return true;
     }
 }
