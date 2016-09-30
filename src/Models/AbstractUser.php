@@ -164,7 +164,8 @@ abstract class AbstractUser extends ACLModel
         }
 
         $app = $user->getApp();
-        $req = $app['auth']->getRequest();
+        $auth = $app['auth'];
+        $req = $auth->getRequest();
         $ip = $req->ip();
         $userAgent = $req->agent();
 
@@ -175,6 +176,14 @@ abstract class AbstractUser extends ACLModel
         $event->ip = $ip;
         $event->user_agent = $userAgent;
         $event->save();
+
+        // changing the password signs the user out, everywhere
+        $auth->signOutAllSessions($user);
+        $user->signOut();
+
+        if ($app['user'] && $app['user']->id() == $user->id()) {
+            $auth->logout();
+        }
 
         // send the user an email about it
         $user->sendEmail('password-changed', ['ip' => $ip]);

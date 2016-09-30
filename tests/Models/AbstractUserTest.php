@@ -11,7 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Libs\Auth;
 use Infuse\Auth\Models\AccountSecurityEvent;
+use Infuse\Auth\Models\ActiveSession;
 use Infuse\Auth\Models\GroupMember;
+use Infuse\Auth\Models\PersistentSession;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
@@ -124,10 +126,29 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     /**
      * @depends testRegisterUser
      */
-    public function testEditProtectedField()
+    public function testEditPassword()
     {
         Test::$app['auth']->signInUser(self::$user);
 
+        // create sessions
+        $session = new ActiveSession();
+        $session->id = 'sesh_1234';
+        $session->user_id = self::$user->id();
+        $session->ip = '127.0.0.1';
+        $session->user_agent = 'Firefox';
+        $session->expires = strtotime('+1 month');
+        $this->assertTrue($session->save());
+
+        $persistent = new PersistentSession();
+        $persistent->user_id = self::$user->id();
+        $persistent->series = self::$user->email;
+        $persistent->series = str_repeat('a', 128);
+        $persistent->token = str_repeat('a', 128);
+        $this->assertTrue($persistent->save());
+
+        Test::$app['auth']->signInUser(self::$user);
+
+        // change the password
         $this->assertTrue(self::$user->set([
             'current_password' => 'testpassword',
             'password' => 'testpassword2',
@@ -137,12 +158,25 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, AccountSecurityEvent::totalRecords([
             'user_id' => self::$user->id(),
             'type' => 'user.change_password', ]));
+
+        // should sign user out everywhere
+        $this->assertEquals(1, ActiveSession::totalRecords([
+            'id' => 'sesh_1234',
+            'valid' => false,
+        ]));
+
+        $this->assertEquals(0, PersistentSession::totalRecords([
+            'user_id' => self::$user->id(),
+        ]));
+
+        $this->assertEquals(-1, Test::$app['user']->id());
+        $this->assertFalse(self::$user->isSignedIn());
     }
 
     /**
      * @depends testRegisterUser
      */
-    public function testEditProtectedFieldAdmin()
+    public function testEditPasswordAdmin()
     {
         Test::$app['user']->promoteToSuperUser();
 
@@ -245,7 +279,6 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
 
     /**
      * @depends testRegisterUser
-     * @depends testEditProtectedFieldAdmin
      */
     public function testDeleteConfirm()
     {
