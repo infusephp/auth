@@ -15,6 +15,9 @@ return  [
   'app' => [
     'salt' => 'replacewithrandomstring',
   ],
+  'auth' => [
+    'storage' => 'Infuse\Auth\Libs\Storage\InMemoryStorage',
+  ],
   'dirs' => [
     'views' => __DIR__.'/tests/views',
   ],

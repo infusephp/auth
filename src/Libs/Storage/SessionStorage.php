@@ -12,6 +12,7 @@
 namespace Infuse\Auth\Libs\Storage;
 
 use Infuse\Auth\Libs\RememberMeCookie;
+use Infuse\Auth\Models\ActiveSession;
 use Infuse\Request;
 use Infuse\Response;
 use Pulsar\Model;
@@ -37,8 +38,9 @@ class SessionStorage extends AbstractStorage
     public function signIn(Model $user, Request $req, Response $res)
     {
         // nothing to do if the user ID is already signed in
+        $currentUserId = $req->session(self::SESSION_USER_ID_KEY);
         $userId = $user->id();
-        if ($req->session(self::SESSION_USER_ID_KEY) == $userId) {
+        if ($currentUserId == $userId) {
             return true;
         }
 
@@ -46,6 +48,12 @@ class SessionStorage extends AbstractStorage
         $req->destroySession();
 
         if (session_status() == PHP_SESSION_ACTIVE) {
+            // remove the currently active session, for signed in users
+            if ($currentUserId > 0 && $sid = session_id()) {
+                // delete any active sessions for this session ID
+                $this->deleteSession($sid);
+            }
+
             // regenerate session id to prevent session hijacking
             session_regenerate_id(true);
 
@@ -58,6 +66,12 @@ class SessionStorage extends AbstractStorage
             // re-open the new session
             session_id($sid);
             session_start();
+
+            // record the active session, for signed in users
+            if ($userId > 0) {
+                // create an active session for this session ID
+                $this->createSession($sid, $userId, $req);
+            }
         }
 
         // set the user id
@@ -78,19 +92,25 @@ class SessionStorage extends AbstractStorage
         // - remember me cookie
 
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(
-            session_name(),
-            '',
-            time() - 86400,
-            $sessionCookie['path'],
-            $sessionCookie['domain'],
-            $sessionCookie['secure'],
-            $sessionCookie['httponly']);
+        $res->setCookie(session_name(),
+                        '',
+                        time() - 86400,
+                        $sessionCookie['path'],
+                        $sessionCookie['domain'],
+                        $sessionCookie['secure'],
+                        $sessionCookie['httponly']);
 
         $req->destroySession();
 
         if (session_status() == PHP_SESSION_ACTIVE) {
+            $sid = session_id();
+
             session_destroy();
+
+            if ($sid) {
+                // delete active sessions for this session ID
+                $this->deleteSession($sid);
+            }
         }
 
         $this->destroyRememberMeCookie($res);
@@ -105,6 +125,10 @@ class SessionStorage extends AbstractStorage
 
         return true;
     }
+
+    ///////////////////////////////
+    // Private Methods
+    ///////////////////////////////
 
     /**
      * Tries to get an authenticated user via the current session.
@@ -139,7 +163,73 @@ class SessionStorage extends AbstractStorage
             return false;
         }
 
+        // refresh the active session
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            $this->refreshSession(session_id());
+        }
+
         return $user->signIn();
+    }
+
+    /**
+     * Creates an active session for a user.
+     *
+     * @param string  $sid    session ID
+     * @param int     $userId
+     * @param Request $req
+     *
+     * @return ActiveSession
+     */
+    private function createSession($sid, $userId, Request $req)
+    {
+        $sessionCookie = session_get_cookie_params();
+        $expires = time() + $sessionCookie['lifetime'];
+
+        $session = new ActiveSession();
+        $session->id = $sid;
+        $session->user_id = $userId;
+        $session->ip = $req->ip();
+        $session->user_agent = $req->agent();
+        $session->expires = $expires;
+        $session->save();
+
+        return $session;
+    }
+
+    /**
+     * Refreshes the expiration on an active session.
+     *
+     * @param string $sid session ID
+     *
+     * @return bool
+     */
+    private function refreshSession($sid)
+    {
+        $sessionCookie = session_get_cookie_params();
+        $expires = time() + $sessionCookie['lifetime'];
+
+        $this->app['db']->update('ActiveSessions')
+                        ->where('id', $sid)
+                        ->values(['expires' => $expires])
+                        ->execute();
+
+        return true;
+    }
+
+    /**
+     * Deletes an active session.
+     *
+     * @param string $sid
+     *
+     * @return bool
+     */
+    private function deleteSession($sid)
+    {
+        $this->app['db']->delete('ActiveSessions')
+                        ->where('id', $sid)
+                        ->execute();
+
+        return true;
     }
 
     /**
@@ -152,10 +242,8 @@ class SessionStorage extends AbstractStorage
      */
     private function getUserRememberMe(Request $req, Response $res)
     {
-        // get the decoded remember me cookie
-        $encoded = $req->cookies(self::REMEMBER_ME_COOKIE_NAME);
-        $cookie = RememberMeCookie::decode($encoded);
-
+        // retrieve and verify the remember me cookie
+        $cookie = $this->getRememberMeCookie($req);
         $user = $cookie->verify($req, $this->auth);
         if (!$user) {
             $this->destroyRememberMeCookie($res);
@@ -167,13 +255,29 @@ class SessionStorage extends AbstractStorage
 
         // generate a new remember me cookie for the next time, using
         // the same series
-        $new = new RememberMeCookie($user->email, $req->agent(), $cookie->getSeries());
+        $new = new RememberMeCookie($user->email,
+                                    $req->agent(),
+                                    $cookie->getSeries());
         $this->sendRememberMeCookie($user->id(), $new, $res);
 
         // mark this session as persistent (could be useful to know)
         $req->setSession('persistent', true);
 
         return $signedInUser;
+    }
+
+    /**
+     * Gets the decoded remember me cookie from the request.
+     *
+     * @param Request $req
+     *
+     * @return RememberMeCookie
+     */
+    private function getRememberMeCookie(Request $req)
+    {
+        $encoded = $req->cookies(self::REMEMBER_ME_COOKIE_NAME);
+
+        return RememberMeCookie::decode($encoded);
     }
 
     /**
@@ -187,15 +291,15 @@ class SessionStorage extends AbstractStorage
     {
         // send the cookie with the same properties as the session cookie
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(
-            self::REMEMBER_ME_COOKIE_NAME,
-            $cookie->encode(),
-            $cookie->getExpires(time()),
-            $sessionCookie['path'],
-            $sessionCookie['domain'],
-            $sessionCookie['secure'],
-            true);
+        $res->setCookie(self::REMEMBER_ME_COOKIE_NAME,
+                        $cookie->encode(),
+                        $cookie->getExpires(time()),
+                        $sessionCookie['path'],
+                        $sessionCookie['domain'],
+                        $sessionCookie['secure'],
+                        true);
 
+        // save the cookie in the DB
         $cookie->persist($userId);
     }
 
@@ -209,14 +313,13 @@ class SessionStorage extends AbstractStorage
     private function destroyRememberMeCookie(Response $res)
     {
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(
-            self::REMEMBER_ME_COOKIE_NAME,
-            '',
-            time() - 86400,
-            $sessionCookie['path'],
-            $sessionCookie['domain'],
-            $sessionCookie['secure'],
-            true);
+        $res->setCookie(self::REMEMBER_ME_COOKIE_NAME,
+                        '',
+                        time() - 86400,
+                        $sessionCookie['path'],
+                        $sessionCookie['domain'],
+                        $sessionCookie['secure'],
+                        true);
 
         return $this;
     }

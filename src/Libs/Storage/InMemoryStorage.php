@@ -29,11 +29,6 @@ class InMemoryStorage extends AbstractStorage
 
     public function signIn(Model $user, Request $req, Response $res)
     {
-        // nothing to do if the user ID is already signed in
-        if ($this->user && $this->user->id() === $user->id()) {
-            return true;
-        }
-
         $this->user = $user;
 
         return true;
