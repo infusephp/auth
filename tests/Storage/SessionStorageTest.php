@@ -101,6 +101,22 @@ class SessionStorageTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->isSignedIn());
     }
 
+    public function testGetAuthenticatedUserSessionGuest()
+    {
+        $storage = $this->getStorage();
+
+        $req = Request::create('/', 'GET', [], [], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $req->setSession('user_id', -1);
+        $req->setSession('user_agent', 'Firefox');
+        $res = new Response();
+
+        $user = $storage->getAuthenticatedUser($req, $res);
+
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(-1, $user->id());
+        $this->assertFalse($user->isSignedIn());
+    }
+
     public function testGetAuthenticatedUserGuest()
     {
         $storage = $this->getStorage();

@@ -128,6 +128,12 @@ class SessionStorage extends AbstractStorage
         $userClass = $this->auth->getUserClass();
         $user = new $userClass($userId);
 
+        // if this user does not exist in the DB then return
+        // a guest user
+        if ($userId <= 0) {
+            return $user;
+        }
+
         // check if the user exists
         if (!$user->exists()) {
             return false;
