@@ -82,7 +82,7 @@ abstract class AbstractUser extends ACLModel
     protected function initialize()
     {
         parent::initialize();
-        static::updated([static::class, 'passwordChanged']);
+        static::updated([get_called_class(), 'passwordChanged']);
     }
 
     protected function hasPermission($permission, Model $requester)
