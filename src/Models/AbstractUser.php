@@ -510,7 +510,8 @@ abstract class AbstractUser extends ACLModel
         $this->_isUpgrade = true;
         if ($this->set($updateArray)) {
             // remove temporary and unverified links
-            $this->app['db']->delete('UserLinks')
+            $app = $this->getApp();
+            $app['db']->delete('UserLinks')
                 ->where('user_id', $this->id())
                 ->where(function ($query) {
                     return $query->where('type', UserLink::TEMPORARY)
