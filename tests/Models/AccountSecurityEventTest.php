@@ -14,7 +14,7 @@ use Infuse\Auth\Models\AccountSecurityEvent;
 class AccountSecurityEventTest extends PHPUnit_Framework_TestCase
 {
     public static $user;
-    public static $history;
+    public static $event;
 
     public static function setUpBeforeClass()
     {
@@ -34,13 +34,32 @@ class AccountSecurityEventTest extends PHPUnit_Framework_TestCase
 
     public function testCreate()
     {
-        self::$history = new AccountSecurityEvent();
-        self::$history->user_id = self::$user->id();
-        self::$history->type = 'user.login';
-        self::$history->auth_strategy = 'web';
-        self::$history->ip = '127.0.0.1';
-        self::$history->user_agent = 'Firefox';
-        $this->assertTrue(self::$history->save());
+        self::$event = new AccountSecurityEvent();
+        self::$event->user_id = self::$user->id();
+        self::$event->type = 'user.login';
+        self::$event->auth_strategy = 'web';
+        self::$event->ip = '127.0.0.1';
+        self::$event->user_agent = 'Firefox';
+        $this->assertTrue(self::$event->save());
+    }
+
+    /**
+     * @depends testCreate
+     */
+    public function testToArray()
+    {
+        $expected = [
+            'id' => self::$event->id(),
+            'type' => 'user.login',
+            'ip' => '127.0.0.1',
+            'user_agent' => 'Firefox',
+            'auth_strategy' => 'web',
+            'description' => '',
+            'created_at' => self::$event->created_at,
+            'updated_at' => self::$event->updated_at,
+        ];
+
+        $this->assertEquals($expected, self::$event->toArray());
     }
 
     /**
@@ -48,6 +67,6 @@ class AccountSecurityEventTest extends PHPUnit_Framework_TestCase
      */
     public function testDelete()
     {
-        $this->assertTrue(self::$history->delete());
+        $this->assertTrue(self::$event->delete());
     }
 }

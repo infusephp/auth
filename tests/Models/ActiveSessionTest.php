@@ -55,11 +55,9 @@ class ActiveSessionTest extends PHPUnit_Framework_TestCase
     {
         $expected = [
             'id' => 'sesh_1234',
-            'user_id' => self::$user->id(),
             'ip' => '127.0.0.1',
             'user_agent' => 'Firefox',
             'expires' => self::$session->expires,
-            'valid' => true,
             'created_at' => self::$session->created_at,
             'updated_at' => self::$session->updated_at,
         ];

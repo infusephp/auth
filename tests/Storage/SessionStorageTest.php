@@ -204,16 +204,16 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
         $expected = [
             'id' => 'sesh_1234',
-            'user_id' => self::$user->id(),
             'ip' => '127.0.0.1',
             'user_agent' => 'Firefox',
             'expires' => $expectedExpires,
-            'valid' => true,
         ];
         $arr = $session->toArray();
         unset($arr['created_at']);
         unset($arr['updated_at']);
         $this->assertEquals($expected, $arr);
+        $this->assertEquals(self::$user->id(), $session->user_id);
+        $this->assertTrue($session->valid);
 
         // repeat calls should do nothing
         $req->setSession(['test' => 2]);
@@ -260,17 +260,17 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
         $expected = [
             'id' => 'sesh_1234',
-            'user_id' => self::$user->id(),
             'ip' => '127.0.0.1',
             'user_agent' => 'Firefox',
             'expires' => $expectedExpires,
-            'valid' => true,
         ];
         $arr = $session->toArray();
         unset($arr['created_at']);
         unset($arr['updated_at']);
         $this->assertEquals($expected, $arr);
         $this->assertNotEquals($session->created_at, $session->updated_at);
+        $this->assertEquals(self::$user->id(), $session->user_id);
+        $this->assertTrue($session->valid);
     }
 
     /**
