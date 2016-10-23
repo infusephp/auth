@@ -5,6 +5,13 @@ namespace Infuse\Auth\Interfaces;
 interface UserInterface
 {
     /**
+     * Gets the user's ID.
+     *
+     * @return int
+     */
+    public function id();
+
+    /**
      * Get's the user's name.
      *
      * @param bool $full when true, get's the user's full name
