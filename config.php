@@ -25,7 +25,7 @@ return  [
     'auth' => 'Infuse\Auth\Services\Auth',
     'db' => 'JAQB\Services\Database',
     'errors' => 'Infuse\Auth\Services\ErrorStack',
-    'mailer' => 'App\Email\MailerService',
+    'mailer' => 'Infuse\Email\MailerService',
     'model_driver' => 'Infuse\Auth\Services\ModelDriver',
     'pdo' => 'Infuse\Services\Pdo',
     'queue_driver' => 'Infuse\Services\QueueDriver',
