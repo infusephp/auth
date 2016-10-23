@@ -12,7 +12,7 @@ interface UserInterface
     public function id();
 
     /**
-     * Get's the user's name.
+     * Gets the user's name.
      *
      * @param bool $full when true, get's the user's full name
      *
