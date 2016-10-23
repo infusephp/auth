@@ -13,6 +13,7 @@ namespace Infuse\Auth\Libs;
 
 use Infuse\Auth\Exception\AuthException;
 use Infuse\Auth\Interfaces\StorageInterface;
+use Infuse\Auth\Interfaces\TwoFactorInterface;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\Storage\SessionStorage;
 use Infuse\Auth\Models\AccountSecurityEvent;
@@ -45,6 +46,11 @@ class Auth
      * @var array
      */
     private $strategies = [];
+
+    /**
+     * @var TwoFactorInterface
+     */
+    private $twoFactor;
 
     /**
      * @var Request
@@ -138,6 +144,30 @@ class Auth
         }
 
         return $this->storage;
+    }
+
+    /**
+     * Sets the two-factor authentication strategy.
+     *
+     * @param TwoFactorInterface $strategy
+     *
+     * @return self
+     */
+    public function setTwoFactorStrategy(TwoFactorInterface $strategy)
+    {
+        $this->twoFactor = $strategy;
+
+        return $this;
+    }
+
+    /**
+     * Gets the two-factor authentication strategy.
+     *
+     * @return TwoFactorInterface|null
+     */
+    public function getTwoFactorStrategy()
+    {
+        return $this->twoFactor;
     }
 
     /**

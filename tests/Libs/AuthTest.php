@@ -101,6 +101,16 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($storage, $auth->getStorage());
     }
 
+    public function testGetTwoFactorStrategy()
+    {
+        $auth = $this->getAuth();
+        $this->assertNull($auth->getTwoFactorStrategy());
+
+        $strategy = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $this->assertEquals($auth, $auth->setTwoFactorStrategy($strategy));
+        $this->assertEquals($strategy, $auth->getTwoFactorStrategy());
+    }
+
     public function testGetRequest()
     {
         $auth = $this->getAuth();
