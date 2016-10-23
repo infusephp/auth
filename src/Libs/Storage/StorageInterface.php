@@ -11,33 +11,33 @@
 
 namespace Infuse\Auth\Libs\Storage;
 
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Request;
 use Infuse\Response;
-use Pulsar\Model;
 
 interface StorageInterface
 {
     /**
      * Starts a new user session.
      *
-     * @param Model    $user
-     * @param Request  $req
-     * @param Response $res
+     * @param UserInterface $user
+     * @param Request       $req
+     * @param Response      $res
      *
      * @return bool
      */
-    public function signIn(Model $user, Request $req, Response $res);
+    public function signIn(UserInterface $user, Request $req, Response $res);
 
     /**
      * Saves a remember me token on the user's session.
      *
-     * @param Model    $user
-     * @param Request  $req
-     * @param Response $res
+     * @param UserInterface $user
+     * @param Request       $req
+     * @param Response      $res
      *
      * @return bool
      */
-    public function remember(Model $user, Request $req, Response $res);
+    public function remember(UserInterface $user, Request $req, Response $res);
 
     /**
      * Gets the authenticated user for the current session.
@@ -45,7 +45,7 @@ interface StorageInterface
      * @param Request  $req
      * @param Response $res
      *
-     * @return Model|false
+     * @return UserInterface|false
      */
     public function getAuthenticatedUser(Request $req, Response $res);
 

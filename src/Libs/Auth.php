@@ -12,6 +12,7 @@
 namespace Infuse\Auth\Libs;
 
 use Infuse\Auth\Exception\AuthException;
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\Storage\SessionStorage;
 use Infuse\Auth\Libs\Storage\StorageInterface;
 use Infuse\Auth\Models\AccountSecurityEvent;
@@ -20,7 +21,6 @@ use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
 use InvalidArgumentException;
-use Pulsar\Model;
 
 class Auth
 {
@@ -199,7 +199,7 @@ class Auth
      *
      * @throws Infuse\Auth\Exception\AuthException when unable to authenticate the user.
      *
-     * @return User|Response
+     * @return UserInterface|Response
      */
     public function authenticate($strategy)
     {
@@ -210,7 +210,7 @@ class Auth
     /**
      * Gets the currently authenticated user.
      *
-     * @return User
+     * @return UserInterface
      */
     public function getAuthenticatedUser()
     {
@@ -246,13 +246,13 @@ class Auth
      * by authentication strategies to build a signed in session once
      * a user is authenticated.
      *
-     * @param Model  $user
-     * @param string $strategy
-     * @param bool   $remember whether to enable remember me on this session
+     * @param UserInterface $user
+     * @param string        $strategy
+     * @param bool          $remember whether to enable remember me on this session
      *
-     * @return User authenticated user model
+     * @return UserInterface authenticated user model
      */
-    public function signInUser(Model $user, $strategy = 'web', $remember = false)
+    public function signInUser(UserInterface $user, $strategy = 'web', $remember = false)
     {
         // sign in the user with the session storage
         $storage = $this->getStorage();
@@ -288,7 +288,7 @@ class Auth
     /**
      * Gets a guest user model.
      *
-     * @return Model
+     * @return UserInterface
      */
     private function getGuestUser()
     {
@@ -300,11 +300,11 @@ class Auth
     /**
      * Invalidates all sessions for a given user.
      *
-     * @param Model $user
+     * @param UserInterface $user
      *
      * @return bool
      */
-    public function signOutAllSessions(Model $user)
+    public function signOutAllSessions(UserInterface $user)
     {
         $db = $this->app['db'];
 
@@ -329,11 +329,11 @@ class Auth
     /**
      * Sends a verification email to a user.
      *
-     * @param Model $user
+     * @param UserInterface $user
      *
      * @return bool
      */
-    public function sendVerificationEmail(Model $user)
+    public function sendVerificationEmail(UserInterface $user)
     {
         $params = [
             'user_id' => $user->id(),
@@ -359,7 +359,7 @@ class Auth
      *
      * @param string $token verification hash
      *
-     * @return User|false
+     * @return UserInterface|false
      */
     public function verifyEmailWithToken($token)
     {
@@ -427,7 +427,7 @@ class Auth
      *
      * @throws AuthException when the token is invalid.
      *
-     * @return User
+     * @return UserInterface
      */
     public function getUserFromForgotToken($token)
     {

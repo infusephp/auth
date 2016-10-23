@@ -12,13 +12,14 @@
 namespace Infuse\Auth\Models;
 
 use Infuse\Application;
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Utility as U;
 use InvalidArgumentException;
 use Pulsar\ACLModel;
 use Pulsar\Model;
 use Pulsar\ModelEvent;
 
-abstract class AbstractUser extends ACLModel
+abstract class AbstractUser extends ACLModel implements UserInterface
 {
     protected static $properties = [
         'email' => [
@@ -190,24 +191,9 @@ abstract class AbstractUser extends ACLModel
     }
 
     /////////////////////////////////////
-    // Getters
+    // UserInterface
     /////////////////////////////////////
 
-    /**
-     * Get's the user's name.
-     * WARNING this method should be overridden.
-     *
-     * @param bool $full get full name if true
-     *
-     * @return string name
-     */
-    abstract public function name($full = false);
-
-    /**
-     * Gets the temporary string if the user is temporary.
-     *
-     * @return link|false true if temporary
-     */
     public function isTemporary()
     {
         return UserLink::totalRecords([
@@ -215,13 +201,6 @@ abstract class AbstractUser extends ACLModel
             'type' => UserLink::TEMPORARY, ]) > 0;
     }
 
-    /**
-     * Checks if the account has been verified.
-     *
-     * @param bool $withinTimeWindow when true, allows a time window before the account is considered unverified
-     *
-     * @return bool
-     */
     public function isVerified($withinTimeWindow = true)
     {
         $timeWindow = ($withinTimeWindow) ? time() - UserLink::$verifyTimeWindow : time();
@@ -265,6 +244,43 @@ abstract class AbstractUser extends ACLModel
 
         return $this;
     }
+
+    public function sendEmail($template, array $message = [])
+    {
+        $app = $this->getApp();
+
+        $message['tags'] = array_merge(
+            [$template],
+            (array) array_value($message, 'tags'));
+        $params = array_replace($this->getMailerParams(), $message);
+
+        switch ($template) {
+        case 'welcome':
+            $params['subject'] = 'Welcome to '.$app['config']->get('app.title');
+        break;
+        case 'verify-email':
+            $params['subject'] = 'Please verify your email address';
+            $params['verify_link'] = "{$params['base_url']}users/verifyEmail/{$params['verify']}";
+        break;
+        case 'forgot-password':
+            $params['subject'] = 'Password change request on '.$app['config']->get('app.title');
+            $params['forgot_link'] = "{$params['base_url']}users/forgot/{$params['forgot']}";
+        break;
+        case 'password-changed':
+            $params['subject'] = 'Your password was changed on '.$app['config']->get('app.title');
+        break;
+        }
+
+        $message = array_replace($params, $message);
+
+        $app['mailer']->queueEmail($template, $message);
+
+        return true;
+    }
+
+    /////////////////////////////////////
+    // Getters
+    /////////////////////////////////////
 
     /**
      * Checks if the user is an admin.
@@ -533,47 +549,6 @@ abstract class AbstractUser extends ACLModel
     ///////////////////////////////////
     // Utilities
     ///////////////////////////////////
-
-    /**
-     * Sends the user an email.
-     *
-     * @param string $template template name
-     * @param array  $message  message details
-     *
-     * @return bool success
-     */
-    public function sendEmail($template, $message = [])
-    {
-        $app = $this->getApp();
-
-        $message['tags'] = array_merge(
-            [$template],
-            (array) array_value($message, 'tags'));
-        $params = array_replace($this->getMailerParams(), $message);
-
-        switch ($template) {
-        case 'welcome':
-            $params['subject'] = 'Welcome to '.$app['config']->get('app.title');
-        break;
-        case 'verify-email':
-            $params['subject'] = 'Please verify your email address';
-            $params['verify_link'] = "{$params['base_url']}users/verifyEmail/{$params['verify']}";
-        break;
-        case 'forgot-password':
-            $params['subject'] = 'Password change request on '.$app['config']->get('app.title');
-            $params['forgot_link'] = "{$params['base_url']}users/forgot/{$params['forgot']}";
-        break;
-        case 'password-changed':
-            $params['subject'] = 'Your password was changed on '.$app['config']->get('app.title');
-        break;
-        }
-
-        $message = array_replace($params, $message);
-
-        $app['mailer']->queueEmail($template, $message);
-
-        return true;
-    }
 
     /**
      * Gets the mailer parameters when sending email to this user.

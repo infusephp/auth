@@ -11,25 +11,25 @@
 
 namespace Infuse\Auth\Libs\Storage;
 
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Request;
 use Infuse\Response;
-use Pulsar\Model;
 
 class InMemoryStorage extends AbstractStorage
 {
     /**
-     * @var Model|false
+     * @var UserInterface|false
      */
     private $user = false;
 
-    public function signIn(Model $user, Request $req, Response $res)
+    public function signIn(UserInterface $user, Request $req, Response $res)
     {
         $this->user = $user;
 
         return true;
     }
 
-    public function remember(Model $user, Request $req, Response $res)
+    public function remember(UserInterface $user, Request $req, Response $res)
     {
         return true;
     }

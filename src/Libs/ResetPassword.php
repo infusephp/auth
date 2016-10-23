@@ -42,7 +42,7 @@ class ResetPassword
      *
      * @throws AuthException when the token is invalid.
      *
-     * @return User
+     * @return \Infuse\Auth\Interfaces\UserInterface
      */
     public function getUserFromToken($token)
     {
@@ -149,7 +149,7 @@ class ResetPassword
      * @param string $ip
      * @param string $userAgent
      *
-     * @return UserLink
+     * @return \Infuse\Auth\Models\UserLink
      */
     public function buildLink($userId, $ip, $userAgent)
     {

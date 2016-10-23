@@ -29,9 +29,9 @@ interface StrategyInterface
      * @param Request  $req
      * @param Response $res
      *
-     * @throws Infuse\Auth\Exception\AuthException when unable to authenticate the user.
+     * @throws \Infuse\Auth\Exception\AuthException when unable to authenticate the user.
      *
-     * @return User|Response
+     * @return \Infuse\Auth\Interfaces\UserInterface|Response
      */
     public function authenticate(Request $req, Response $res);
 }

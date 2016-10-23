@@ -11,18 +11,18 @@
 
 namespace Infuse\Auth\Libs\Storage;
 
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\RememberMeCookie;
 use Infuse\Auth\Models\ActiveSession;
 use Infuse\Request;
 use Infuse\Response;
-use Pulsar\Model;
 
 class SessionStorage extends AbstractStorage
 {
     const SESSION_USER_ID_KEY = 'user_id';
     const REMEMBER_ME_COOKIE_NAME = 'persistent';
 
-    public function signIn(Model $user, Request $req, Response $res)
+    public function signIn(UserInterface $user, Request $req, Response $res)
     {
         // nothing to do if the user ID is already signed in
         $currentUserId = $req->session(self::SESSION_USER_ID_KEY);
@@ -70,7 +70,7 @@ class SessionStorage extends AbstractStorage
         return true;
     }
 
-    public function remember(Model $user, Request $req, Response $res)
+    public function remember(UserInterface $user, Request $req, Response $res)
     {
         $cookie = new RememberMeCookie($user->email, $req->agent());
         $this->sendRememberMeCookie($user->id(), $cookie, $res);
@@ -135,7 +135,7 @@ class SessionStorage extends AbstractStorage
      *
      * @param Request $req
      *
-     * @return Model|false
+     * @return UserInterface|false
      */
     private function getUserSession(Request $req)
     {
@@ -259,7 +259,7 @@ class SessionStorage extends AbstractStorage
      * @param Request  $req
      * @param Response $res
      *
-     * @return Model|false
+     * @return UserInterface|false
      */
     private function getUserRememberMe(Request $req, Response $res)
     {

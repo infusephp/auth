@@ -61,7 +61,7 @@ class TraditionalStrategy extends AbstractStrategy
      *
      * @throws AuthException when a matching user cannot be found.
      *
-     * @return User matching user
+     * @return \Infuse\Auth\Interfaces\UserInterface matching user
      */
     public function getUserWithCredentials($username, $password)
     {
