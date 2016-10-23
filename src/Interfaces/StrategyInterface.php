@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-namespace Infuse\Auth\Libs\Strategy;
+namespace Infuse\Auth\Interfaces;
 
 use Infuse\Request;
 use Infuse\Response;

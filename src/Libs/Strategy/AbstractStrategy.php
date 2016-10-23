@@ -11,6 +11,7 @@
 
 namespace Infuse\Auth\Libs\Strategy;
 
+use Infuse\Auth\Interfaces\StrategyInterface;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\Auth;
 use Infuse\HasApp;
