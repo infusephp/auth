@@ -11,6 +11,7 @@
 
 namespace Infuse\Auth\Libs\Storage;
 
+use Infuse\Auth\Interfaces\StorageInterface;
 use Infuse\Auth\Libs\Auth;
 use Infuse\HasApp;
 

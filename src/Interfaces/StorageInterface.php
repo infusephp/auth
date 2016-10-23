@@ -9,9 +9,8 @@
  * @license MIT
  */
 
-namespace Infuse\Auth\Libs\Storage;
+namespace Infuse\Auth\Interfaces;
 
-use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Request;
 use Infuse\Response;
 

@@ -12,9 +12,9 @@
 namespace Infuse\Auth\Libs;
 
 use Infuse\Auth\Exception\AuthException;
+use Infuse\Auth\Interfaces\StorageInterface;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\Storage\SessionStorage;
-use Infuse\Auth\Libs\Storage\StorageInterface;
 use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
