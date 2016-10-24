@@ -9,6 +9,7 @@
  * @license MIT
  */
 use App\Users\Models\User;
+use Infuse\Auth\Exception\AuthException;
 use Infuse\Auth\Libs\AuthManager;
 use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\ActiveSession;
@@ -266,6 +267,65 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($user, Test::$app['user']);
 
         $this->assertEquals(0, AccountSecurityEvent::totalRecords(['user_id' => -1]));
+    }
+
+    public function testVerifyTwoFactor()
+    {
+        $auth = $this->getAuth();
+
+        $user = new User(10);
+
+        $strategy = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $strategy->shouldReceive('verify')
+                 ->withArgs([$user, 'token'])
+                 ->once();
+        $auth->setTwoFactorStrategy($strategy);
+
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('twoFactorVerified')
+                ->andReturn(true)
+                ->once();
+        $auth->setStorage($storage);
+
+        $this->assertEquals($auth, $auth->verifyTwoFactor($user, 'token'));
+
+        $this->assertTrue($user->isTwoFactorVerified());
+    }
+
+    public function testVerifyTwoFactorException()
+    {
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+
+        $auth = $this->getAuth();
+
+        $user = new User(10);
+
+        $strategy = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $strategy->shouldReceive('verify')
+                 ->andThrow(new AuthException('fail'));
+        $auth->setTwoFactorStrategy($strategy);
+
+        $auth->verifyTwoFactor($user, 'token');
+    }
+
+    public function testVerifyTwoFactorFail()
+    {
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+
+        $auth = $this->getAuth();
+
+        $user = new User(10);
+
+        $strategy = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $strategy->shouldReceive('verify');
+        $auth->setTwoFactorStrategy($strategy);
+
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('twoFactorVerified')
+                ->andReturn(false);
+        $auth->setStorage($storage);
+
+        $auth->verifyTwoFactor($user, 'token');
     }
 
     public function testSignInUserFail()

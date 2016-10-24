@@ -29,8 +29,6 @@ interface TwoFactorInterface
      * @param mixed         $token
      *
      * @throws \Infuse\Auth\Exception\AuthException when the token cannot be verified.
-     *
-     * @return bool
      */
     public function verify(UserInterface $user, $token);
 }

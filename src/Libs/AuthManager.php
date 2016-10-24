@@ -350,6 +350,34 @@ class AuthManager
     }
 
     /**
+     * Verifies a user's 2FA token.
+     *
+     * @param UserInterface $user
+     * @param mixed         $token
+     *
+     * @throws AuthException when the token cannot be verified.
+     *
+     * @return self
+     */
+    public function verifyTwoFactor(UserInterface $user, $token)
+    {
+        $this->getTwoFactorStrategy()->verify($user, $token);
+
+        // mark the user as 2fa verified, now and for the session
+        $user->verifiedTwoFactor();
+
+        $saved = $this->getStorage()
+                      ->twoFactorVerified($user,
+                                          $this->request,
+                                          $this->response);
+        if (!$saved) {
+            throw new AuthException('Unable to mark user session as two-factor verified');
+        }
+
+        return $this;
+    }
+
+    /**
      * Invalidates all sessions for a given user.
      *
      * @param UserInterface $user
