@@ -216,21 +216,11 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             'created_at <= "'.U::unixToDb($timeWindow).'"', ]) == 0;
     }
 
-    /**
-     * Checks if the user is signed in.
-     *
-     * @return bool
-     */
     public function isSignedIn()
     {
         return $this->signedIn;
     }
 
-    /**
-     * Marks the user as signed in.
-     *
-     * @return self
-     */
     public function signIn()
     {
         $this->signedIn = true;
@@ -238,11 +228,6 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         return $this;
     }
 
-    /**
-     * Marks the user as signed out.
-     *
-     * @return self
-     */
     public function signOut()
     {
         $this->signedIn = false;
