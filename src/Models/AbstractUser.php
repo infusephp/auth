@@ -589,7 +589,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         $encryptedPassword = $app['auth']->getStrategy('traditional')
                                          ->encrypt($password);
 
-        if (!$this->exists() ||
+        if ($this->id() <= 0 ||
             $this->isAdmin() ||
             $app['user']->id() != $this->id() ||
             $encryptedPassword != $this->password) {
