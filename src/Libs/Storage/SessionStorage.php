@@ -84,6 +84,8 @@ class SessionStorage extends AbstractStorage
     public function twoFactorVerified(UserInterface $user, Request $req, Response $res)
     {
         $req->setSession(self::SESSION_2FA_VERIFIED_KEY, true);
+
+        return true;
     }
 
     public function getAuthenticatedUser(Request $req, Response $res)
@@ -178,6 +180,11 @@ class SessionStorage extends AbstractStorage
             }
 
             $this->refreshSession($sid);
+        }
+
+        // check if the user is 2FA verified
+        if ($req->session(self::SESSION_2FA_VERIFIED_KEY)) {
+            $user->verifiedTwoFactor();
         }
 
         return $user->signIn();

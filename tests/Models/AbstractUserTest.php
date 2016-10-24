@@ -235,7 +235,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $user = new User(10);
         $this->assertFalse($user->isTwoFactorVerified());
-        $this->assertEquals($user, $user->verifyTwoFactor());
+        $this->assertEquals($user, $user->verifiedTwoFactor());
         $this->assertTrue($user->isTwoFactorVerified());
     }
 

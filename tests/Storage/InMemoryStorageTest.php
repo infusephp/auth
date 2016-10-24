@@ -28,7 +28,7 @@ class InMemoryStorageTest extends PHPUnit_Framework_TestCase
         $user = new User(10);
         $this->assertTrue($storage->signIn($user, $req, $res));
 
-        $storage->twoFactorVerified($user, $req, $res);
+        $this->assertTrue($storage->twoFactorVerified($user, $req, $res));
 
         $user2 = $storage->getAuthenticatedUser($req, $res);
         $this->assertEquals($user, $user2);

@@ -70,7 +70,7 @@ interface UserInterface
      *
      * @return self
      */
-    public function verifyTwoFactor();
+    public function verifiedTwoFactor();
 
     /**
      * Sends the user an email.

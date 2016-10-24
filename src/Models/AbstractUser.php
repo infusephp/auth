@@ -240,7 +240,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         return $this->is2faVerified;
     }
 
-    public function verifyTwoFactor()
+    public function verifiedTwoFactor()
     {
         $this->is2faVerified = true;
 

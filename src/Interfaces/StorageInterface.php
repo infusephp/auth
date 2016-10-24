@@ -44,11 +44,15 @@ interface StorageInterface
      * @param UserInterface $user
      * @param Request       $req
      * @param Response      $res
+     *
+     * @return bool
      */
     public function twoFactorVerified(UserInterface $user, Request $req, Response $res);
 
     /**
-     * Gets the authenticated user for the current session.
+     * Gets the authenticated user for the current session. If the
+     * user was previously marked as two-factor verified for the
+     * current session then the returned user must have this designation.
      *
      * @param Request  $req
      * @param Response $res

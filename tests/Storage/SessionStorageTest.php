@@ -230,7 +230,7 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
         $req = new Request();
         $res = new Response();
 
-        $storage->twoFactorVerified(self::$user, $req, $res);
+        $this->assertTrue($storage->twoFactorVerified(self::$user, $req, $res));
 
         $this->assertTrue($req->session('2fa_verified'));
     }
@@ -307,6 +307,34 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($session->save());
 
         $this->assertFalse($storage->getAuthenticatedUser($req, $res));
+    }
+
+    /**
+     * @depends testSignIn
+     */
+    public function testGetAuthenticatedUserWith2FA()
+    {
+        $storage = $this->getStorage();
+
+        $req = Request::create('/', 'GET', [], [], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $req->setSession('user_id', self::$user->id());
+        $req->setSession('user_agent', 'Firefox');
+        $req->setSession('2fa_verified', true);
+        $res = new Response();
+
+        self::$mock->shouldReceive('session_status')
+                   ->andReturn(PHP_SESSION_ACTIVE);
+
+        self::$mock->shouldReceive('session_id')
+                   ->andReturn('sesh_12345');
+
+        $user = $storage->getAuthenticatedUser($req, $res);
+
+        // should return a signed in user with verified 2FA
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(self::$user->id(), $user->id());
+        $this->assertTrue($user->isSignedIn());
+        $this->assertTrue($user->isTwoFactorVerified());
     }
 
     public function testRemember()
