@@ -224,6 +224,17 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $req->session('test'));
     }
 
+    public function testTwoFactorVerified()
+    {
+        $storage = $this->getStorage();
+        $req = new Request();
+        $res = new Response();
+
+        $storage->twoFactorVerified(self::$user, $req, $res);
+
+        $this->assertTrue($req->session('2fa_verified'));
+    }
+
     /**
      * @depends testSignIn
      */

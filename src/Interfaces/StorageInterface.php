@@ -39,6 +39,15 @@ interface StorageInterface
     public function remember(UserInterface $user, Request $req, Response $res);
 
     /**
+     * Marks a user as two-factor verified for the current session.
+     *
+     * @param UserInterface $user
+     * @param Request       $req
+     * @param Response      $res
+     */
+    public function twoFactorVerified(UserInterface $user, Request $req, Response $res);
+
+    /**
      * Gets the authenticated user for the current session.
      *
      * @param Request  $req

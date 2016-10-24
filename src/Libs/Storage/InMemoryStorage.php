@@ -34,6 +34,11 @@ class InMemoryStorage extends AbstractStorage
         return true;
     }
 
+    public function twoFactorVerified(UserInterface $user, Request $req, Response $res)
+    {
+        // do nothing
+    }
+
     public function getAuthenticatedUser(Request $req, Response $res)
     {
         return $this->user;

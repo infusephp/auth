@@ -20,6 +20,9 @@ use Infuse\Response;
 class SessionStorage extends AbstractStorage
 {
     const SESSION_USER_ID_KEY = 'user_id';
+    const SESSION_USER_AGENT_KEY = 'user_agent';
+    const SESSION_2FA_VERIFIED_KEY = '2fa_verified';
+    const SESSION_PERSISTENT_KEY = 'persistent';
     const REMEMBER_ME_COOKIE_NAME = 'persistent';
 
     public function signIn(UserInterface $user, Request $req, Response $res)
@@ -64,7 +67,7 @@ class SessionStorage extends AbstractStorage
         // set the user id
         $req->setSession([
             self::SESSION_USER_ID_KEY => $userId,
-            'user_agent' => $req->agent(),
+            self::SESSION_USER_AGENT_KEY => $req->agent(),
         ]);
 
         return true;
@@ -76,6 +79,11 @@ class SessionStorage extends AbstractStorage
         $this->sendRememberMeCookie($user->id(), $cookie, $res);
 
         return true;
+    }
+
+    public function twoFactorVerified(UserInterface $user, Request $req, Response $res)
+    {
+        $req->setSession(self::SESSION_2FA_VERIFIED_KEY, true);
     }
 
     public function getAuthenticatedUser(Request $req, Response $res)
@@ -140,7 +148,7 @@ class SessionStorage extends AbstractStorage
     private function getUserSession(Request $req)
     {
         // check for a session hijacking attempt via the stored user agent
-        if ($req->session('user_agent') !== $req->agent()) {
+        if ($req->session(self::SESSION_USER_AGENT_KEY) !== $req->agent()) {
             return false;
         }
 
@@ -282,7 +290,7 @@ class SessionStorage extends AbstractStorage
         $this->sendRememberMeCookie($user->id(), $new, $res);
 
         // mark this session as persistent (could be useful to know)
-        $req->setSession('persistent', true);
+        $req->setSession(self::SESSION_PERSISTENT_KEY, true);
 
         return $signedInUser;
     }
