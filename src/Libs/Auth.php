@@ -260,16 +260,22 @@ class Auth
     /**
      * Logs the authenticated user out.
      *
-     * @return bool success
+     * @throws AuthException when the user cannot be signed out.
+     *
+     * @return self
      */
     public function logout()
     {
         $result = $this->getStorage()
                        ->signOut($this->request, $this->response);
 
+        if (!$result) {
+            throw new AuthException('Could not sign user out.');
+        }
+
         $this->signInUser($this->getGuestUser());
 
-        return $result;
+        return $this;
     }
 
     /**
@@ -282,17 +288,31 @@ class Auth
      * @param string        $strategy
      * @param bool          $remember whether to enable remember me on this session
      *
+     * @throws AuthException when the user could not be signed in.
+     *
      * @return UserInterface authenticated user model
      */
     public function signInUser(UserInterface $user, $strategy = 'web', $remember = false)
     {
         // sign in the user with the session storage
         $storage = $this->getStorage();
-        $storage->signIn($user, $this->request, $this->response);
+        $result = $storage->signIn($user,
+                                   $this->request,
+                                   $this->response);
+
+        if (!$result) {
+            throw new AuthException('Could not sign in user');
+        }
 
         // use a remember me session (lasts longer)
         if ($remember) {
-            $storage->remember($user, $this->request, $this->response);
+            $result = $storage->remember($user,
+                                         $this->request,
+                                         $this->response);
+
+            if (!$result) {
+                throw new AuthException('Could not enable remember me for user session');
+            }
         }
 
         if ($user->id() > 0) {

@@ -232,6 +232,21 @@ class AuthTest extends PHPUnit_Framework_TestCase
             'auth_strategy' => 'test_strat', ]));
     }
 
+    public function testSignInUserRememberFail()
+    {
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+
+        $auth = $this->getAuth();
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('signIn')
+                ->andReturn(true);
+        $storage->shouldReceive('remember')
+                ->andReturn(false);
+        $auth->setStorage($storage);
+
+        $auth->signInUser(self::$user, 'test_strat', true);
+    }
+
     public function testSignInUserGuest()
     {
         $auth = $this->getAuth();
@@ -253,6 +268,20 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, AccountSecurityEvent::totalRecords(['user_id' => -1]));
     }
 
+    public function testSignInUserFail()
+    {
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+
+        $auth = $this->getAuth();
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('signIn')
+                ->andReturn(false);
+        $auth->setStorage($storage);
+
+        $user = new User(-1);
+        $auth->signInUser($user);
+    }
+
     public function testLogout()
     {
         $auth = $this->getAuth();
@@ -263,14 +292,28 @@ class AuthTest extends PHPUnit_Framework_TestCase
                 ->andReturn(true)
                 ->once();
         $storage->shouldReceive('signIn')
-                ->once();
+                ->andReturn(true);
         $auth->setStorage($storage);
 
-        $this->assertTrue($auth->logout());
-
+        $this->assertEquals($auth, $auth->logout());
         $this->assertInstanceOf($auth->getUserClass(), Test::$app['user']);
         $this->assertEquals(-1, Test::$app['user']->id());
         $this->assertFalse(Test::$app['user']->isSignedIn());
+    }
+
+    public function testLogoutFail()
+    {
+        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+
+        $auth = $this->getAuth();
+
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('signOut')
+                ->andReturn(false)
+                ->once();
+        $auth->setStorage($storage);
+
+        $auth->logout();
     }
 
     public function testSignOutAllSessions()
