@@ -249,8 +249,10 @@ class Auth
 
         // if no current user then sign in a guest
         if (!$user) {
-            return $this->signInUser($this->getGuestUser());
+            $user = $this->signInUser($this->getGuestUser());
         }
+
+        $this->app['user'] = $user;
 
         return $user;
     }
