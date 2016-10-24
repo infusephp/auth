@@ -23,7 +23,7 @@ use Infuse\Request;
 use Infuse\Response;
 use InvalidArgumentException;
 
-class Auth
+class AuthManager
 {
     use HasApp;
 
@@ -227,7 +227,7 @@ class Auth
      *
      * @param string $strategy strategy identifier
      *
-     * @throws Infuse\Auth\Exception\AuthException when unable to authenticate the user.
+     * @throws AuthException when unable to authenticate the user.
      *
      * @return UserInterface|Response
      */

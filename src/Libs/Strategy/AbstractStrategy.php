@@ -13,7 +13,7 @@ namespace Infuse\Auth\Libs\Strategy;
 
 use Infuse\Auth\Interfaces\StrategyInterface;
 use Infuse\Auth\Interfaces\UserInterface;
-use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Libs\AuthManager;
 use Infuse\HasApp;
 
 abstract class AbstractStrategy implements StrategyInterface
@@ -21,14 +21,14 @@ abstract class AbstractStrategy implements StrategyInterface
     use HasApp;
 
     /**
-     * @var Auth
+     * @var AuthManager
      */
     protected $auth;
 
     /**
-     * @param Auth $auth
+     * @param AuthManager $auth
      */
-    public function __construct(Auth $auth)
+    public function __construct(AuthManager $auth)
     {
         $this->auth = $auth;
         $this->setApp($auth->getApp());

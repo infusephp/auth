@@ -9,7 +9,7 @@
  * @license MIT
  */
 use App\Users\Models\User;
-use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Libs\AuthManager;
 use Infuse\Auth\Libs\ResetPassword;
 use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
@@ -201,7 +201,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
 
     private function getSequence()
     {
-        $auth = new Auth();
+        $auth = new AuthManager();
         $auth->setApp(Test::$app)
              ->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
              ->setResponse(new Response());

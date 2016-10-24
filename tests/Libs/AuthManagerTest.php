@@ -9,7 +9,7 @@
  * @license MIT
  */
 use App\Users\Models\User;
-use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Libs\AuthManager;
 use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\ActiveSession;
 use Infuse\Auth\Models\PersistentSession;
@@ -18,7 +18,7 @@ use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
 
-class AuthTest extends PHPUnit_Framework_TestCase
+class AuthManagerTest extends PHPUnit_Framework_TestCase
 {
     public static $user;
     public static $ogUserId;
@@ -65,7 +65,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     public function testDI()
     {
-        $this->assertInstanceOf('Infuse\Auth\Libs\Auth', Test::$app['auth']);
+        $this->assertInstanceOf('Infuse\Auth\Libs\AuthManager', Test::$app['auth']);
     }
 
     public function testGetStrategy()
@@ -425,7 +425,7 @@ class AuthTest extends PHPUnit_Framework_TestCase
 
     private function getAuth()
     {
-        $auth = new Auth();
+        $auth = new AuthManager();
         $auth->setApp(Test::$app)
              ->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
              ->setResponse(new Response());

@@ -12,7 +12,7 @@
 namespace Infuse\Auth\Libs\Storage;
 
 use Infuse\Auth\Interfaces\StorageInterface;
-use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Libs\AuthManager;
 use Infuse\HasApp;
 
 abstract class AbstractStorage implements StorageInterface
@@ -20,14 +20,14 @@ abstract class AbstractStorage implements StorageInterface
     use HasApp;
 
     /**
-     * @var Auth
+     * @var AuthManager
      */
     protected $auth;
 
     /**
-     * @param Auth $auth
+     * @param AuthManager $auth
      */
-    public function __construct(Auth $auth)
+    public function __construct(AuthManager $auth)
     {
         $this->auth = $auth;
         $this->setApp($auth->getApp());

@@ -11,7 +11,7 @@
 
 namespace Infuse\Auth\Services;
 
-use Infuse\Auth\Libs\Auth as AuthService;
+use Infuse\Auth\Libs\AuthManager;
 use Pulsar\ACLModel;
 
 class Auth
@@ -33,7 +33,7 @@ class Auth
 
     public function __invoke($app)
     {
-        $auth = new AuthService();
+        $auth = new AuthManager();
         $auth->setApp($app);
 
         // register authentication strategies
@@ -58,6 +58,6 @@ class Auth
      */
     private function getUserClass($app)
     {
-        return $app['config']->get('users.model', AuthService::DEFAULT_USER_MODEL);
+        return $app['config']->get('users.model', AuthManager::DEFAULT_USER_MODEL);
     }
 }

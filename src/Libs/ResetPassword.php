@@ -22,14 +22,14 @@ class ResetPassword
     use HasApp;
 
     /**
-     * @var Auth
+     * @var AuthManager
      */
     private $auth;
 
     /**
-     * @param Auth $auth
+     * @param AuthManager $auth
      */
-    public function __construct(Auth $auth)
+    public function __construct(AuthManager $auth)
     {
         $this->auth = $auth;
         $this->setApp($auth->getApp());
@@ -149,7 +149,7 @@ class ResetPassword
      * @param string $ip
      * @param string $userAgent
      *
-     * @return \Infuse\Auth\Models\UserLink
+     * @return UserLink
      */
     public function buildLink($userId, $ip, $userAgent)
     {

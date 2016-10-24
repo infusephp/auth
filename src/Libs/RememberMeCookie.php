@@ -182,12 +182,12 @@ class RememberMeCookie
     /**
      * Verifies the cookie against an incoming request.
      *
-     * @param Request $req
-     * @param Auth    $auth
+     * @param Request     $req
+     * @param AuthManager $auth
      *
      * @return bool
      */
-    public function verify(Request $req, Auth $auth)
+    public function verify(Request $req, AuthManager $auth)
     {
         if (!$this->isValid()) {
             return false;

@@ -8,7 +8,7 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-use Infuse\Auth\Services\Auth as AuthService;
+use Infuse\Auth\Services\Auth;
 use Infuse\Test;
 
 class AuthServiceTest extends PHPUnit_Framework_TestCase
@@ -33,9 +33,9 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
 
         Test::$app['config']->set('auth.storage', 'Infuse\Auth\Libs\Storage\InMemoryStorage');
 
-        $service = new AuthService(Test::$app);
+        $service = new Auth(Test::$app);
         $auth = $service(Test::$app);
 
-        $this->assertInstanceOf('Infuse\Auth\Libs\Auth', $auth);
+        $this->assertInstanceOf('Infuse\Auth\Libs\AuthManager', $auth);
     }
 }
