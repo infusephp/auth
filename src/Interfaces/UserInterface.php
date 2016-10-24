@@ -58,6 +58,21 @@ interface UserInterface
     public function signOut();
 
     /**
+     * Checks if the user has been verified using
+     * two-factor authentication.
+     *
+     * @return bool
+     */
+    public function isTwoFactorVerified();
+
+    /**
+     * Marks the user as verified using two-factor authentication.
+     *
+     * @return self
+     */
+    public function verifyTwoFactor();
+
+    /**
      * Sends the user an email.
      *
      * @param string $template template name

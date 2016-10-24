@@ -68,6 +68,11 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     /**
      * @var bool
      */
+    protected $is2faVerified = false;
+
+    /**
+     * @var bool
+     */
     protected $superUser = false;
 
     /**
@@ -241,6 +246,18 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     public function signOut()
     {
         $this->signedIn = false;
+
+        return $this;
+    }
+
+    public function isTwoFactorVerified()
+    {
+        return $this->is2faVerified;
+    }
+
+    public function verifyTwoFactor()
+    {
+        $this->is2faVerified = true;
 
         return $this;
     }
