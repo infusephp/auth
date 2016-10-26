@@ -123,7 +123,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         $encryptedPassword = $app['auth']->getStrategy('traditional')
                                          ->encrypt($password);
 
-        $passwordValidated = $encryptedPassword == $this->password;
+        $passwordValidated = hash_equals($this->ignoreUnsaved()->password, $encryptedPassword);
 
         $passwordRequired = false;
 
@@ -594,7 +594,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         if ($this->id() <= 0 ||
             $this->isAdmin() ||
             $app['user']->id() != $this->id() ||
-            $encryptedPassword != $this->password) {
+            !hash_equals($this->password, $encryptedPassword)) {
             return false;
         }
 
