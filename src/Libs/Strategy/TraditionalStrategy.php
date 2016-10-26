@@ -138,14 +138,6 @@ class TraditionalStrategy extends AbstractStrategy
     }
 
     /**
-     * @deprecated
-     */
-    public function encrypt($password)
-    {
-        return $this->hash($password);
-    }
-
-    /**
      * Builds a query string for matching the username.
      *
      * @param string $username username to match
