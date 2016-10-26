@@ -28,6 +28,8 @@
 		"infuse/email": "~1.2",
 		"robmorgan/phinx": "~0.5",
 		"mockery/mockery": "~0.9",
-		"satooshi/php-coveralls": "0.6.1"
+		"satooshi/php-coveralls": "0.6.1",
+		"indigophp/hash-compat": "~1.1",
+		"ircmaxell/password-compat": "~1.0"
 	}
 }
