@@ -37,11 +37,27 @@ interface UserInterface
     public function email();
 
     /**
+     * Gets the hashed password for the user.
+     *
+     * @return string|null
+     */
+    public function getHashedPassword();
+
+    /**
      * Checks if the user has an incomplete registration.
      *
      * @return bool
      */
     public function isTemporary();
+
+    /**
+     * Checks if the account has been verified.
+     *
+     * @param bool $withinTimeWindow when true, allows a time window before the account is considered unverified
+     *
+     * @return bool
+     */
+    public function isVerified($withinTimeWindow = true);
 
     /**
      * Checks if the user account is enabled and allowed to sign in.
@@ -58,15 +74,6 @@ interface UserInterface
     public function enable();
 
     /**
-     * Checks if the account has been verified.
-     *
-     * @param bool $withinTimeWindow when true, allows a time window before the account is considered unverified
-     *
-     * @return bool
-     */
-    public function isVerified($withinTimeWindow = true);
-
-    /**
      * Checks if the user is signed in.
      *
      * @return bool
@@ -78,14 +85,14 @@ interface UserInterface
      *
      * @return self
      */
-    public function signIn();
+    public function markSignedIn();
 
     /**
      * Marks the user as signed out.
      *
      * @return self
      */
-    public function signOut();
+    public function markSignedOut();
 
     /**
      * Checks if the user has been verified using
@@ -100,14 +107,7 @@ interface UserInterface
      *
      * @return self
      */
-    public function verifiedTwoFactor();
-
-    /**
-     * Gets the hashed password for the user.
-     *
-     * @return string|null
-     */
-    public function getHashedPassword();
+    public function markTwoFactorVerified();
 
     /**
      * Sends the user an email.

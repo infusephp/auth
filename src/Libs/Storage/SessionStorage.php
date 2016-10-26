@@ -184,10 +184,10 @@ class SessionStorage extends AbstractStorage
 
         // check if the user is 2FA verified
         if ($req->session(self::SESSION_2FA_VERIFIED_KEY)) {
-            $user->verifiedTwoFactor();
+            $user->markTwoFactorVerified();
         }
 
-        return $user->signIn();
+        return $user->markSignedIn();
     }
 
     /**

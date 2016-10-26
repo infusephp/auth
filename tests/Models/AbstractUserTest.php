@@ -55,7 +55,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $app = Test::$app;
         if ($app['user']->id() != self::$ogUserId) {
             $app['user'] = new User(self::$ogUserId);
-            $app['user']->signIn();
+            $app['user']->markSignedIn();
         }
     }
 
@@ -218,16 +218,13 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(self::$user2->isVerified());
     }
 
-    /**
-     * @depends testRegisterUser
-     */
     public function testIsSignedIn()
     {
         $user = new User(10);
         $this->assertFalse($user->isSignedIn());
-        $this->assertEquals($user, $user->signIn());
+        $this->assertEquals($user, $user->markSignedIn());
         $this->assertTrue($user->isSignedIn());
-        $this->assertEquals($user, $user->signOut());
+        $this->assertEquals($user, $user->markSignedOut());
         $this->assertFalse($user->isSignedIn());
     }
 
@@ -235,7 +232,7 @@ class AbstractUserTest extends PHPUnit_Framework_TestCase
     {
         $user = new User(10);
         $this->assertFalse($user->isTwoFactorVerified());
-        $this->assertEquals($user, $user->verifiedTwoFactor());
+        $this->assertEquals($user, $user->markTwoFactorVerified());
         $this->assertTrue($user->isTwoFactorVerified());
     }
 

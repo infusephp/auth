@@ -180,7 +180,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
         // changing the password signs the user out, everywhere
         $auth->signOutAllSessions($user);
-        $user->signOut();
+        $user->markSignedOut();
 
         if ($app['user'] && $app['user']->id() == $user->id()) {
             $auth->logout();
@@ -235,14 +235,14 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         return $this->signedIn;
     }
 
-    public function signIn()
+    public function markSignedIn()
     {
         $this->signedIn = true;
 
         return $this;
     }
 
-    public function signOut()
+    public function markSignedOut()
     {
         $this->signedIn = false;
 
@@ -254,7 +254,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         return $this->is2faVerified;
     }
 
-    public function verifiedTwoFactor()
+    public function markTwoFactorVerified()
     {
         $this->is2faVerified = true;
 

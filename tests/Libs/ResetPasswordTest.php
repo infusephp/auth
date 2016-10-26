@@ -58,7 +58,7 @@ class ResetPasswordTest extends PHPUnit_Framework_TestCase
         $app = Test::$app;
         if (!$app['user']->isSignedIn()) {
             $app['user'] = new User(self::$ogUserId);
-            $app['user']->signIn();
+            $app['user']->markSignedIn();
         }
     }
 

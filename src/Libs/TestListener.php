@@ -56,7 +56,7 @@ class TestListener implements PHPUnit_Framework_TestListener
         /* Create and sign in the test user */
 
         $user->create($params);
-        $user->signIn();
+        $user->markSignedIn();
         Test::$app['user'] = $user;
     }
 

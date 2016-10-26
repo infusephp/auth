@@ -317,7 +317,7 @@ class AuthManager
 
         if ($user->id() > 0) {
             // mark the user model as signed in
-            $user->signIn();
+            $user->markSignedIn();
 
             // record the login event
             $event = new AccountSecurityEvent();
@@ -329,7 +329,7 @@ class AuthManager
             $event->save();
         } else {
             // mark the user model as not signed in
-            $user->signOut();
+            $user->markSignedOut();
         }
 
         $this->app['user'] = $user;
@@ -364,7 +364,7 @@ class AuthManager
         $this->getTwoFactorStrategy()->verify($user, $token);
 
         // mark the user as 2fa verified, now and for the session
-        $user->verifiedTwoFactor();
+        $user->markTwoFactorVerified();
 
         $saved = $this->getStorage()
                       ->twoFactorVerified($user,
