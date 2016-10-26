@@ -111,17 +111,14 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
     protected function preSetHook(&$data)
     {
-        $app = $this->getApp();
-
-        $params = [];
-        $protectedFields = static::$protectedFields;
-
-        // check if the current password is accurate
+        // check if we are trying to edit any protected fields,
+        // i.e. password or email address, that require the current
+        // password to be changed
         $passwordRequired = false;
 
         foreach ($data as $key => $value) {
             if (static::hasProperty($key)) {
-                if (in_array($key, $protectedFields)) {
+                if (in_array($key, static::$protectedFields)) {
                     // protected fields, i.e. passwords, are not allowed
                     // to be set to empty values
                     if (strlen(implode((array) $value)) == 0) {
@@ -136,12 +133,12 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             }
         }
 
+        // verify the given current password, when required
+        $app = $this->getApp();
         if ($passwordRequired && !$this->can('skip-password-required', $app['user'])) {
             $password = array_value($data, 'current_password');
-            $passwordVerified = $app['auth']->getStrategy('traditional')
-                                            ->verifyPassword($this, $password);
-
-            if (!$passwordVerified) {
+            $strategy = $app['auth']->getStrategy('traditional');
+            if (!$strategy->verifyPassword($this, $password)) {
                 $app['errors']->push('invalid_password');
 
                 return false;
