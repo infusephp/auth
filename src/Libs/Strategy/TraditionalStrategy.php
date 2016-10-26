@@ -12,6 +12,7 @@
 namespace Infuse\Auth\Libs\Strategy;
 
 use Infuse\Auth\Exception\AuthException;
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Request;
 use Infuse\Response;
 
@@ -60,7 +61,7 @@ class TraditionalStrategy extends AbstractStrategy
      *
      * @throws AuthException when a matching user cannot be found.
      *
-     * @return \Infuse\Auth\Interfaces\UserInterface matching user
+     * @return UserInterface matching user
      */
     public function getUserWithCredentials($username, $password)
     {
@@ -92,7 +93,7 @@ class TraditionalStrategy extends AbstractStrategy
             throw new AuthException('It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
         }
 
-        if (!$user->enabled) {
+        if (!$user->isEnabled()) {
             throw new AuthException('Sorry, your account has been disabled.');
         }
 
@@ -102,6 +103,24 @@ class TraditionalStrategy extends AbstractStrategy
 
         // success!
         return $user;
+    }
+
+    /**
+     * Checks if a given password matches the user's password.
+     *
+     * @param UserInterface $user
+     * @param string        $password
+     *
+     * @return bool
+     */
+    public function verifyPassword(UserInterface $user, $password)
+    {
+        $currentPassword = $user->getHashedPassword();
+        if (!$currentPassword) {
+            return false;
+        }
+
+        return hash_equals($currentPassword, $this->hash($password));
     }
 
     /**

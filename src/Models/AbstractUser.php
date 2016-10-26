@@ -26,12 +26,10 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             'validate' => 'email',
             'required' => true,
             'unique' => true,
-            'title' => 'Email',
         ],
         'password' => [
             'validate' => 'matching|password:8',
             'required' => true,
-            'title' => 'Password',
         ],
         'first_name' => [
             'validate' => 'string:1',
@@ -119,12 +117,6 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         $protectedFields = static::$protectedFields;
 
         // check if the current password is accurate
-        $password = array_value($data, 'current_password');
-        $passwordHash = $app['auth']->getStrategy('traditional')
-                                    ->hash($password);
-
-        $passwordValidated = hash_equals($this->ignoreUnsaved()->password, $passwordHash);
-
         $passwordRequired = false;
 
         foreach ($data as $key => $value) {
@@ -144,10 +136,16 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             }
         }
 
-        if ($passwordRequired && !$passwordValidated && !$this->can('skip-password-required', $app['user'])) {
-            $app['errors']->push('invalid_password');
+        if ($passwordRequired && !$this->can('skip-password-required', $app['user'])) {
+            $password = array_value($data, 'current_password');
+            $passwordVerified = $app['auth']->getStrategy('traditional')
+                                            ->verifyPassword($this, $password);
 
-            return false;
+            if (!$passwordVerified) {
+                $app['errors']->push('invalid_password');
+
+                return false;
+            }
         }
 
         $this->_changedPassword = isset($data['password']) && !$this->_isUpgrade;
@@ -206,6 +204,11 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             'type' => UserLink::TEMPORARY, ]) > 0;
     }
 
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
     public function isVerified($withinTimeWindow = true)
     {
         $timeWindow = ($withinTimeWindow) ? time() - UserLink::$verifyTimeWindow : time();
@@ -245,6 +248,15 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         $this->is2faVerified = true;
 
         return $this;
+    }
+
+    public function getHashedPassword()
+    {
+        if ($this->id() > 0) {
+            return $this->ignoreUnsaved()->password;
+        }
+
+        return $this->password;
     }
 
     public function sendEmail($template, array $message = [])
@@ -584,17 +596,24 @@ abstract class AbstractUser extends ACLModel implements UserInterface
      */
     public function deleteConfirm($password)
     {
+        if ($this->id() <= 0) {
+            return false;
+        }
+
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        // the current user can only delete their own account
         $app = $this->getApp();
+        if ($app['user']->id() != $this->id()) {
+            return false;
+        }
 
-        // Check for the password.
-        // Only the current user can delete their account using this method
-        $passwordHash = $app['auth']->getStrategy('traditional')
-                                    ->hash($password);
-
-        if ($this->id() <= 0 ||
-            $this->isAdmin() ||
-            $app['user']->id() != $this->id() ||
-            !hash_equals($this->password, $passwordHash)) {
+        // Verify the supplied the password.
+        $verified = $app['auth']->getStrategy('traditional')
+                                ->verifyPassword($this, $password);
+        if (!$verified) {
             return false;
         }
 

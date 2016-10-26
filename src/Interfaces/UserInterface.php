@@ -37,6 +37,13 @@ interface UserInterface
     public function isTemporary();
 
     /**
+     * Checks if the user account is enabled and allowed to sign in.
+     *
+     * @return bool
+     */
+    public function isEnabled();
+
+    /**
      * Checks if the account has been verified.
      *
      * @param bool $withinTimeWindow when true, allows a time window before the account is considered unverified
@@ -80,6 +87,13 @@ interface UserInterface
      * @return self
      */
     public function verifiedTwoFactor();
+
+    /**
+     * Gets the hashed password for the user.
+     *
+     * @return string|null
+     */
+    public function getHashedPassword();
 
     /**
      * Sends the user an email.

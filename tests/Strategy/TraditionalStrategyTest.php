@@ -161,6 +161,22 @@ class TraditionalStrategyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
     }
 
+    public function testVerifyPassword()
+    {
+        $strategy = $this->getStrategy();
+        $user = new User();
+
+        $this->assertFalse($strategy->verifyPassword($user, ''));
+        $this->assertFalse($strategy->verifyPassword($user, false));
+        $this->assertFalse($strategy->verifyPassword($user, null));
+        $this->assertFalse($strategy->verifyPassword($user, []));
+
+        $user->password = $strategy->hash('thisismypassword');
+        $this->assertTrue($strategy->verifyPassword($user, 'thisismypassword'));
+        $this->assertFalse($strategy->verifyPassword($user, 'thisisnotmypassword'));
+        $this->assertFalse($strategy->verifyPassword($user, ''));
+    }
+
     private function getStrategy()
     {
         return new TraditionalStrategy(Test::$app['auth']);
