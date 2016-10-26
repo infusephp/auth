@@ -14,7 +14,6 @@ namespace Infuse\Auth\Libs\Strategy;
 use Infuse\Auth\Exception\AuthException;
 use Infuse\Request;
 use Infuse\Response;
-use Infuse\Utility as U;
 
 class TraditionalStrategy extends AbstractStrategy
 {
@@ -76,8 +75,8 @@ class TraditionalStrategy extends AbstractStrategy
         // build the query string for the username
         $usernameWhere = $this->buildUsernameWhere($username);
 
-        // encrypt password
-        $password = $this->encrypt($password);
+        // hash password
+        $password = $this->hash($password);
 
         // look the user up with the matching username/password combo
         $userClass = $this->auth->getUserClass();
@@ -106,17 +105,25 @@ class TraditionalStrategy extends AbstractStrategy
     }
 
     /**
-     * Encrypts a password.
+     * Hashes a password.
      *
      * @param string $password
      *
-     * @return string encrypted password
+     * @return string hashed password
      */
-    public function encrypt($password)
+    public function hash($password)
     {
         $salt = $this->app['config']->get('app.salt');
 
-        return U::encryptPassword($password, $salt);
+        return hash_hmac('sha512', $password, $salt);
+    }
+
+    /**
+     * @deprecated
+     */
+    public function encrypt($password)
+    {
+        return $this->hash($password);
     }
 
     /**

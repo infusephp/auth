@@ -120,10 +120,10 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
         // check if the current password is accurate
         $password = array_value($data, 'current_password');
-        $encryptedPassword = $app['auth']->getStrategy('traditional')
-                                         ->encrypt($password);
+        $passwordHash = $app['auth']->getStrategy('traditional')
+                                    ->hash($password);
 
-        $passwordValidated = hash_equals($this->ignoreUnsaved()->password, $encryptedPassword);
+        $passwordValidated = hash_equals($this->ignoreUnsaved()->password, $passwordHash);
 
         $passwordRequired = false;
 
@@ -588,13 +588,13 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
         // Check for the password.
         // Only the current user can delete their account using this method
-        $encryptedPassword = $app['auth']->getStrategy('traditional')
-                                         ->encrypt($password);
+        $passwordHash = $app['auth']->getStrategy('traditional')
+                                    ->hash($password);
 
         if ($this->id() <= 0 ||
             $this->isAdmin() ||
             $app['user']->id() != $this->id() ||
-            !hash_equals($this->password, $encryptedPassword)) {
+            !hash_equals($this->password, $passwordHash)) {
             return false;
         }
 
