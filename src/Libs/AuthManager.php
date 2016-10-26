@@ -454,12 +454,8 @@ class AuthManager
         $userClass = $this->getUserClass();
         $user = new $userClass($link->user_id);
 
-        // enable the user
-        $user->enabled = true;
-        $user->grantAllPermissions()->save();
-        $user->enforcePermissions();
-
-        // delete the verify link
+        // enable the user and delete the verify link
+        $user->enable();
         $link->delete();
 
         // send a welcome email

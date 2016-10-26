@@ -194,6 +194,11 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     // UserInterface
     /////////////////////////////////////
 
+    public function email()
+    {
+        return $this->email;
+    }
+
     public function isTemporary()
     {
         return UserLink::totalRecords([
@@ -204,6 +209,15 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     public function isEnabled()
     {
         return $this->enabled;
+    }
+
+    public function enable()
+    {
+        $this->enabled = true;
+        $result = $this->grantAllPermissions()->save();
+        $this->enforcePermissions();
+
+        return $result;
     }
 
     public function isVerified($withinTimeWindow = true)

@@ -30,6 +30,13 @@ interface UserInterface
     public function name($full = false);
 
     /**
+     * Gets the user's email address.
+     *
+     * @return string $email
+     */
+    public function email();
+
+    /**
      * Checks if the user has an incomplete registration.
      *
      * @return bool
@@ -42,6 +49,13 @@ interface UserInterface
      * @return bool
      */
     public function isEnabled();
+
+    /**
+     * Enables the user account.
+     *
+     * @return bool
+     */
+    public function enable();
 
     /**
      * Checks if the account has been verified.
