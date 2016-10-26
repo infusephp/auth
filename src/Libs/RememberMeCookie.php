@@ -207,8 +207,8 @@ class RememberMeCookie
             return false;
         }
 
-        // encrypt series for matching with the db
-        $seriesEnc = $this->encrypt($this->series);
+        // hash series for matching with the db
+        $seriesHash = $this->hash($this->series);
 
         // First, make sure all of the parameters match, except the token.
         // We match the token separately to detect if an older session is
@@ -219,7 +219,7 @@ class RememberMeCookie
                     ->from('PersistentSessions')
                     ->where('email', $this->email)
                     ->where('created_at', U::unixToDb($expiration), '>')
-                    ->where('series', $seriesEnc);
+                    ->where('series', $seriesHash);
 
         $tokenDB = $query->scalar();
 
@@ -228,12 +228,12 @@ class RememberMeCookie
         }
 
         // if there is a match, sign the user in
-        $tokenEnc = $this->encrypt($this->token);
+        $tokenHash = $this->hash($this->token);
 
         // Same series, but different token, meaning the user is trying
         // to use an older token. It's most likely an attack, so flush
         // all sessions.
-        if ($tokenDB != $tokenEnc) {
+        if ($tokenDB != $tokenHash) {
             $db->delete('PersistentSessions')
                ->where('email', $this->email)
                ->execute();
@@ -244,8 +244,8 @@ class RememberMeCookie
         // remove the token once used
         $db->delete('PersistentSessions')
            ->where('email', $this->email)
-           ->where('series', $seriesEnc)
-           ->where('token', $tokenEnc)
+           ->where('series', $seriesHash)
+           ->where('token', $tokenHash)
            ->execute();
 
         return $user;
@@ -255,8 +255,8 @@ class RememberMeCookie
     {
         $session = new PersistentSession();
         $session->email = $this->email;
-        $session->series = $this->encrypt($this->series);
-        $session->token = $this->encrypt($this->token);
+        $session->series = $this->hash($this->series);
+        $session->token = $this->hash($this->token);
         $session->user_id = $userId;
 
         try {
@@ -286,17 +286,17 @@ class RememberMeCookie
     }
 
     /**
-     * Encrypts a token.
+     * Hashes a token.
      *
      * @param string $token
      *
-     * @return string encrypted token
+     * @return string hashed token
      */
-    private function encrypt($token)
+    private function hash($token)
     {
         $app = Application::getDefault();
         $salt = $app['config']->get('app.salt');
 
-        return U::encryptPassword($token, $salt);
+        return hash_hmac('sha512', $token, $salt);
     }
 }
