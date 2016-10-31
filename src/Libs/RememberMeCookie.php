@@ -12,6 +12,7 @@
 namespace Infuse\Auth\Libs;
 
 use Infuse\Application;
+use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Models\PersistentSession;
 use Infuse\Request;
 use Infuse\Utility as U;
@@ -215,13 +216,13 @@ class RememberMeCookie
         // being used, in which case we cowardly run away.
         $expiration = time() - $this->getExpires();
         $db = $auth->getApp()['db'];
-        $query = $db->select('token')
+        $query = $db->select('token,two_factor_verified')
                     ->from('PersistentSessions')
                     ->where('email', $this->email)
                     ->where('created_at', U::unixToDb($expiration), '>')
                     ->where('series', $seriesHash);
 
-        $tokenDB = $query->scalar();
+        $persistentSession = $query->one();
 
         if ($query->rowCount() !== 1) {
             return false;
@@ -233,7 +234,7 @@ class RememberMeCookie
         // Same series, but different token, meaning the user is trying
         // to use an older token. It's most likely an attack, so flush
         // all sessions.
-        if ($tokenDB != $tokenHash) {
+        if (!hash_equals($persistentSession['token'], $tokenHash)) {
             $db->delete('PersistentSessions')
                ->where('email', $this->email)
                ->execute();
@@ -248,21 +249,36 @@ class RememberMeCookie
            ->where('token', $tokenHash)
            ->execute();
 
+        // mark the user as 2fa verified
+        if ($persistentSession['two_factor_verified']) {
+            $user->markTwoFactorVerified();
+        }
+
         return $user;
     }
 
-    public function persist($userId)
+    /**
+     * Persists this cookie to the database.
+     *
+     * @param UserInterface $user
+     *
+     * @throws \Exception when the model cannot be saved.
+     *
+     * @return PersistentSession
+     */
+    public function persist(UserInterface $user)
     {
         $session = new PersistentSession();
         $session->email = $this->email;
         $session->series = $this->hash($this->series);
         $session->token = $this->hash($this->token);
-        $session->user_id = $userId;
+        $session->user_id = $user->id();
+        $session->two_factor_verified = $user->isTwoFactorVerified();
 
         try {
             $session->save();
         } catch (\Exception $e) {
-            throw new \Exception("Unable to save persistent session for user # $userId: ".$e->getMessage());
+            throw new \Exception("Unable to save persistent session for user # {$user->id()}: ".$e->getMessage());
         }
 
         return $session;

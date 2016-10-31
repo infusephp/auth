@@ -15,7 +15,6 @@ use Infuse\Test;
 class RememberMeCookieTest extends PHPUnit_Framework_TestCase
 {
     public static $user;
-    public static $ogUserId;
 
     public static function setUpBeforeClass()
     {
@@ -30,8 +29,6 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
             'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
-
-        self::$ogUserId = Test::$app['user']->id();
     }
 
     public static function tearDownAfterClass()
@@ -46,15 +43,6 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
     public function assertPreConditions()
     {
         $this->assertInstanceOf('App\Users\Models\User', self::$user);
-    }
-
-    public function assertPostConditions()
-    {
-        $app = Test::$app;
-        if (!$app['user']->isSignedIn()) {
-            $app['user'] = new User(self::$ogUserId);
-            $app['user']->markSignedIn();
-        }
     }
 
     public function testEncode()
@@ -142,16 +130,20 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
     public function testPersist()
     {
         $cookie = new RememberMeCookie('test@example.com', 'Firefox');
-        $session = $cookie->persist(self::$user->id());
+        $session = $cookie->persist(self::$user);
         $this->assertInstanceOf('Infuse\Auth\Models\PersistentSession', $session);
         $this->assertTrue($session->exists());
+        $this->assertFalse($session->two_factor_verified);
     }
 
     public function testPersistFail()
     {
         $this->setExpectedException('Exception');
+
+        $user = new User(123412341234);
+
         $cookie = new RememberMeCookie('test@example.com', 'Firefox');
-        $cookie->persist(123412341234);
+        $cookie->persist($user);
     }
 
     public function testVerifyNotValid()
@@ -188,7 +180,7 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
     public function testVerifySeriesNotFound()
     {
         $cookie = new RememberMeCookie('test@example.com', 'Firefox');
-        $cookie->persist(self::$user->id());
+        $cookie->persist(self::$user);
 
         $cookie = new RememberMeCookie('test@example.com', 'Firefox', '12345', $cookie->getToken());
 
@@ -202,7 +194,7 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
     public function testVerifyTokenMismatch()
     {
         $cookie = new RememberMeCookie('test@example.com', 'Firefox');
-        $cookie->persist(self::$user->id());
+        $cookie->persist(self::$user);
 
         $cookie = new RememberMeCookie('test@example.com', 'Firefox', $cookie->getSeries(), '_token2');
 
@@ -216,7 +208,7 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
     public function testVerify()
     {
         $cookie = new RememberMeCookie('test@example.com', 'Firefox');
-        $cookie->persist(self::$user->id());
+        $cookie->persist(self::$user);
 
         $cookie = new RememberMeCookie('test@example.com', 'Firefox', $cookie->getSeries(), $cookie->getToken());
 
@@ -228,5 +220,26 @@ class RememberMeCookieTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
+        $this->assertFalse($user->isTwoFactorVerified());
+    }
+
+    public function testVerifyWithTwoFactor()
+    {
+        self::$user->markTwoFactorVerified();
+
+        $cookie = new RememberMeCookie('test@example.com', 'Firefox');
+        $cookie->persist(self::$user);
+
+        $cookie = new RememberMeCookie('test@example.com', 'Firefox', $cookie->getSeries(), $cookie->getToken());
+
+        $req = Mockery::mock('Infuse\Request');
+        $req->shouldReceive('agent')
+            ->andReturn('Firefox');
+
+        $user = $cookie->verify($req, Test::$app['auth']);
+
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(self::$user->id(), $user->id());
+        $this->assertTrue($user->isTwoFactorVerified());
     }
 }

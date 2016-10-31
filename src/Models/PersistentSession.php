@@ -32,6 +32,9 @@ class PersistentSession extends Model
             'required' => true,
             'validate' => 'string:128',
         ],
+        'two_factor_verified' => [
+            'type' => Model::TYPE_BOOLEAN,
+        ],
     ];
 
     protected static $autoTimestamps;

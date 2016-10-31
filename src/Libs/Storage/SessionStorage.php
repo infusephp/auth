@@ -76,7 +76,7 @@ class SessionStorage extends AbstractStorage
     public function remember(UserInterface $user, Request $req, Response $res)
     {
         $cookie = new RememberMeCookie($user->email(), $req->agent());
-        $this->sendRememberMeCookie($user->id(), $cookie, $res);
+        $this->sendRememberMeCookie($user, $cookie, $res);
 
         return true;
     }
@@ -293,7 +293,7 @@ class SessionStorage extends AbstractStorage
         $new = new RememberMeCookie($user->email(),
                                     $req->agent(),
                                     $cookie->getSeries());
-        $this->sendRememberMeCookie($user->id(), $new, $res);
+        $this->sendRememberMeCookie($user, $new, $res);
 
         // mark this session as persistent (could be useful to know)
         $req->setSession(self::SESSION_PERSISTENT_KEY, true);
@@ -318,11 +318,11 @@ class SessionStorage extends AbstractStorage
     /**
      * Stores a persistent session cookie on the response.
      *
-     * @param int              $userId
+     * @param UserInterface    $user
      * @param RememberMeCookie $cookie
      * @param Response         $res
      */
-    private function sendRememberMeCookie($userId, RememberMeCookie $cookie, Response $res)
+    private function sendRememberMeCookie(UserInterface $user, RememberMeCookie $cookie, Response $res)
     {
         // send the cookie with the same properties as the session cookie
         $sessionCookie = session_get_cookie_params();
@@ -335,7 +335,7 @@ class SessionStorage extends AbstractStorage
                         true);
 
         // save the cookie in the DB
-        $cookie->persist($userId);
+        $cookie->persist($user);
     }
 
     /**
