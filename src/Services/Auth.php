@@ -42,6 +42,11 @@ class Auth
             $auth->registerStrategy($id, $class);
         }
 
+        if ($class = $app['config']->get('auth.2fa_strategy')) {
+            $strategy = new $class($auth);
+            $auth->setTwoFactorStrategy($strategy);
+        }
+
         // specify storage type
         if ($class = $app['config']->get('auth.storage')) {
             $storage = new $class($auth);
