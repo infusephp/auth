@@ -247,8 +247,14 @@ class AuthManager
         $user = $this->getStorage()
                      ->getAuthenticatedUser($this->request, $this->response);
 
-        // if no current user then sign in a guest
-        if (!$user) {
+        if ($user) {
+            // check if the user needs 2FA verification
+            $twoFactor = $this->getTwoFactorStrategy();
+            if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
+                $user->markSignedOut();
+            }
+        } else {
+            // if no current user then sign in a guest
             $user = $this->signInUser($this->getGuestUser());
         }
 
@@ -302,9 +308,7 @@ class AuthManager
         // be signed in until that has been completed.
         $twoFactor = $this->getTwoFactorStrategy();
         if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
-            $user->markSignedOut();
-
-            return $user;
+            return $user->markSignedOut();
         }
 
         // sign in the user with the session storage

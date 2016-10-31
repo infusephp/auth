@@ -185,6 +185,51 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($user->isSignedIn());
     }
 
+    public function testGetAuthenticatedUserNeedsTwoFactor()
+    {
+        $auth = $this->getAuth();
+        $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $twoFactor->shouldReceive('needsVerification')
+                  ->andReturn(true)
+                  ->once();
+        $auth->setTwoFactorStrategy($twoFactor);
+
+        $user = new User(1234);
+        $user->markSignedIn();
+
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('getAuthenticatedUser')
+                ->withArgs([$auth->getRequest(), $auth->getResponse()])
+                ->andReturn($user)
+                ->once();
+        $auth->setStorage($storage);
+
+        $this->assertEquals($user, $auth->getAuthenticatedUser());
+        $this->assertFalse($user->isSignedIn());
+        $this->assertFalse($user->isTwoFactorVerified());
+    }
+
+    public function testGetAuthenticatedUserTwoFactorVerified()
+    {
+        $auth = $this->getAuth();
+        $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $auth->setTwoFactorStrategy($twoFactor);
+
+        $user = new User(1234);
+        $user->markSignedIn()->markTwoFactorVerified();
+
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('getAuthenticatedUser')
+                ->withArgs([$auth->getRequest(), $auth->getResponse()])
+                ->andReturn($user)
+                ->once();
+        $auth->setStorage($storage);
+
+        $this->assertEquals($user, $auth->getAuthenticatedUser());
+        $this->assertTrue($user->isSignedIn());
+        $this->assertTrue($user->isTwoFactorVerified());
+    }
+
     public function testSignInUser()
     {
         self::$user->markSignedOut();
