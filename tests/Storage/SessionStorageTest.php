@@ -53,7 +53,6 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 {
     public static $mock;
     public static $user;
-    public static $ogUserId;
     public static $rememberCookie;
 
     public static function setUpBeforeClass()
@@ -69,8 +68,6 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
             'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
         ]);
-
-        self::$ogUserId = Test::$app['user']->id();
     }
 
     public static function tearDownAfterClass()
@@ -96,15 +93,6 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
     public function assertPreConditions()
     {
         $this->assertInstanceOf('App\Users\Models\User', self::$user);
-    }
-
-    public function assertPostConditions()
-    {
-        $app = Test::$app;
-        if (!$app['user']->isSignedIn()) {
-            $app['user'] = new User(self::$ogUserId);
-            $app['user']->signIn();
-        }
     }
 
     public function testGetAuthenticatedUserSessionInvalidUserAgent()
