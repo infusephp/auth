@@ -286,6 +286,11 @@ class SessionStorage extends AbstractStorage
             return false;
         }
 
+        // mark the user's session as 2fa verified if needed
+        if ($user->isTwoFactorVerified()) {
+            $this->twoFactorVerified($user, $req, $res);
+        }
+
         $signedInUser = $this->auth->signInUser($user, 'persistent');
 
         // generate a new remember me cookie for the next time, using

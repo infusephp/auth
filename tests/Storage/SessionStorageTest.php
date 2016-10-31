@@ -353,6 +353,42 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('App\Users\Models\User', $user);
         $this->assertEquals(self::$user->id(), $user->id());
         $this->assertTrue($user->isSignedIn());
+        $this->assertFalse($user->isTwoFactorVerified());
+        $this->assertNull($req->session('2fa_verified'));
+    }
+
+    public function testRemember2FAVerified()
+    {
+        $storage = $this->getStorage();
+
+        $req = Request::create('/', 'GET', [], [], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $res = new Response();
+
+        self::$user->markTwoFactorVerified();
+
+        $this->assertTrue($storage->remember(self::$user, $req, $res));
+
+        $this->assertTrue(is_array($res->cookies('persistent')));
+        self::$rememberCookie = $res->cookies('persistent')[0];
+    }
+
+    /**
+     * @depends testRemember2FAVerified
+     */
+    public function testGetAuthenticatedUserRememberMe2FA()
+    {
+        $storage = $this->getStorage();
+
+        $req = Request::create('/', 'GET', [], ['persistent' => self::$rememberCookie], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $res = new Response();
+
+        $user = $storage->getAuthenticatedUser($req, $res);
+
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(self::$user->id(), $user->id());
+        $this->assertTrue($user->isSignedIn());
+        $this->assertTrue($user->isTwoFactorVerified());
+        $this->assertTrue($req->session('2fa_verified'));
     }
 
     public function testSignOut()
