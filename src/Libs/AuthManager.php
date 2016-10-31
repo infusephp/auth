@@ -284,6 +284,10 @@ class AuthManager
      * by authentication strategies to build a signed in session once
      * a user is authenticated.
      *
+     * NOTE: If 2FA is enabled, and a user requires it, then the returned
+     * user will not be marked as signed in. It's up to the middleware
+     * layer to detect when a user needs 2FA and act accordingly.
+     *
      * @param UserInterface $user
      * @param string        $strategy
      * @param bool          $remember whether to enable remember me on this session
@@ -294,6 +298,15 @@ class AuthManager
      */
     public function signInUser(UserInterface $user, $strategy = 'web', $remember = false)
     {
+        // if a user needs 2FA verification then they cannot
+        // be signed in until that has been completed.
+        $twoFactor = $this->getTwoFactorStrategy();
+        if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
+            $user->markSignedOut();
+
+            return $user;
+        }
+
         // sign in the user with the session storage
         $storage = $this->getStorage();
         $result = $storage->signIn($user,
@@ -328,7 +341,8 @@ class AuthManager
             $event->auth_strategy = $strategy;
             $event->save();
         } else {
-            // mark the user model as not signed in
+            // mark the user model as not signed in since this user
+            // is a guest of some sort
             $user->markSignedOut();
         }
 
@@ -363,7 +377,7 @@ class AuthManager
     {
         $this->getTwoFactorStrategy()->verify($user, $token);
 
-        // mark the user as 2fa verified, now and for the session
+        // mark the user as 2FA verified, now and for the session
         $user->markTwoFactorVerified();
 
         $saved = $this->getStorage()

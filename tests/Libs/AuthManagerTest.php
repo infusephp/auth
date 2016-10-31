@@ -165,6 +165,7 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
 
     public function testGetAuthenticatedUserFail()
     {
+        self::$user->markSignedOut();
         $auth = $this->getAuth();
 
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
@@ -186,6 +187,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
 
     public function testSignInUser()
     {
+        self::$user->markSignedOut();
+
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
         $storage->shouldReceive('signIn')
@@ -205,6 +208,57 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
             'user_id' => self::$user->id(),
             'type' => 'user.login',
             'auth_strategy' => 'web', ]));
+    }
+
+    public function testSignInUserNeedsTwoFactor()
+    {
+        self::$user->markSignedIn();
+
+        $auth = $this->getAuth();
+        $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $twoFactor->shouldReceive('needsVerification')
+                  ->andReturn(true)
+                  ->once();
+        $auth->setTwoFactorStrategy($twoFactor);
+
+        $user = $auth->signInUser(self::$user);
+
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(self::$user->id(), $user->id());
+        $this->assertFalse($user->isSignedIn());
+        $this->assertFalse($user->isTwoFactorVerified());
+
+        $this->assertEquals($user, Test::$app['user']);
+    }
+
+    public function testSignInUserTwoFactorVerified()
+    {
+        self::$user->markSignedOut();
+        self::$user->markTwoFactorVerified();
+
+        $auth = $this->getAuth();
+        $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
+        $auth->setTwoFactorStrategy($twoFactor);
+
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('signIn')
+                ->andReturn(true)
+                ->once();
+        $auth->setStorage($storage);
+
+        $user = $auth->signInUser(self::$user, '2fa_test');
+
+        $this->assertInstanceOf('App\Users\Models\User', $user);
+        $this->assertEquals(self::$user->id(), $user->id());
+        $this->assertTrue($user->isSignedIn());
+        $this->assertTrue($user->isTwoFactorVerified());
+
+        $this->assertEquals($user, Test::$app['user']);
+
+        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
+            'user_id' => self::$user->id(),
+            'type' => 'user.login',
+            'auth_strategy' => '2fa_test', ]));
     }
 
     public function testSignInUserRemember()
