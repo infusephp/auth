@@ -48,7 +48,7 @@ class TraditionalStrategy extends AbstractStrategy
     {
         $user = $this->getUserWithCredentials($username, $password);
 
-        $this->signInUser($user, $remember);
+        $this->signInUser($user, $this->getId(), $remember);
 
         return true;
     }
