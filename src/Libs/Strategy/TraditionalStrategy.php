@@ -82,8 +82,8 @@ class TraditionalStrategy extends AbstractStrategy
         // look the user up with the matching username/password combo
         $userClass = $this->auth->getUserClass();
         $user = $userClass::where($usernameWhere)
-            ->where('password', $password)
-            ->first();
+                          ->where('password', $password)
+                          ->first();
 
         if (!$user) {
             throw new AuthException('We could not find a match for that email address and password.');
