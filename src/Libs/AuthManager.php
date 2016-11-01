@@ -304,15 +304,6 @@ class AuthManager
      */
     public function signInUser(UserInterface $user, $strategy = 'web', $remember = false)
     {
-        // if a user needs 2FA verification then they cannot
-        // be signed in until that has been completed.
-        $twoFactor = $this->getTwoFactorStrategy();
-        if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
-            $this->app['user'] = $user;
-
-            return $user->markSignedOut();
-        }
-
         // sign in the user with the session storage
         $storage = $this->getStorage();
         $result = $storage->signIn($user,
@@ -321,6 +312,15 @@ class AuthManager
 
         if (!$result) {
             throw new AuthException('Could not sign in user');
+        }
+
+        // if a user needs 2FA verification then they cannot
+        // be completely signed in until they verify using 2FA
+        $twoFactor = $this->getTwoFactorStrategy();
+        if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
+            $this->app['user'] = $user;
+
+            return $user->markSignedOut();
         }
 
         // use a remember me session (lasts longer)

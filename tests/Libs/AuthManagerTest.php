@@ -264,6 +264,12 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
         unset(Test::$app['user']);
 
         $auth = $this->getAuth();
+        $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
+        $storage->shouldReceive('signIn')
+                ->andReturn(true)
+                ->once();
+        $auth->setStorage($storage);
+
         $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
         $twoFactor->shouldReceive('needsVerification')
                   ->andReturn(true)
