@@ -308,6 +308,8 @@ class AuthManager
         // be signed in until that has been completed.
         $twoFactor = $this->getTwoFactorStrategy();
         if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
+            $this->app['user'] = $user;
+
             return $user->markSignedOut();
         }
 

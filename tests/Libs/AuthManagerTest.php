@@ -234,6 +234,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
     {
         self::$user->markSignedOut();
 
+        unset(Test::$app['user']);
+
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
         $storage->shouldReceive('signIn')
@@ -259,6 +261,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
     {
         self::$user->markSignedIn();
 
+        unset(Test::$app['user']);
+
         $auth = $this->getAuth();
         $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
         $twoFactor->shouldReceive('needsVerification')
@@ -280,6 +284,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
     {
         self::$user->markSignedOut();
         self::$user->markTwoFactorVerified();
+
+        unset(Test::$app['user']);
 
         $auth = $this->getAuth();
         $twoFactor = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
@@ -308,6 +314,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
 
     public function testSignInUserRemember()
     {
+        unset(Test::$app['user']);
+
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
         $storage->shouldReceive('signIn')
@@ -349,6 +357,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
 
     public function testSignInUserGuest()
     {
+        unset(Test::$app['user']);
+
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
         $storage->shouldReceive('signIn')
