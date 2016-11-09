@@ -374,17 +374,25 @@ class AuthManager
      *
      * @param UserInterface $user
      * @param mixed         $token
+     * @param bool          $remember
      *
      * @throws AuthException when the token cannot be verified.
      *
      * @return self
      */
-    public function verifyTwoFactor(UserInterface $user, $token)
+    public function verifyTwoFactor(UserInterface $user, $token, $remember = false)
     {
         $this->getTwoFactorStrategy()->verify($user, $token);
 
         // mark the user as 2FA verified, now and for the session
         $user->markTwoFactorVerified();
+
+        // the user is now considered fully signed in
+        // now we want to perform the sign in so an event is recorded
+        // and a remember me token is generated, if needed
+        if (!$user->isSignedIn()) {
+            $this->signInUser($user, '2fa', $remember);
+        }
 
         $saved = $this->getStorage()
                       ->twoFactorVerified($user,

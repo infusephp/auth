@@ -388,7 +388,8 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
     {
         $auth = $this->getAuth();
 
-        $user = new User(10);
+        $user = self::$user;
+        $user->markSignedOut();
 
         $strategy = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
         $strategy->shouldReceive('verify')
@@ -401,10 +402,15 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
                 ->andReturn(true)
                 ->once();
         $auth->setStorage($storage);
+        $storage->shouldReceive('signIn')
+                ->andReturn(true)
+                ->once();
+        $auth->setStorage($storage);
 
         $this->assertEquals($auth, $auth->verifyTwoFactor($user, 'token'));
 
         $this->assertTrue($user->isTwoFactorVerified());
+        $this->assertTrue($user->isSignedIn());
     }
 
     public function testVerifyTwoFactorException()
@@ -430,6 +436,7 @@ class AuthManagerTest extends PHPUnit_Framework_TestCase
         $auth = $this->getAuth();
 
         $user = new User(10);
+        $user->markSignedIn();
 
         $strategy = Mockery::mock('Infuse\Auth\Interfaces\TwoFactorInterface');
         $strategy->shouldReceive('verify');
