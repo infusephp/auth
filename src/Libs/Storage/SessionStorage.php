@@ -22,8 +22,12 @@ class SessionStorage extends AbstractStorage
     const SESSION_USER_ID_KEY = 'user_id';
     const SESSION_USER_AGENT_KEY = 'user_agent';
     const SESSION_2FA_VERIFIED_KEY = '2fa_verified';
-    const SESSION_PERSISTENT_KEY = 'persistent';
-    const REMEMBER_ME_COOKIE_NAME = 'persistent';
+    const SESSION_REMEMBERED_KEY = 'remembered';
+
+    /**
+     * @var string
+     */
+    private $rememberMeCookieName;
 
     public function signIn(UserInterface $user, Request $req, Response $res)
     {
@@ -291,7 +295,7 @@ class SessionStorage extends AbstractStorage
             $this->twoFactorVerified($user, $req, $res);
         }
 
-        $signedInUser = $this->auth->signInUser($user, 'persistent');
+        $signedInUser = $this->auth->signInUser($user, 'remember_me');
 
         // generate a new remember me cookie for the next time, using
         // the same series
@@ -300,8 +304,8 @@ class SessionStorage extends AbstractStorage
                                     $cookie->getSeries());
         $this->sendRememberMeCookie($user, $new, $res);
 
-        // mark this session as persistent (could be useful to know)
-        $req->setSession(self::SESSION_PERSISTENT_KEY, true);
+        // mark this session as remembered (could be useful to know)
+        $req->setSession(self::SESSION_REMEMBERED_KEY, true);
 
         return $signedInUser;
     }
@@ -315,13 +319,13 @@ class SessionStorage extends AbstractStorage
      */
     private function getRememberMeCookie(Request $req)
     {
-        $encoded = $req->cookies(self::REMEMBER_ME_COOKIE_NAME);
+        $encoded = $req->cookies($this->rememberMeCookieName());
 
         return RememberMeCookie::decode($encoded);
     }
 
     /**
-     * Stores a persistent session cookie on the response.
+     * Stores a remember me session cookie on the response.
      *
      * @param UserInterface    $user
      * @param RememberMeCookie $cookie
@@ -331,7 +335,7 @@ class SessionStorage extends AbstractStorage
     {
         // send the cookie with the same properties as the session cookie
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(self::REMEMBER_ME_COOKIE_NAME,
+        $res->setCookie($this->rememberMeCookieName(),
                         $cookie->encode(),
                         $cookie->getExpires(time()),
                         $sessionCookie['path'],
@@ -353,7 +357,7 @@ class SessionStorage extends AbstractStorage
     private function destroyRememberMeCookie(Response $res)
     {
         $sessionCookie = session_get_cookie_params();
-        $res->setCookie(self::REMEMBER_ME_COOKIE_NAME,
+        $res->setCookie($this->rememberMeCookieName(),
                         '',
                         time() - 86400,
                         $sessionCookie['path'],
@@ -362,5 +366,14 @@ class SessionStorage extends AbstractStorage
                         true);
 
         return $this;
+    }
+
+    private function rememberMeCookieName()
+    {
+        if (!$this->rememberMeCookieName) {
+            $this->rememberMeCookieName = session_name().'-remember';
+        }
+
+        return $this->rememberMeCookieName;
     }
 }

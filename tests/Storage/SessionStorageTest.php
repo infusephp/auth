@@ -49,6 +49,11 @@ function session_destroy()
     return call_user_func_array([SessionStorageTest::$mock, 'session_destroy'], func_get_args());
 }
 
+function session_name()
+{
+    return 'mysession';
+}
+
 class SessionStorageTest extends \PHPUnit_Framework_TestCase
 {
     public static $mock;
@@ -334,8 +339,8 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($storage->remember(self::$user, $req, $res));
 
-        $this->assertTrue(is_array($res->cookies('persistent')));
-        self::$rememberCookie = $res->cookies('persistent')[0];
+        $this->assertTrue(is_array($res->cookies('mysession-remember')));
+        self::$rememberCookie = $res->cookies('mysession-remember')[0];
     }
 
     /**
@@ -345,7 +350,7 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
     {
         $storage = $this->getStorage();
 
-        $req = Request::create('/', 'GET', [], ['persistent' => self::$rememberCookie], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $req = Request::create('/', 'GET', [], ['mysession-remember' => self::$rememberCookie], [], ['HTTP_USER_AGENT' => 'Firefox']);
         $res = new Response();
 
         $user = $storage->getAuthenticatedUser($req, $res);
@@ -368,8 +373,8 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($storage->remember(self::$user, $req, $res));
 
-        $this->assertTrue(is_array($res->cookies('persistent')));
-        self::$rememberCookie = $res->cookies('persistent')[0];
+        $this->assertTrue(is_array($res->cookies('mysession-remember')));
+        self::$rememberCookie = $res->cookies('mysession-remember')[0];
     }
 
     /**
@@ -379,7 +384,7 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
     {
         $storage = $this->getStorage();
 
-        $req = Request::create('/', 'GET', [], ['persistent' => self::$rememberCookie], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $req = Request::create('/', 'GET', [], ['mysession-remember' => self::$rememberCookie], [], ['HTTP_USER_AGENT' => 'Firefox']);
         $res = new Response();
 
         $user = $storage->getAuthenticatedUser($req, $res);
