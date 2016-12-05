@@ -24,7 +24,7 @@ class ResetPasswordLinkCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('reset-password-link')
+            ->setName('user:reset-password-link')
             ->setDescription('Generates a forgot password link for a user (does not send it)')
             ->addArgument(
                 'email',
