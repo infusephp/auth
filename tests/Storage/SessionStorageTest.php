@@ -341,6 +341,8 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($res->cookies('mysession-remember')));
         self::$rememberCookie = $res->cookies('mysession-remember')[0];
+
+        $this->assertTrue($req->session('remembered'));
     }
 
     /**
@@ -359,6 +361,7 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(self::$user->id(), $user->id());
         $this->assertTrue($user->isSignedIn());
         $this->assertFalse($user->isTwoFactorVerified());
+        $this->assertTrue($req->session('remembered'));
         $this->assertNull($req->session('2fa_verified'));
     }
 

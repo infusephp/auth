@@ -82,6 +82,9 @@ class SessionStorage extends AbstractStorage
         $cookie = new RememberMeCookie($user->email(), $req->agent());
         $this->sendRememberMeCookie($user, $cookie, $res);
 
+        // mark this session as remembered (could be useful to know)
+        $req->setSession(self::SESSION_REMEMBERED_KEY, true);
+
         return true;
     }
 
