@@ -15,13 +15,13 @@ use Exception;
 use Infuse\Test;
 use PHPUnit_Framework_AssertionFailedError;
 use PHPUnit_Framework_Test;
-use PHPUnit_Framework_TestListener;
+use PHPUnit\Framework\TestListener as PHPUnitTestListener;
 use PHPUnit_Framework_TestSuite;
 
 /**
  * @codeCoverageIgnore
  */
-class TestListener implements PHPUnit_Framework_TestListener
+class TestListener implements PHPUnitTestListener
 {
     /**
      * @staticvar array

@@ -13,8 +13,9 @@ use Infuse\Auth\Libs\Auth;
 use Infuse\Auth\Libs\Strategy\TraditionalStrategy;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class TraditionalStrategyTest extends PHPUnit_Framework_TestCase
+class TraditionalStrategyTest extends TestCase
 {
     public static $user;
     public static $ogUserId;

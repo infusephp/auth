@@ -12,8 +12,9 @@ use Infuse\Auth\AuthMiddleware;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class AuthMiddlewareTest extends PHPUnit_Framework_TestCase
+class AuthMiddlewareTest extends TestCase
 {
     public static $ogUser;
 

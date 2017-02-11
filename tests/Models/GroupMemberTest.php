@@ -11,8 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Models\GroupMember;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class GroupMemberTest extends PHPUnit_Framework_TestCase
+class GroupMemberTest extends TestCase
 {
     public static $user;
     public static $member;

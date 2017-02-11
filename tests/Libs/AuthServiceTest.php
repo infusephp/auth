@@ -12,8 +12,9 @@ use Infuse\Auth\Interfaces\TwoFactorInterface;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Services\Auth;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class AuthServiceTest extends PHPUnit_Framework_TestCase
+class AuthServiceTest extends TestCase
 {
     public static $ogUser;
 

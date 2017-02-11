@@ -10,8 +10,9 @@
  */
 use Infuse\Auth\Jobs\GarbageCollection;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class GarbageCollectionTest extends PHPUnit_Framework_TestCase
+class GarbageCollectionTest extends TestCase
 {
     public function testRun()
     {

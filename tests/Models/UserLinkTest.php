@@ -10,8 +10,9 @@
  */
 use App\Users\Models\User;
 use Infuse\Auth\Models\UserLink;
+use PHPUnit\Framework\TestCase;
 
-class UserLinkTest extends PHPUnit_Framework_TestCase
+class UserLinkTest extends TestCase
 {
     public static $user;
     public static $link;

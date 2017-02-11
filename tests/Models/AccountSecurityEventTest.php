@@ -10,8 +10,9 @@
  */
 use App\Users\Models\User;
 use Infuse\Auth\Models\AccountSecurityEvent;
+use PHPUnit\Framework\TestCase;
 
-class AccountSecurityEventTest extends PHPUnit_Framework_TestCase
+class AccountSecurityEventTest extends TestCase
 {
     public static $user;
     public static $event;

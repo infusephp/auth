@@ -11,8 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Models\PersistentSession;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class PersistentSessionTest extends PHPUnit_Framework_TestCase
+class PersistentSessionTest extends TestCase
 {
     public static $user;
     public static $sesh;

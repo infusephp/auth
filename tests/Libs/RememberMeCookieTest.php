@@ -11,8 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Libs\RememberMeCookie;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class RememberMeCookieTest extends PHPUnit_Framework_TestCase
+class RememberMeCookieTest extends TestCase
 {
     public static $user;
 

@@ -18,8 +18,9 @@ use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class AuthManagerTest extends PHPUnit_Framework_TestCase
+class AuthManagerTest extends TestCase
 {
     public static $user;
     public static $ogUserId;

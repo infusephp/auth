@@ -11,8 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Models\ActiveSession;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class ActiveSessionTest extends PHPUnit_Framework_TestCase
+class ActiveSessionTest extends TestCase
 {
     public static $user;
     public static $session;

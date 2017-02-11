@@ -13,8 +13,9 @@ use Infuse\Auth\Libs\Storage\InMemoryStorage;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class InMemoryStorageTest extends PHPUnit_Framework_TestCase
+class InMemoryStorageTest extends TestCase
 {
     public function testStorage()
     {

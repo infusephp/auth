@@ -16,8 +16,9 @@ use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
+use PHPUnit\Framework\TestCase;
 
-class ResetPasswordTest extends PHPUnit_Framework_TestCase
+class ResetPasswordTest extends TestCase
 {
     public static $user;
     public static $ogUserId;
