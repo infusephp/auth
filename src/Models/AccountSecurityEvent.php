@@ -40,5 +40,8 @@ class AccountSecurityEvent extends Model
     ];
 
     protected static $autoTimestamps;
+    protected static $casts = [];
+    protected static $validations = [];
+    protected static $protected = [];
     protected static $hidden = ['user_id'];
 }

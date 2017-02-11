@@ -16,8 +16,6 @@ use Pulsar\Model;
 
 class GroupMember extends ACLModel
 {
-    protected static $autoTimestamps;
-
     protected static $ids = ['group', 'user_id'];
 
     protected static $properties = [
@@ -26,6 +24,11 @@ class GroupMember extends ACLModel
             'type' => Model::TYPE_NUMBER,
         ],
     ];
+
+    protected static $autoTimestamps;
+    protected static $casts = [];
+    protected static $validations = [];
+    protected static $protected = [];
 
     protected function hasPermission($permission, Model $requester)
     {

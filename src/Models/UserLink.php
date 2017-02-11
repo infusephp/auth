@@ -42,6 +42,9 @@ class UserLink extends Model
     ];
 
     protected static $autoTimestamps;
+    protected static $casts = [];
+    protected static $validations = [];
+    protected static $protected = [];
 
     /**
      * @staticvar int
