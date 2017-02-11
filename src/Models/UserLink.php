@@ -11,12 +11,15 @@
 
 namespace Infuse\Auth\Models;
 
+use Infuse\HasApp;
 use Pulsar\Model;
 use RandomLib\Factory;
 use RandomLib\Generator;
 
 class UserLink extends Model
 {
+    use HasApp;
+
     const FORGOT_PASSWORD = 'reset_password';
     const VERIFY_EMAIL = 'verify_email';
     const TEMPORARY = 'temporary';

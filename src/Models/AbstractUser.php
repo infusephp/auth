@@ -13,6 +13,7 @@ namespace Infuse\Auth\Models;
 
 use Infuse\Application;
 use Infuse\Auth\Interfaces\UserInterface;
+use Infuse\HasApp;
 use Infuse\Utility as U;
 use InvalidArgumentException;
 use Pulsar\ACLModel;
@@ -21,6 +22,8 @@ use Pulsar\ModelEvent;
 
 abstract class AbstractUser extends ACLModel implements UserInterface
 {
+    use HasApp;
+
     protected static $properties = [
         'email' => [
             'validate' => 'email',
@@ -530,7 +533,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
      *
      * @param array $data user data
      *
-     * @throws InvalidArgumentException when trying to upgrade a non-temporary account.
+     * @throws InvalidArgumentException when trying to upgrade a non-temporary account
      *
      * @return bool true if successful
      */
