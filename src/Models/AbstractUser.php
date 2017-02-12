@@ -53,6 +53,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     protected static $casts = [];
     protected static $validations = [];
     protected static $protected = [];
+    protected static $defaults = [];
 
     /**
      * @staticvar array

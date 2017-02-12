@@ -29,6 +29,7 @@ class GroupMember extends ACLModel
     protected static $casts = [];
     protected static $validations = [];
     protected static $protected = [];
+    protected static $defaults = [];
 
     protected function hasPermission($permission, Model $requester)
     {

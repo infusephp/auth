@@ -43,5 +43,6 @@ class AccountSecurityEvent extends Model
     protected static $casts = [];
     protected static $validations = [];
     protected static $protected = [];
+    protected static $defaults = [];
     protected static $hidden = ['user_id'];
 }

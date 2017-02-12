@@ -41,6 +41,7 @@ class PersistentSession extends Model
     protected static $casts = [];
     protected static $validations = [];
     protected static $protected = [];
+    protected static $defaults = [];
 
     /**
      * @staticvar int
