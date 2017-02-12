@@ -21,7 +21,7 @@ class Auth
         // CLI requests have a super user
         if (defined('STDIN')) {
             $userClass = $this->getUserClass($app);
-            $user = new $userClass(-2);
+            $user = new $userClass();
             $user->promoteToSuperUser();
             $app['user'] = $user;
 
