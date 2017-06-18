@@ -547,10 +547,11 @@ class AuthManagerTest extends TestCase
     public function testVerifyEmailWithToken()
     {
         $link = new UserLink();
-        $this->assertTrue($link->create([
-            'user_id' => self::$user->id(),
-            'type' => UserLink::VERIFY_EMAIL,
-            'created_at' => '-10 years', ]));
+        $link->user_id = self::$user->id();
+        $link->type = UserLink::VERIFY_EMAIL;
+        $this->assertTrue($link->save());
+        $link->created_at = strtotime('-10 years');
+        $this->assertTrue($link->save());
         $this->assertFalse(self::$user->isVerified());
 
         $auth = $this->getAuth();

@@ -24,7 +24,7 @@
 	},
 	"require-dev": {
 		"infuse/infuse": "~1.4",
-		"pulsar/pulsar": "~0.1",
+		"pulsar/pulsar": "~0.3",
 		"infuse/email": "~1.2",
 		"robmorgan/phinx": "~0.5",
 		"mockery/mockery": "~0.9",
