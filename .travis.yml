@@ -8,6 +8,9 @@ php:
 dist: trusty
 sudo: false
 
+services:
+  - mysql
+
 before_script:
     - composer install
     - mysql -e 'create database mydb;'
