@@ -6,7 +6,7 @@ php:
     - hhvm
 
 dist: trusty
-sudo: false
+sudo: required
 
 services:
   - mysql
