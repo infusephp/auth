@@ -16,8 +16,6 @@ use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Models\PersistentSession;
 use Infuse\Request;
 use Infuse\Utility as U;
-use RandomLib\Factory;
-use RandomLib\Generator;
 
 class RememberMeCookie
 {
@@ -293,12 +291,7 @@ class RememberMeCookie
      */
     private function generateToken($len = 32)
     {
-        if (!$this->random) {
-            $factory = new Factory();
-            $this->random = $factory->getMediumStrengthGenerator();
-        }
-
-        return $this->random->generateString($len, Generator::CHAR_ALNUM);
+        return RandomString::generate($len, RandomString::CHAR_ALNUM);
     }
 
     /**

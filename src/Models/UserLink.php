@@ -11,10 +11,9 @@
 
 namespace Infuse\Auth\Models;
 
+use Infuse\Auth\Libs\RandomString;
 use Infuse\HasApp;
 use Pulsar\Model;
-use RandomLib\Factory;
-use RandomLib\Generator;
 
 class UserLink extends Model
 {
@@ -68,9 +67,7 @@ class UserLink extends Model
     {
         $model = $event->getModel();
         if (!$model->link) {
-            $factory = new Factory();
-            $generator = $factory->getMediumStrengthGenerator();
-            $model->link = $generator->generateString(32, Generator::CHAR_ALNUM);
+            $model->link = RandomString::generate(32, RandomString::CHAR_ALNUM);
         }
     }
 
