@@ -63,7 +63,8 @@ class SessionStorageTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('Users')
+        Test::$app['database']->getDefault()
+            ->delete('Users')
             ->where('email', 'test@example.com')
             ->execute();
 

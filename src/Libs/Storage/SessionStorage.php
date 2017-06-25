@@ -231,11 +231,9 @@ class SessionStorage extends AbstractStorage
      */
     private function sessionIsValid($sid)
     {
-        return $this->app['db']->select('count(*)')
-                               ->from('ActiveSessions')
-                               ->where('id', $sid)
-                               ->where('valid', false)
-                               ->scalar() == 0;
+        return ActiveSession::where('id', $sid)
+                            ->where('valid', false)
+                            ->count() == 0;
     }
 
     /**
@@ -250,10 +248,11 @@ class SessionStorage extends AbstractStorage
         $sessionCookie = session_get_cookie_params();
         $expires = time() + $sessionCookie['lifetime'];
 
-        $this->app['db']->update('ActiveSessions')
-                        ->where('id', $sid)
-                        ->values(['expires' => $expires])
-                        ->execute();
+        $this->app['database']->getDefault()
+            ->update('ActiveSessions')
+            ->where('id', $sid)
+            ->values(['expires' => $expires])
+            ->execute();
 
         return true;
     }
@@ -267,9 +266,10 @@ class SessionStorage extends AbstractStorage
      */
     private function deleteSession($sid)
     {
-        $this->app['db']->delete('ActiveSessions')
-                        ->where('id', $sid)
-                        ->execute();
+        $this->app['database']->getDefault()
+            ->delete('ActiveSessions')
+            ->where('id', $sid)
+            ->execute();
 
         return true;
     }

@@ -30,7 +30,7 @@ class AbstractUserTest extends TestCase
     {
         self::$ogUserId = Test::$app['user']->id();
 
-        $db = Test::$app['db'];
+        $db = Test::$app['database']->getDefault();
         foreach (['test@example.com', 'test2@example.com', 'test3@example.com'] as $email) {
             $db->delete('Users')
                 ->where('email', $email)
@@ -344,7 +344,7 @@ class AbstractUserTest extends TestCase
 
     public function testUpgradeTemporaryAccountFail()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
 
         self::$user->upgradeTemporaryAccount([
             'first_name' => 'Bob',

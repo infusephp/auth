@@ -45,7 +45,8 @@ class GarbageCollection
      */
     private function gcPersistent()
     {
-        return (bool) $this->app['db']->delete('PersistentSessions')
+        return (bool) $this->app['database']->getDefault()
+            ->delete('PersistentSessions')
             ->where('created_at', U::unixToDb(time() - PersistentSession::$sessionLength), '<')
             ->execute();
     }
@@ -57,7 +58,8 @@ class GarbageCollection
      */
     private function gcUserLinks()
     {
-        return (bool) $this->app['db']->delete('UserLinks')
+        return (bool) $this->app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('created_at', U::unixToDb(time() - UserLink::$forgotLinkTimeframe), '<')
             ->execute();

@@ -23,7 +23,8 @@ class TraditionalStrategyTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('Users')
+        Test::$app['database']->getDefault()
+            ->delete('Users')
             ->where('email', 'test@example.com')
             ->execute();
 
@@ -67,7 +68,7 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsBadUsername()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid username.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid username.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('', '');
@@ -75,7 +76,7 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsBadPassword()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', '');
@@ -83,7 +84,7 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsFailTemporary()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
 
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
@@ -98,14 +99,15 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsFailDisabled()
     {
-        Test::$app['db']->delete('UserLinks')
+        Test::$app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('user_id', self::$user->id())
             ->execute();
 
         self::$user->enabled = false;
         $this->assertTrue(self::$user->save());
 
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', 'testpassword');
@@ -123,7 +125,7 @@ class TraditionalStrategyTest extends TestCase
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', 'testpassword');
@@ -131,7 +133,8 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentials()
     {
-        Test::$app['db']->delete('UserLinks')
+        Test::$app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('user_id', self::$user->id())
             ->execute();
 
@@ -147,7 +150,7 @@ class TraditionalStrategyTest extends TestCase
 
     public function testLoginFail()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
 
         $strategy = $this->getStrategy();
         $strategy->login('test@example.com', 'bogus');

@@ -27,7 +27,8 @@ class AuthManagerTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('Users')
+        Test::$app['database']->getDefault()
+            ->delete('Users')
             ->where('email', 'test@example.com')
             ->execute();
 
@@ -80,7 +81,7 @@ class AuthManagerTest extends TestCase
 
     public function testGetStrategyFail()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
 
         $this->getAuth()->getStrategy('does_not_exist');
     }
@@ -141,7 +142,7 @@ class AuthManagerTest extends TestCase
 
     public function testAuthenticate()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid username.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid username.');
 
         $auth = $this->getAuth();
 
@@ -349,7 +350,7 @@ class AuthManagerTest extends TestCase
 
     public function testSignInUserRememberFail()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
 
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
@@ -416,7 +417,7 @@ class AuthManagerTest extends TestCase
 
     public function testVerifyTwoFactorException()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
 
         $auth = $this->getAuth();
 
@@ -432,7 +433,7 @@ class AuthManagerTest extends TestCase
 
     public function testVerifyTwoFactorFail()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
 
         $auth = $this->getAuth();
 
@@ -453,7 +454,7 @@ class AuthManagerTest extends TestCase
 
     public function testSignInUserFail()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
 
         $auth = $this->getAuth();
         $storage = Mockery::mock('Infuse\Auth\Interfaces\StorageInterface');
@@ -486,7 +487,7 @@ class AuthManagerTest extends TestCase
 
     public function testLogoutFail()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
 
         $auth = $this->getAuth();
 

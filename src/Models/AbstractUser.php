@@ -559,7 +559,8 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         if ($this->set($updateArray)) {
             // remove temporary and unverified links
             $app = $this->getApp();
-            $app['db']->delete('UserLinks')
+            $app['database']->getDefault()
+                ->delete('UserLinks')
                 ->where('user_id', $this->id())
                 ->where(function ($query) {
                     return $query->where('type', UserLink::TEMPORARY)

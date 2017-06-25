@@ -134,7 +134,8 @@ class ResetPassword
             throw new AuthException('Please enter a valid password.');
         }
 
-        $this->app['db']->delete('UserLinks')
+        $this->app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('user_id', $user->id())
             ->where('type', UserLink::FORGOT_PASSWORD)
             ->execute();

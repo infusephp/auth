@@ -213,7 +213,7 @@ class RememberMeCookie
         // We match the token separately to detect if an older session is
         // being used, in which case we cowardly run away.
         $expiration = time() - $this->getExpires();
-        $db = $auth->getApp()['db'];
+        $db = $auth->getApp()['database']->getDefault();
         $query = $db->select('token,two_factor_verified')
                     ->from('PersistentSessions')
                     ->where('email', $this->email)

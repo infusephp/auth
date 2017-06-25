@@ -414,7 +414,7 @@ class AuthManager
      */
     public function signOutAllSessions(UserInterface $user)
     {
-        $db = $this->app['db'];
+        $db = $this->app['database']->getDefault();
 
         // invalidate any active sessions
         $db->update('ActiveSessions')
@@ -449,7 +449,8 @@ class AuthManager
         ];
 
         // delete previous verify links
-        $this->app['db']->delete('UserLinks')
+        $this->app['database']->getDefault()
+            ->delete('UserLinks')
             ->where($params)
             ->execute();
 

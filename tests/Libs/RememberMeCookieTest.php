@@ -19,7 +19,8 @@ class RememberMeCookieTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('Users')
+        Test::$app['database']->getDefault()
+            ->delete('Users')
             ->where('email', 'test@example.com')
             ->execute();
 
@@ -139,7 +140,7 @@ class RememberMeCookieTest extends TestCase
 
     public function testPersistFail()
     {
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
 
         $user = new User(123412341234);
 

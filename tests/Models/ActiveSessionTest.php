@@ -28,9 +28,10 @@ class ActiveSessionTest extends TestCase
         self::$user->last_name = 'Loblaw';
         self::$user->save();
 
-        Test::$app['db']->delete('ActiveSessions')
-                        ->where('id', 'sesh_1234')
-                        ->execute();
+        Test::$app['database']->getDefault()
+            ->delete('ActiveSessions')
+            ->where('id', 'sesh_1234')
+            ->execute();
     }
 
     public static function tearDownAfterClass()

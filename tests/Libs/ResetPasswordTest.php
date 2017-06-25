@@ -25,7 +25,8 @@ class ResetPasswordTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        Test::$app['db']->delete('Users')
+        Test::$app['database']->getDefault()
+            ->delete('Users')
             ->where('email', 'test@example.com')
             ->execute();
 
@@ -77,14 +78,14 @@ class ResetPasswordTest extends TestCase
 
     public function testBuildLinkFail()
     {
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $sequence = $this->getSequence();
         $sequence->buildLink(123412341234, '127.0.0.1', 'Firefox');
     }
 
     public function testGetUserFromTokenInvalid()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
         $reset = $this->getSequence();
         $reset->getUserFromToken('blah');
@@ -106,7 +107,7 @@ class ResetPasswordTest extends TestCase
      */
     public function testGetUserFromTokenExpired()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
         $reset = $this->getSequence();
 
@@ -119,12 +120,13 @@ class ResetPasswordTest extends TestCase
 
     public function testStep1ValidationFailed()
     {
-        Test::$app['db']->delete('UserLinks')
+        Test::$app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
 
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid email address.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid email address.');
 
         $reset = $this->getSequence();
         $reset->step1('invalidemail', '127.0.0.1', 'Firefox');
@@ -132,7 +134,7 @@ class ResetPasswordTest extends TestCase
 
     public function testStep1NoEmailMatch()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address.');
 
         $reset = $this->getSequence();
         $reset->step1('nomatch@example.com', '127.0.0.1', 'Firefox');
@@ -158,7 +160,7 @@ class ResetPasswordTest extends TestCase
 
     public function testStep2Invalid()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
 
         $reset = $this->getSequence();
         $reset->step2('blah', ['password', 'password'], '127.0.0.1');
@@ -166,9 +168,10 @@ class ResetPasswordTest extends TestCase
 
     public function testStep2BadPassword()
     {
-        $this->setExpectedException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
+        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
 
-        Test::$app['db']->delete('UserLinks')
+        Test::$app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
@@ -182,7 +185,8 @@ class ResetPasswordTest extends TestCase
 
     public function testStep2()
     {
-        Test::$app['db']->delete('UserLinks')
+        Test::$app['database']->getDefault()
+            ->delete('UserLinks')
             ->where('type', UserLink::FORGOT_PASSWORD)
             ->where('user_id', self::$user->id())
             ->execute();
