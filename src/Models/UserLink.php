@@ -27,7 +27,7 @@ class UserLink extends Model
 
     protected static $properties = [
         'user_id' => [
-            'type' => Model::TYPE_NUMBER,
+            'type' => Model::TYPE_INTEGER,
             'required' => true,
         ],
         'type' => [

@@ -21,7 +21,7 @@ class GroupMember extends ACLModel
     protected static $properties = [
         'group' => [],
         'user_id' => [
-            'type' => Model::TYPE_NUMBER,
+            'type' => Model::TYPE_INTEGER,
         ],
     ];
 
