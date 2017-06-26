@@ -134,7 +134,7 @@ class RememberMeCookieTest extends TestCase
         $cookie = new RememberMeCookie('test@example.com', 'Firefox');
         $session = $cookie->persist(self::$user);
         $this->assertInstanceOf('Infuse\Auth\Models\PersistentSession', $session);
-        $this->assertTrue($session->exists());
+        $this->assertTrue($session->persisted());
         $this->assertFalse($session->two_factor_verified);
     }
 

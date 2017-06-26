@@ -69,7 +69,7 @@ class ResetPasswordTest extends TestCase
         $sequence = $this->getSequence();
         $link = $sequence->buildLink(self::$user->id(), '127.0.0.1', 'Firefox');
         $this->assertInstanceOf('Infuse\Auth\Models\UserLink', $link);
-        $this->assertTrue($link->exists());
+        $this->assertTrue($link->persisted());
 
         $n = AccountSecurityEvent::where('user_id', self::$user->id())
             ->where('type', 'user.request_password_reset')
