@@ -419,7 +419,7 @@ class SessionStorageTest extends TestCase
 
         $this->assertTrue($storage->signOut($req, $res));
 
-        $this->assertEquals(0, ActiveSession::totalRecords(['id' => 'sesh_1234']));
+        $this->assertEquals(0, ActiveSession::where('id', 'sesh_1234')->count());
     }
 
     private function getStorage()

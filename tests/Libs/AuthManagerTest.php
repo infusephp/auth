@@ -253,10 +253,11 @@ class AuthManagerTest extends TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
-            'user_id' => self::$user->id(),
-            'type' => 'user.login',
-            'auth_strategy' => 'web', ]));
+        $n = AccountSecurityEvent::where('user_id', self::$user->id())
+            ->where('type', 'user.login')
+            ->where('auth_strategy', 'web')
+            ->count();
+        $this->assertEquals(1, $n);
     }
 
     public function testSignInUserNeedsTwoFactor()
@@ -314,10 +315,11 @@ class AuthManagerTest extends TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
-            'user_id' => self::$user->id(),
-            'type' => 'user.login',
-            'auth_strategy' => '2fa_test', ]));
+        $n = AccountSecurityEvent::where('user_id', self::$user->id())
+            ->where('type', 'user.login')
+            ->where('auth_strategy', '2fa_test')
+            ->count();
+        $this->assertEquals(1, $n);
     }
 
     public function testSignInUserRemember()
@@ -342,10 +344,11 @@ class AuthManagerTest extends TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
-            'user_id' => self::$user->id(),
-            'type' => 'user.login',
-            'auth_strategy' => 'test_strat', ]));
+        $n = AccountSecurityEvent::where('user_id', self::$user->id())
+            ->where('type', 'user.login')
+            ->where('auth_strategy', 'test_strat')
+            ->count();
+        $this->assertEquals(1, $n);
     }
 
     public function testSignInUserRememberFail()
@@ -383,7 +386,7 @@ class AuthManagerTest extends TestCase
 
         $this->assertEquals($user, Test::$app['user']);
 
-        $this->assertEquals(0, AccountSecurityEvent::totalRecords(['user_id' => -1]));
+        $this->assertEquals(0, AccountSecurityEvent::where('user_id', -1)->count());
     }
 
     public function testVerifyTwoFactor()
@@ -522,14 +525,12 @@ class AuthManagerTest extends TestCase
 
         $this->assertTrue($auth->signOutAllSessions(self::$user));
 
-        $this->assertEquals(1, ActiveSession::totalRecords([
-            'id' => 'sesh_1234',
-            'valid' => false,
-        ]));
+        $n = ActiveSession::where('id', 'sesh_1234')
+            ->where('valid', false)
+            ->count();
+        $this->assertEquals(1, $n);
 
-        $this->assertEquals(0, PersistentSession::totalRecords([
-            'user_id' => self::$user->id(),
-        ]));
+        $this->assertEquals(0, PersistentSession::where('user_id', self::$user->id())->count());
     }
 
     public function testSendVerificationEmail()

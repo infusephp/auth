@@ -89,11 +89,10 @@ class ResetPassword
 
         // can only issue a single active forgot token at a time
         $expiration = U::unixToDb(time() - UserLink::$forgotLinkTimeframe);
-        $nExisting = UserLink::totalRecords([
-            'user_id' => $user->id(),
-            'type' => UserLink::FORGOT_PASSWORD,
-            'created_at > "'.$expiration.'"',
-        ]);
+        $nExisting = UserLink::where('user_id', $user->id())
+            ->where('type', UserLink::FORGOT_PASSWORD)
+            ->where('created_at', $expiration, '>')
+            ->count();
 
         if ($nExisting > 0) {
             return true;

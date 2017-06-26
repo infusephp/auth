@@ -71,9 +71,10 @@ class ResetPasswordTest extends TestCase
         $this->assertInstanceOf('Infuse\Auth\Models\UserLink', $link);
         $this->assertTrue($link->exists());
 
-        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
-            'user_id' => self::$user->id(),
-            'type' => 'user.request_password_reset', ]));
+        $n = AccountSecurityEvent::where('user_id', self::$user->id())
+            ->where('type', 'user.request_password_reset')
+            ->count();
+        $this->assertEquals(1, $n);
     }
 
     public function testBuildLinkFail()
@@ -144,18 +145,20 @@ class ResetPasswordTest extends TestCase
     {
         $reset = $this->getSequence();
         $this->assertTrue($reset->step1('test@example.com', '127.0.0.1', 'Firefox'));
-        $this->assertEquals(1, UserLink::totalRecords([
-            'type' => UserLink::FORGOT_PASSWORD,
-            'user_id' => self::$user->id(), ]));
+        $n = UserLink::where('type', UserLink::FORGOT_PASSWORD)
+            ->where('user_id', self::$user->id())
+            ->count();
+        $this->assertEquals(1, $n);
 
         // repeat calls should do nothing
         for ($i = 0; $i < 5; ++$i) {
             $this->assertTrue($reset->step1('test@example.com', '127.0.0.1', 'Firefox'));
         }
 
-        $this->assertEquals(1, UserLink::totalRecords([
-            'type' => UserLink::FORGOT_PASSWORD,
-            'user_id' => self::$user->id(), ]));
+        $n = UserLink::where('type', UserLink::FORGOT_PASSWORD)
+            ->where('user_id', self::$user->id())
+            ->count();
+        $this->assertEquals(1, $n);
     }
 
     public function testStep2Invalid()
@@ -199,9 +202,10 @@ class ResetPasswordTest extends TestCase
         $this->assertTrue($reset->step2($link->link, ['testpassword2', 'testpassword2'], '127.0.0.1'));
         self::$user->refresh();
         $this->assertNotEquals($oldUserPassword, self::$user->password);
-        $this->assertEquals(0, UserLink::totalRecords([
-            'type' => UserLink::FORGOT_PASSWORD,
-            'user_id' => self::$user->id(), ]));
+        $n = UserLink::where('type', UserLink::FORGOT_PASSWORD)
+            ->where('user_id', self::$user->id())
+            ->count();
+        $this->assertEquals(0, $n);
     }
 
     private function getSequence()

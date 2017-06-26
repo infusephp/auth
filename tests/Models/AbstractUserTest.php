@@ -156,19 +156,19 @@ class AbstractUserTest extends TestCase
             'email' => '', ]));
 
         // should create a security event
-        $this->assertEquals(1, AccountSecurityEvent::totalRecords([
-            'user_id' => self::$user->id(),
-            'type' => 'user.change_password', ]));
+        $n = AccountSecurityEvent::where('user_id', self::$user->id())
+            ->where('type', 'user.change_password')
+            ->count();
+        $this->assertEquals(1, $n);
 
         // should sign user out everywhere
-        $this->assertEquals(1, ActiveSession::totalRecords([
-            'id' => 'sesh_1234',
-            'valid' => false,
-        ]));
+        $n = ActiveSession::where('id', 'sesh_1234')
+            ->where('valid', false)
+            ->count();
+        $this->assertEquals(1, $n);
 
-        $this->assertEquals(0, PersistentSession::totalRecords([
-            'user_id' => self::$user->id(),
-        ]));
+        $n = PersistentSession::where('user_id', self::$user->id())->count();
+        $this->assertEquals(0, $n);
 
         $this->assertEquals(-1, Test::$app['user']->id());
         $this->assertFalse(self::$user->isSignedIn());

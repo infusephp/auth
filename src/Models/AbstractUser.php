@@ -208,9 +208,9 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
     public function isTemporary()
     {
-        return UserLink::totalRecords([
-            'user_id' => $this->id(),
-            'type' => UserLink::TEMPORARY, ]) > 0;
+        return UserLink::where('user_id', $this->id())
+            ->where('type', UserLink::TEMPORARY)
+            ->count() > 0;
     }
 
     public function isEnabled()
@@ -231,10 +231,10 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     {
         $timeWindow = ($withinTimeWindow) ? time() - UserLink::$verifyTimeWindow : time();
 
-        return UserLink::totalRecords([
-            'user_id' => $this->id(),
-            'type' => UserLink::VERIFY_EMAIL,
-            'created_at <= "'.U::unixToDb($timeWindow).'"', ]) == 0;
+        return UserLink::where('user_id', $this->id())
+            ->where('type', UserLink::VERIFY_EMAIL)
+            ->where('created_at', U::unixToDb($timeWindow), '<=')
+            ->count() == 0;
     }
 
     public function isSignedIn()
@@ -359,9 +359,9 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             return true;
         }
 
-        return GroupMember::totalRecords([
-            'group' => $group,
-            'user_id' => $this->id(), ]) == 1;
+        return GroupMember::where('group', $group)
+            ->where('user_id', $this->id())
+            ->count() == 1;
     }
 
     /**
