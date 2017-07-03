@@ -146,7 +146,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             $password = array_value($data, 'current_password');
             $strategy = $app['auth']->getStrategy('traditional');
             if (!$strategy->verifyPassword($this, $password)) {
-                $app['errors']->push('invalid_password');
+                $this->getErrors()->add('invalid_password');
 
                 return false;
             }
