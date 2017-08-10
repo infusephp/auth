@@ -493,18 +493,18 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     /**
      * Creates a temporary user. Useful for creating invites.
      *
-     * @param array $data user data
+     * @param array $parameters user data
      *
-     * @return User temporary user
+     * @return self|false temporary user
      */
-    public static function createTemporary($data)
+    public static function createTemporary($parameters)
     {
-        $email = trim(strtolower(array_value($data, 'email')));
+        $email = trim(strtolower(array_value($parameters, 'email')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return false;
         }
 
-        $insertArray = array_replace($data, ['enabled' => 0]);
+        $insertArray = array_replace($parameters, ['enabled' => false]);
 
         // create the temporary user
         $user = new static();
@@ -525,9 +525,9 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
         // create the temporary link
         $link = new UserLink();
-        $link->create([
-            'user_id' => $user->id(),
-            'type' => UserLink::TEMPORARY, ]);
+        $link->user_id = $user->id();
+        $link->type = UserLink::TEMPORARY;
+        $link->saveOrFail();
 
         return $user;
     }

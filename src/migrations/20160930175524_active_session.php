@@ -20,8 +20,7 @@ class ActiveSession extends AbstractMigration
              ->addColumn('ip', 'string', ['length' => 45])
              ->addColumn('user_agent', 'string')
              ->addColumn('expires', 'integer')
-             ->addColumn('created_at', 'timestamp', ['default' => 0])
-             ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
+             ->addTimestamps()
              ->addForeignKey('user_id', 'Users', 'id', ['delete' => 'CASCADE', 'update' => 'CASCADE'])
              ->create();
     }

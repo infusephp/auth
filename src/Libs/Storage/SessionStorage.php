@@ -16,6 +16,7 @@ use Infuse\Auth\Libs\RememberMeCookie;
 use Infuse\Auth\Models\ActiveSession;
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\Utility;
 
 class SessionStorage extends AbstractStorage
 {
@@ -251,7 +252,10 @@ class SessionStorage extends AbstractStorage
         $this->app['database']->getDefault()
             ->update('ActiveSessions')
             ->where('id', $sid)
-            ->values(['expires' => $expires])
+            ->values([
+                'expires' => $expires,
+                'updated_at' => Utility::unixToDb(time())
+            ])
             ->execute();
 
         return true;

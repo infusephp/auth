@@ -517,6 +517,7 @@ class AuthManagerTest extends TestCase
         $this->assertTrue($session->save());
 
         $persistent = new PersistentSession();
+        $persistent->email = 'test@example.com';
         $persistent->user_id = self::$user->id();
         $persistent->series = self::$user->email;
         $persistent->series = str_repeat('a', 128);

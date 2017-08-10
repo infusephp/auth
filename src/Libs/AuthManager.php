@@ -16,6 +16,7 @@ use Infuse\Auth\Interfaces\StorageInterface;
 use Infuse\Auth\Interfaces\TwoFactorInterface;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\Storage\SessionStorage;
+use Infuse\Auth\Libs\Strategy\TraditionalStrategy;
 use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
@@ -39,7 +40,7 @@ class AuthManager
      * @var array
      */
     private $availableStrategies = [
-        'traditional' => 'Infuse\Auth\Libs\Strategy\TraditionalStrategy',
+        'traditional' => TraditionalStrategy::class,
     ];
 
     /**
@@ -63,7 +64,7 @@ class AuthManager
     private $response;
 
     /**
-     * @var PasswordRest
+     * @var ResetPassword
      */
     private $reset;
 
@@ -99,7 +100,7 @@ class AuthManager
      *
      * @throws InvalidArgumentException if the strategy does not exist
      *
-     * @return Infuse\Auth\Strategy\StrategyInterface
+     * @return \Infuse\Auth\Libs\Strategy\StrategyInterface
      */
     public function getStrategy($id)
     {

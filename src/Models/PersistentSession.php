@@ -34,6 +34,7 @@ class PersistentSession extends Model
         ],
         'two_factor_verified' => [
             'type' => Model::TYPE_BOOLEAN,
+            'default' => false,
         ],
     ];
 
