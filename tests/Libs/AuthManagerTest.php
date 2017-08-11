@@ -11,6 +11,7 @@
 use App\Users\Models\User;
 use Infuse\Auth\Exception\AuthException;
 use Infuse\Auth\Libs\AuthManager;
+use Infuse\Auth\Libs\UserInvites;
 use Infuse\Auth\Models\AccountSecurityEvent;
 use Infuse\Auth\Models\ActiveSession;
 use Infuse\Auth\Models\PersistentSession;
@@ -608,6 +609,26 @@ class AuthManagerTest extends TestCase
         $auth = $this->getAuth()->setPasswordReset($reset);
 
         $this->assertTrue($auth->forgotStep2('forgot_token_1234', ['testpassword2', 'testpassword2']));
+    }
+
+    function testGetUserInviter()
+    {
+        $auth = $this->getAuth();
+        $this->assertInstanceOf(UserInvites::class, $auth->getUserInviter());
+    }
+
+    function testInvite()
+    {
+        $user = new User;
+        $inviter = Mockery::mock(UserInvites::class);
+        $inviter->shouldReceive('invite')
+            ->withArgs(['test@example.com', [], []])
+            ->andReturn($user)
+            ->once();
+
+        $auth = $this->getAuth()->setUserInviter($inviter);
+
+        $this->assertEquals($user, $auth->invite('test@example.com'));
     }
 
     private function getAuth()

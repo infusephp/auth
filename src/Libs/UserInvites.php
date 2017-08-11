@@ -12,9 +12,7 @@
 namespace Infuse\Auth\Libs;
 
 use Infuse\Auth\Exception\AuthException;
-use Infuse\Auth\Models\UserLink;
 use Infuse\HasApp;
-use Infuse\Utility as U;
 
 /**
  * Creates invitations for new users.
@@ -38,13 +36,15 @@ class UserInvites
     }
 
     /**
-     * Invites a new user.
+     * Invites a user by email address. If the user does
+     * not exist then a temporary one will be created. If
+     * there is an existing user then it will be returned.
      *
      * @param string $email
      * @param array $parameters
      * @param array $emailParameters
      *
-     * @throws AuthException
+     * @throws AuthException when the invite or user cannot be created.
      *
      * @return mixed
      */

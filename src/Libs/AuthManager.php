@@ -69,6 +69,11 @@ class AuthManager
     private $reset;
 
     /**
+     * @var UserInvites
+     */
+    private $inviter;
+
+    /**
      * Gets the user model class.
      *
      * @return string
@@ -576,5 +581,53 @@ class AuthManager
 
         return $this->getPasswordReset()
                     ->step2($token, $password, $ip);
+    }
+
+    /////////////////////////
+    // LOGIN
+    /////////////////////////
+
+    /**
+     * Gets a user inviter instance.
+     *
+     * @param UserInvites $inviter
+     *
+     * @return self
+     */
+    public function setUserInviter(UserInvites $inviter)
+    {
+        $this->inviter = $inviter;
+
+        return $this;
+    }
+
+    /**
+     * Gets a user inviter instance.
+     *
+     * @return UserInvites
+     */
+    public function getUserInviter()
+    {
+        if (!$this->inviter) {
+            $this->inviter = new UserInvites($this);
+        }
+
+        return $this->inviter;
+    }
+
+    /**
+     * Invites a new user.
+     *
+     * @param string $email
+     * @param array $parameters
+     * @param array $emailParameters
+     *
+     * @throws AuthException
+     *
+     * @return mixed
+     */
+    function invite($email, array $parameters = [], array $emailParameters = [])
+    {
+        return $this->getUserInviter()->invite($email, $parameters, $emailParameters);
     }
 }
