@@ -60,7 +60,7 @@ class UserLink extends Model
     {
         parent::initialize();
 
-        self::creating(['Infuse\Auth\Models\UserLink', 'generateLink']);
+        self::creating([self::class, 'generateLink']);
     }
 
     public static function generateLink($event)
@@ -80,6 +80,8 @@ class UserLink extends Model
     {
         if ($this->type === self::FORGOT_PASSWORD) {
             return $this->getApp()['base_url'].'users/forgot/'.$this->link;
+        } else if ($this->type === self::TEMPORARY) {
+            return $this->getApp()['base_url'].'users/signup/'.$this->link;
         }
 
         return false;

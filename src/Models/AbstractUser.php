@@ -90,6 +90,11 @@ abstract class AbstractUser extends ACLModel implements UserInterface
      */
     private $_isUpgrade;
 
+    /**
+     * UserLink
+     */
+    private $_temporaryLink;
+
     protected function initialize()
     {
         parent::initialize();
@@ -300,6 +305,13 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         break;
         case 'password-changed':
             $params['subject'] = 'Your password was changed on '.$app['config']->get('app.title');
+        break;
+        case 'invite':
+            $params['subject'] = 'You have been invited to join '.$app['config']->get('app.title');
+            $params['sign_up_link'] = false;
+            if ($link = $this->getTemporaryLink()) {
+                $params['sign_up_link'] = $link->url();
+            }
         break;
         }
 
@@ -528,8 +540,19 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         $link->user_id = $user->id();
         $link->type = UserLink::TEMPORARY;
         $link->saveOrFail();
+        $user->_temporaryLink = $link;
 
         return $user;
+    }
+
+    /**
+     * Gets the temporary link from createTemporary()
+     *
+     * @return UserLink|null
+     */
+    function getTemporaryLink()
+    {
+        return $this->_temporaryLink;
     }
 
     /**
@@ -556,6 +579,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
         $this->grantAllPermissions();
         $this->_isUpgrade = true;
+
         if ($this->set($updateArray)) {
             // remove temporary and unverified links
             $app = $this->getApp();
@@ -567,12 +591,14 @@ abstract class AbstractUser extends ACLModel implements UserInterface
                                  ->orWhere('type', UserLink::VERIFY_EMAIL);
                 })
                 ->execute();
+            $this->_temporaryLink = false;
 
             // send the user a welcome message
             $this->sendEmail('welcome');
 
             $success = true;
         }
+
         $this->_isUpgrade = false;
         $this->enforcePermissions();
 

@@ -340,6 +340,7 @@ class AbstractUserTest extends TestCase
         $this->assertInstanceOf('App\Users\Models\User', $upgradedUser);
         $this->assertEquals(self::$user->id(), $upgradedUser->id());
         $this->assertFalse(self::$user->refresh()->isTemporary());
+        $this->assertFalse(User::getTemporaryUser('test3@example.com'));
     }
 
     public function testUpgradeTemporaryAccountFail()
