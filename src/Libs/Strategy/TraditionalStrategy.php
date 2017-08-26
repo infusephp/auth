@@ -13,6 +13,7 @@ namespace Infuse\Auth\Libs\Strategy;
 
 use Infuse\Auth\Exception\AuthException;
 use Infuse\Auth\Interfaces\UserInterface;
+use Infuse\Auth\Libs\RateLimiter\NullRateLimiter;
 use Infuse\Request;
 use Infuse\Response;
 
@@ -46,7 +47,20 @@ class TraditionalStrategy extends AbstractStrategy
      */
     public function login($username, $password, $remember = false)
     {
-        $user = $this->getUserWithCredentials($username, $password);
+        $rateLimiter = $this->getRateLimiter();
+        if (!$rateLimiter->canLogin($username)) {
+            $window = $rateLimiter->getLockoutWindow($username);
+            throw new AuthException("This account has been locked due to too many failed sign in attempts. The lock is only temporary. Please try again after $window.");
+        }
+
+        try {
+            $user = $this->getUserWithCredentials($username, $password);
+        } catch (AuthException $e) {
+            // record user's failed login attempt and rethrow the exception
+            $rateLimiter->recordFailedLogin($username);
+
+            throw $e;
+        }
 
         $this->signInUser($user, $this->getId(), $remember);
 
@@ -155,5 +169,23 @@ class TraditionalStrategy extends AbstractStrategy
             addslashes($username)));
 
         return '('.implode(' OR ', $conditions).')';
+    }
+
+    /**
+     * Gets the login rate limiter.
+     *
+     * @return \Infuse\Auth\Interfaces\LoginRateLimiterInterface
+     */
+    private function getRateLimiter()
+    {
+        $app = $this->auth->getApp();
+        $class = $app['config']->get('auth.loginRateLimiter', NullRateLimiter::class);
+
+        $rateLimiter = new $class();
+        if (method_exists($rateLimiter, 'setApp')) {
+            $rateLimiter->setApp($app);
+        }
+
+        return $rateLimiter;
     }
 }

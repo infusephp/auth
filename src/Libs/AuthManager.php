@@ -105,7 +105,7 @@ class AuthManager
      *
      * @throws InvalidArgumentException if the strategy does not exist
      *
-     * @return \Infuse\Auth\Libs\Strategy\StrategyInterface
+     * @return \Infuse\Auth\Interfaces\StrategyInterface
      */
     public function getStrategy($id)
     {

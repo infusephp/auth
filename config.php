@@ -14,6 +14,7 @@ use Infuse\Auth\Services\Auth;
 use Infuse\Email\MailerService;
 use Infuse\Queue\Driver\SynchronousDriver;
 use Infuse\Services\QueueDriver;
+use Infuse\Services\Redis;
 use JAQB\Services\ConnectionManager;
 use Pulsar\Driver\DatabaseDriver;
 use Pulsar\Services\ErrorStack;
@@ -38,6 +39,7 @@ return  [
         'auth' => Auth::class,
         'mailer' => MailerService::class,
         'queue_driver' => QueueDriver::class,
+        'redis' => Redis::class
     ],
     'models' => [
         'driver' => DatabaseDriver::class,
@@ -65,4 +67,11 @@ return  [
     'email' => [
         'type' => 'nop',
     ],
+    'redis' => [
+        'host' => '127.0.0.1',
+        'port' => 6379
+    ],
+    'cache' => [
+        'namespace' => 'authtest'
+    ]
 ];

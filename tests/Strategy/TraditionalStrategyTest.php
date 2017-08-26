@@ -9,7 +9,8 @@
  * @license MIT
  */
 use App\Users\Models\User;
-use Infuse\Auth\Libs\Auth;
+use Infuse\Auth\Exception\AuthException;
+use Infuse\Auth\Libs\RateLimiter\RedisRateLimiter;
 use Infuse\Auth\Libs\Strategy\TraditionalStrategy;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Test;
@@ -68,7 +69,8 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsBadUsername()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid username.');
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('Please enter a valid username.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('', '');
@@ -76,7 +78,8 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsBadPassword()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('Please enter a valid password.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', '');
@@ -84,7 +87,8 @@ class TraditionalStrategyTest extends TestCase
 
     public function testGetUserWithCredentialsFailTemporary()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('It looks like your account has not been setup yet. Please go to the sign up page to finish creating your account.');
 
         self::$user->enabled = true;
         $this->assertTrue(self::$user->save());
@@ -107,7 +111,8 @@ class TraditionalStrategyTest extends TestCase
         self::$user->enabled = false;
         $this->assertTrue(self::$user->save());
 
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'Sorry, your account has been disabled.');
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('Sorry, your account has been disabled.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', 'testpassword');
@@ -125,7 +130,8 @@ class TraditionalStrategyTest extends TestCase
         $link->created_at = '-10 years';
         $this->assertTrue($link->save());
 
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'You must verify your account with the email that was sent to you before you can log in.');
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('You must verify your account with the email that was sent to you before you can log in.');
 
         $strategy = $this->getStrategy();
         $strategy->getUserWithCredentials('test@example.com', 'testpassword');
@@ -150,7 +156,8 @@ class TraditionalStrategyTest extends TestCase
 
     public function testLoginFail()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address and password.');
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('We could not find a match for that email address and password.');
 
         $strategy = $this->getStrategy();
         $strategy->login('test@example.com', 'bogus');
@@ -163,6 +170,27 @@ class TraditionalStrategyTest extends TestCase
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
         $this->assertTrue(Test::$app['user']->isSignedIn());
         $this->assertEquals(self::$user->id(), Test::$app['user']->id());
+    }
+
+    function testLoginRateLimited()
+    {
+        Test::$app['config']->set('auth.loginRateLimiter', RedisRateLimiter::class);
+
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('This account has been locked due to too many failed sign in attempts. The lock is only temporary. Please try again after 30 minutes.');
+
+        $strategy = $this->getStrategy();
+
+        for ($i = 0; $i < 10; $i++) {
+            try {
+                $strategy->login('test@example.com', 'not the password');
+            } catch (AuthException $e) {
+                // ignore exceptions
+            }
+        }
+
+        // should throw a locked out exception
+        $strategy->login('test@example.com', 'not the password');
     }
 
     public function testVerifyPassword()
