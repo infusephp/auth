@@ -85,6 +85,38 @@ class TraditionalStrategyTest extends TestCase
         $strategy->getUserWithCredentials('test@example.com', '');
     }
 
+    public function testGetUserWithCredentialsMissingUser()
+    {
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('We could not find a match for that email address and password.');
+
+        self::$user->enabled = true;
+        $this->assertTrue(self::$user->save());
+        $link = new UserLink();
+        $this->assertTrue($link->create([
+            'user_id' => self::$user->id(),
+            'type' => UserLink::TEMPORARY, ]));
+
+        $strategy = $this->getStrategy();
+        $strategy->getUserWithCredentials('doesnotexist@example.com', 'testpassword');
+    }
+
+    public function testGetUserWithCredentialsWrongPassword()
+    {
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('We could not find a match for that email address and password.');
+
+        self::$user->enabled = true;
+        $this->assertTrue(self::$user->save());
+        $link = new UserLink();
+        $this->assertTrue($link->create([
+            'user_id' => self::$user->id(),
+            'type' => UserLink::TEMPORARY, ]));
+
+        $strategy = $this->getStrategy();
+        $strategy->getUserWithCredentials('test@example.com', 'wrong password');
+    }
+
     public function testGetUserWithCredentialsFailTemporary()
     {
         $this->expectException(AuthException::class);

@@ -87,19 +87,17 @@ class TraditionalStrategy extends AbstractStrategy
             throw new AuthException('Please enter a valid password.');
         }
 
-        // build the query string for the username
+        // look the user up with the given username
         $usernameWhere = $this->buildUsernameWhere($username);
-
-        // hash password
-        $password = $this->hash($password);
-
-        // look the user up with the matching username/password combo
         $userClass = $this->auth->getUserClass();
         $user = $userClass::where($usernameWhere)
-                          ->where('password', $password)
                           ->first();
 
         if (!$user) {
+            throw new AuthException('We could not find a match for that email address and password.');
+        }
+
+        if (!$this->verifyPassword($user, $password)) {
             throw new AuthException('We could not find a match for that email address and password.');
         }
 
