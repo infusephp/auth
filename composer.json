@@ -32,5 +32,8 @@
 		"indigophp/hash-compat": "~1.1",
 		"ircmaxell/password-compat": "~1.0",
 		"paragonie/random_compat": "~1.0"
+	},
+	"suggest": {
+		"ext-redis": "*"
 	}
 }
