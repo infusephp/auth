@@ -19,6 +19,11 @@ use Infuse\Response;
 
 class TraditionalStrategy extends AbstractStrategy
 {
+    /**
+     * @var \Infuse\Auth\Interfaces\LoginRateLimiterInterface
+     */
+    private $rateLimiter;
+
     public function getId()
     {
         return 'web';
@@ -176,14 +181,18 @@ class TraditionalStrategy extends AbstractStrategy
      */
     private function getRateLimiter()
     {
+        if ($this->rateLimiter) {
+            return $this->rateLimiter;
+        }
+
         $app = $this->auth->getApp();
         $class = $app['config']->get('auth.loginRateLimiter', NullRateLimiter::class);
 
-        $rateLimiter = new $class();
-        if (method_exists($rateLimiter, 'setApp')) {
-            $rateLimiter->setApp($app);
+        $this->rateLimiter = new $class();
+        if (method_exists($this->rateLimiter, 'setApp')) {
+            $this->rateLimiter->setApp($app);
         }
 
-        return $rateLimiter;
+        return $this->rateLimiter;
     }
 }
