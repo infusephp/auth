@@ -241,6 +241,12 @@ class TraditionalStrategyTest extends TestCase
         $this->assertFalse($strategy->verifyPassword($user, ''));
     }
 
+    function testGetRateLimiter()
+    {
+        $strategy = $this->getStrategy();
+        $this->assertInstanceOf(RedisRateLimiter::class, $strategy->getRateLimiter());
+    }
+
     private function getStrategy()
     {
         return new TraditionalStrategy(Test::$app['auth']);

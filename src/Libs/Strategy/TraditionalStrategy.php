@@ -155,6 +155,28 @@ class TraditionalStrategy extends AbstractStrategy
     }
 
     /**
+     * Gets the login rate limiter.
+     *
+     * @return \Infuse\Auth\Interfaces\LoginRateLimiterInterface
+     */
+    function getRateLimiter()
+    {
+        if ($this->rateLimiter) {
+            return $this->rateLimiter;
+        }
+
+        $app = $this->auth->getApp();
+        $class = $app['config']->get('auth.loginRateLimiter', NullRateLimiter::class);
+
+        $this->rateLimiter = new $class();
+        if (method_exists($this->rateLimiter, 'setApp')) {
+            $this->rateLimiter->setApp($app);
+        }
+
+        return $this->rateLimiter;
+    }
+
+    /**
      * Builds a query string for matching the username.
      *
      * @param string $username username to match
@@ -172,27 +194,5 @@ class TraditionalStrategy extends AbstractStrategy
             addslashes($username)));
 
         return '('.implode(' OR ', $conditions).')';
-    }
-
-    /**
-     * Gets the login rate limiter.
-     *
-     * @return \Infuse\Auth\Interfaces\LoginRateLimiterInterface
-     */
-    private function getRateLimiter()
-    {
-        if ($this->rateLimiter) {
-            return $this->rateLimiter;
-        }
-
-        $app = $this->auth->getApp();
-        $class = $app['config']->get('auth.loginRateLimiter', NullRateLimiter::class);
-
-        $this->rateLimiter = new $class();
-        if (method_exists($this->rateLimiter, 'setApp')) {
-            $this->rateLimiter->setApp($app);
-        }
-
-        return $this->rateLimiter;
     }
 }
