@@ -213,7 +213,8 @@ class TraditionalStrategyTest extends TestCase
 
         $strategy = $this->getStrategy();
 
-        for ($i = 0; $i < 10; $i++) {
+        // simulate 5 retries
+        for ($i = 0; $i < 5; $i++) {
             try {
                 $strategy->login('test@example.com', 'not the password');
             } catch (AuthException $e) {
@@ -221,8 +222,19 @@ class TraditionalStrategyTest extends TestCase
             }
         }
 
-        // should throw a locked out exception
+        // the 6th should throw a special locked out exception message
         $strategy->login('test@example.com', 'not the password');
+    }
+
+    /**
+     * @depends testLoginRateLimited
+     */
+    function testLoginAfterRateLimiting()
+    {
+        $this->expectException(AuthException::class);
+        $this->expectExceptionMessage('This account has been locked due to too many failed sign in attempts. The lock is only temporary. Please try again after 30 minutes.');
+
+        $this->getStrategy()->login('test@example.com', 'not the password');
     }
 
     public function testVerifyPassword()

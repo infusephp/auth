@@ -64,6 +64,15 @@ class TraditionalStrategy extends AbstractStrategy
             // record user's failed login attempt and rethrow the exception
             $rateLimiter->recordFailedLogin($username);
 
+            // throw a special message on the final failed attempt
+            $remaining = $rateLimiter->getRemainingAttempts($username);
+            if ($remaining === 0) {
+                $window = $rateLimiter->getLockoutWindow($username);
+                $message = $e->getMessage();
+                $message .= " This account has been locked due to too many failed sign in attempts. The lock is only temporary. Please try again after $window.";
+                throw new AuthException($message);
+            }
+
             throw $e;
         }
 
