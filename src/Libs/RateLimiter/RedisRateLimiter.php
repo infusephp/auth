@@ -89,7 +89,7 @@ class RedisRateLimiter implements LoginRateLimiterInterface
         $redis->incr($k, 1);
 
         $window = $this->getLockoutWindow($username);
-        $expiresIn = strtotime("+$window");
+        $expiresIn = strtotime("+$window") - time();
         $redis->expire($k, $expiresIn);
     }
 

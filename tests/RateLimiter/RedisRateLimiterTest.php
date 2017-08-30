@@ -54,5 +54,10 @@ class RedisRateLimiterTest extends TestCase
 
         $this->assertEquals(0, $limiter->getRemainingAttempts('test'));
         $this->assertFalse($this->getLimiter()->canLogin('test'));
+
+        // verify ttl
+        $ttl = Test::$app['redis']->ttl('authtest:failed_login_counter.test');
+        $this->assertGreaterThan(0, $ttl);
+        $this->assertLessThanOrEqual(1800, $ttl);
     }
 }
