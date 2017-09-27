@@ -75,6 +75,11 @@ class SessionStorage extends AbstractStorage
             self::SESSION_USER_AGENT_KEY => $req->agent(),
         ]);
 
+        // mark the user's session as 2fa verified if needed
+        if ($user->isTwoFactorVerified()) {
+            $this->twoFactorVerified($user, $req, $res);
+        }
+
         return true;
     }
 
@@ -295,11 +300,6 @@ class SessionStorage extends AbstractStorage
             $this->destroyRememberMeCookie($res);
 
             return false;
-        }
-
-        // mark the user's session as 2fa verified if needed
-        if ($user->isTwoFactorVerified()) {
-            $this->twoFactorVerified($user, $req, $res);
         }
 
         $signedInUser = $this->auth->signInUser($user, 'remember_me');

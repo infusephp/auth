@@ -219,6 +219,33 @@ class SessionStorageTest extends TestCase
         $this->assertEquals(2, $req->session('test'));
     }
 
+    function testSignInTwoFactorRemembered()
+    {
+        $storage = $this->getStorage();
+
+        $req = Request::create('/', 'GET', [], [], [], ['HTTP_USER_AGENT' => 'Firefox']);
+        $res = new Response();
+
+        self::$mock->shouldReceive('session_status')
+            ->andReturn(PHP_SESSION_ACTIVE);
+        self::$mock->shouldReceive('session_id')
+            ->andReturn('sesh_12345');
+        self::$mock->shouldReceive('session_regenerate_id');
+        self::$mock->shouldReceive('session_write_close');
+        self::$mock->shouldReceive('session_start');
+
+        $user = new User(self::$user->id());
+        $user->markTwoFactorVerified();
+
+        $this->assertTrue($storage->signIn($user, $req, $res));
+
+        // should sign a user into the session
+        $this->assertEquals(self::$user->id(), $req->session('user_id'));
+
+        // should remember 2fa verified status
+        $this->assertTrue($req->session('2fa_verified'));
+    }
+
     public function testTwoFactorVerified()
     {
         $storage = $this->getStorage();
@@ -398,7 +425,11 @@ class SessionStorageTest extends TestCase
         $this->assertEquals(self::$user->id(), $user->id());
         $this->assertTrue($user->isSignedIn());
         $this->assertTrue($user->isTwoFactorVerified());
-        $this->assertTrue($req->session('2fa_verified'));
+
+        // NOTE: We are using the in-memory storage in this test, however,
+        // if this were using the session storage it would also mark
+        // the session as two factor verified whenever the user is
+        // signed in from the remember me cookie.
     }
 
     public function testSignOut()

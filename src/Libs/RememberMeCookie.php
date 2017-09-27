@@ -179,12 +179,13 @@ class RememberMeCookie
     }
 
     /**
-     * Verifies the cookie against an incoming request.
+     * Looks for a remembered user using this cookie
+     * from an incoming request.
      *
      * @param Request     $req
      * @param AuthManager $auth
      *
-     * @return bool
+     * @return UserInterface|false remembered user
      */
     public function verify(Request $req, AuthManager $auth)
     {
