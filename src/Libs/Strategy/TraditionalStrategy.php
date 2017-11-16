@@ -141,26 +141,12 @@ class TraditionalStrategy extends AbstractStrategy
      */
     public function verifyPassword(UserInterface $user, $password)
     {
-        $currentPassword = $user->getHashedPassword();
-        if (!$currentPassword) {
+        $hashedPassword = $user->getHashedPassword();
+        if (!$hashedPassword) {
             return false;
         }
 
-        return hash_equals($currentPassword, $this->hash($password));
-    }
-
-    /**
-     * Hashes a password.
-     *
-     * @param string $password
-     *
-     * @return string hashed password
-     */
-    public function hash($password)
-    {
-        $salt = $this->app['config']->get('app.salt');
-
-        return hash_hmac('sha512', $password, $salt);
+        return password_verify($password, $hashedPassword);
     }
 
     /**

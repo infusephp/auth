@@ -247,7 +247,7 @@ class TraditionalStrategyTest extends TestCase
         $this->assertFalse($strategy->verifyPassword($user, null));
         $this->assertFalse($strategy->verifyPassword($user, []));
 
-        $user->password = $strategy->hash('thisismypassword');
+        $user->password = password_hash('thisismypassword', PASSWORD_DEFAULT);
         $this->assertTrue($strategy->verifyPassword($user, 'thisismypassword'));
         $this->assertFalse($strategy->verifyPassword($user, 'thisisnotmypassword'));
         $this->assertFalse($strategy->verifyPassword($user, ''));

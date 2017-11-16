@@ -31,7 +31,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             'unique' => true,
         ],
         'password' => [
-            'validate' => 'matching|password:8',
+            'validate' => 'matching|password_php:8',
             'required' => true,
         ],
         'first_name' => [
