@@ -141,6 +141,10 @@ class TraditionalStrategy extends AbstractStrategy
      */
     public function verifyPassword(UserInterface $user, $password)
     {
+        if (!$password) {
+            return false;
+        }
+
         $hashedPassword = $user->getHashedPassword();
         if (!$hashedPassword) {
             return false;
