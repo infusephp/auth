@@ -1,7 +1,8 @@
 language: php
 php:
-    - 7.1
-    - 7.0
+  - 7.2
+  - 7.1
+  - 7.0
 
 dist: trusty
 sudo: required
@@ -11,17 +12,17 @@ services:
   - redis-server
 
 before_script:
-    - echo -e "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    - composer install
-    - mysql -e 'create database mydb;'
-    - php vendor/bin/phinx migrate
+  - echo -e "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - composer install
+  - mysql -e 'create database mydb;'
+  - php vendor/bin/phinx migrate
 
 script:
-    - mkdir -p build/logs
-    - vendor/bin/phpunit
+  - mkdir -p build/logs
+  - vendor/bin/phpunit
 
 after_script:
-    - vendor/bin/coveralls
+  - vendor/bin/coveralls
 
 notifications:
-    email: false
+  email: false
