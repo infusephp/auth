@@ -12,9 +12,9 @@ use Infuse\Auth\Interfaces\TwoFactorInterface;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Services\Auth;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class AuthServiceTest extends TestCase
+class AuthServiceTest extends MockeryTestCase
 {
     public static $ogUser;
 

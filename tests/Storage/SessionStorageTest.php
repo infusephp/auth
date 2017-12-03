@@ -18,7 +18,7 @@ use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
 use Mockery;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 function session_status()
 {
@@ -55,7 +55,7 @@ function session_name()
     return 'mysession';
 }
 
-class SessionStorageTest extends TestCase
+class SessionStorageTest extends MockeryTestCase
 {
     public static $mock;
     public static $user;

@@ -11,9 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Models\ActiveSession;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ActiveSessionTest extends TestCase
+class ActiveSessionTest extends MockeryTestCase
 {
     public static $user;
     public static $session;

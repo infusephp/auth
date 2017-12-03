@@ -10,9 +10,9 @@
  */
 
 use Infuse\Auth\Libs\RateLimiter\NullRateLimiter;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class NullRateLimiterTest extends TestCase
+class NullRateLimiterTest extends MockeryTestCase
 {
     private function getLimiter()
     {

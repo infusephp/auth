@@ -10,9 +10,9 @@
  */
 use App\Users\Models\User;
 use Infuse\Auth\Models\UserLink;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class UserLinkTest extends TestCase
+class UserLinkTest extends MockeryTestCase
 {
     public static $user;
     public static $link;

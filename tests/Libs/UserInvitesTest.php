@@ -15,9 +15,9 @@ use Infuse\Auth\Libs\UserInvites;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class UserInvitesTest extends TestCase
+class UserInvitesTest extends MockeryTestCase
 {
     public static $user;
 

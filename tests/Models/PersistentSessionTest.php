@@ -11,9 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Models\PersistentSession;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class PersistentSessionTest extends TestCase
+class PersistentSessionTest extends MockeryTestCase
 {
     public static $user;
     public static $sesh;

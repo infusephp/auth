@@ -11,9 +11,9 @@
 
 use Infuse\Auth\Libs\RateLimiter\RedisRateLimiter;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class RedisRateLimiterTest extends TestCase
+class RedisRateLimiterTest extends MockeryTestCase
 {
     static function setUpBeforeClass()
     {

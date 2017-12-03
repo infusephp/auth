@@ -7,3 +7,4 @@ Desktop.ini
 /build
 composer.lock
 HEADER
+/phpunit.xml

@@ -11,9 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Libs\RememberMeCookie;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class RememberMeCookieTest extends TestCase
+class RememberMeCookieTest extends MockeryTestCase
 {
     public static $user;
 

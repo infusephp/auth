@@ -12,9 +12,9 @@ use Infuse\Auth\AuthMiddleware;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class AuthMiddlewareTest extends TestCase
+class AuthMiddlewareTest extends MockeryTestCase
 {
     public static $ogUser;
 

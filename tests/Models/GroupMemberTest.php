@@ -11,9 +11,9 @@
 use App\Users\Models\User;
 use Infuse\Auth\Models\GroupMember;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class GroupMemberTest extends TestCase
+class GroupMemberTest extends MockeryTestCase
 {
     public static $user;
     public static $member;

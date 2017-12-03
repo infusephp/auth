@@ -14,9 +14,9 @@ use Infuse\Auth\Libs\RateLimiter\RedisRateLimiter;
 use Infuse\Auth\Libs\Strategy\TraditionalStrategy;
 use Infuse\Auth\Models\UserLink;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class TraditionalStrategyTest extends TestCase
+class TraditionalStrategyTest extends MockeryTestCase
 {
     public static $user;
     public static $ogUserId;

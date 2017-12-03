@@ -45,7 +45,7 @@ class PersistentSession extends Model
     protected static $defaults = [];
 
     /**
-     * @staticvar int
+     * @var int
      */
     public static $sessionLength = 7776000; // 3 months in seconds
 }

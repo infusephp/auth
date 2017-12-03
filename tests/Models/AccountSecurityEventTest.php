@@ -10,9 +10,9 @@
  */
 use App\Users\Models\User;
 use Infuse\Auth\Models\AccountSecurityEvent;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class AccountSecurityEventTest extends TestCase
+class AccountSecurityEventTest extends MockeryTestCase
 {
     public static $user;
     public static $event;

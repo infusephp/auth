@@ -10,9 +10,9 @@
  */
 use Infuse\Auth\Jobs\GarbageCollection;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class GarbageCollectionTest extends TestCase
+class GarbageCollectionTest extends MockeryTestCase
 {
     public function testRun()
     {

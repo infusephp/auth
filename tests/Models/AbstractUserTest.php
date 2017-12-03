@@ -18,9 +18,9 @@ use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class AbstractUserTest extends TestCase
+class AbstractUserTest extends MockeryTestCase
 {
     public static $user;
     public static $user2;

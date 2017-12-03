@@ -56,12 +56,12 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     protected static $defaults = [];
 
     /**
-     * @staticvar array
+     * @var array
      */
     public static $usernameProperties = ['email'];
 
     /**
-     * @staticvar array
+     * @var array
      */
     protected static $protectedFields = ['email', 'password'];
 

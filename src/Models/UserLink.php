@@ -47,12 +47,12 @@ class UserLink extends Model
     protected static $defaults = [];
 
     /**
-     * @staticvar int
+     * @var int
      */
     public static $verifyTimeWindow = 86400; // one day in seconds
 
     /**
-     * @staticvar int
+     * @var int
      */
     public static $forgotLinkTimeframe = 1800; // 30 minutes in seconds
 

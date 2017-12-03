@@ -16,9 +16,9 @@ use Infuse\Auth\Models\UserLink;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
-use PHPUnit\Framework\TestCase;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ResetPasswordTest extends TestCase
+class ResetPasswordTest extends MockeryTestCase
 {
     public static $user;
     public static $ogUserId;
