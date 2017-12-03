@@ -22,8 +22,8 @@
 		"php": ">=7.0"
 	},
 	"require-dev": {
-		"infuse/infuse": "~1.5",
-		"pulsar/pulsar": "~0.5",
+		"infuse/infuse": "~1.6",
+		"pulsar/pulsar": "~0.6",
 		"infuse/email": "~1.2",
 		"robmorgan/phinx": "~0.8",
 		"mockery/mockery": "~0.9",
