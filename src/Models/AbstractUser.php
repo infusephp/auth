@@ -86,11 +86,6 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     private $_changedPassword;
 
     /**
-     * @var bool
-     */
-    private $_isUpgrade;
-
-    /**
      * UserLink
      */
     private $_temporaryLink;
@@ -157,7 +152,7 @@ abstract class AbstractUser extends ACLModel implements UserInterface
             }
         }
 
-        $this->_changedPassword = isset($data['password']) && !$this->_isUpgrade;
+        $this->_changedPassword = isset($data['password']) && !$this->isTemporary();
 
         return true;
     }
