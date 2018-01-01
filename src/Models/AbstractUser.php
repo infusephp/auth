@@ -213,6 +213,10 @@ abstract class AbstractUser extends ACLModel implements UserInterface
 
     public function isTemporary()
     {
+        if ($this->_temporaryLink) {
+            return true;
+        }
+
         return UserLink::where('user_id', $this->id())
             ->where('type', UserLink::TEMPORARY)
             ->count() > 0;
@@ -441,168 +445,37 @@ abstract class AbstractUser extends ACLModel implements UserInterface
     ///////////////////////////////////
 
     /**
-     * Registers a new user.
+     * Sets the temporary link attached to the user.
      *
-     * @param array $data          user data
-     * @param bool  $verifiedEmail true if the email has been verified
+     * @param UserLink $link
      *
-     * @return bool success
+     * @return $this
      */
-    public static function registerUser(array $data, $verifiedEmail = false)
+    function setTemporaryLink(UserLink $link)
     {
-        $app = Application::getDefault();
-        $email = array_value($data, 'email');
-        $tempUser = static::getTemporaryUser($email);
-
-        // upgrade temporary account
-        if ($tempUser && $tempUser->upgradeTemporaryAccount($data)) {
-            return $tempUser;
-        }
-
-        $user = new static();
-
-        if ($user->create($data)) {
-            if (!$verifiedEmail) {
-                $app['auth']->sendVerificationEmail($user);
-            } else {
-                // send the user a welcome message
-                $user->sendEmail('welcome');
-            }
-
-            return $user;
-        }
-
-        return false;
+        $this->_temporaryLink = $link;
+        return $this;
     }
 
     /**
-     * Gets a temporary user from an email address if one exists.
+     * Clears the temporary link attached to the user.
      *
-     * @param string $email email address
-     *
-     * @return self|false
+     * @return $this
      */
-    public static function getTemporaryUser($email)
+    function clearTemporaryLink()
     {
-        $email = trim(strtolower($email));
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return false;
-        }
-
-        $user = static::where('email', $email)->first();
-
-        if (!$user) {
-            return false;
-        }
-
-        if (!$user->isTemporary()) {
-            return false;
-        }
-
-        return $user;
+        $this->_temporaryLink = null;
+        return $this;
     }
 
     /**
-     * Creates a temporary user. Useful for creating invites.
-     *
-     * @param array $parameters user data
-     *
-     * @return self|false temporary user
-     */
-    public static function createTemporary($parameters)
-    {
-        $email = trim(strtolower(array_value($parameters, 'email')));
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return false;
-        }
-
-        $insertArray = array_replace($parameters, ['enabled' => false]);
-
-        // create the temporary user
-        $user = new static();
-        $driver = self::getDriver();
-        $created = $driver->createModel($user, $insertArray);
-
-        if (!$created) {
-            return false;
-        }
-
-        // get the new user ID
-        $id = [];
-        foreach (static::getIDProperties() as $k) {
-            $id[] = $driver->getCreatedID($user, $k);
-        }
-
-        $user = new static($id);
-
-        // create the temporary link
-        $link = new UserLink();
-        $link->user_id = $user->id();
-        $link->type = UserLink::TEMPORARY;
-        $link->saveOrFail();
-        $user->_temporaryLink = $link;
-
-        return $user;
-    }
-
-    /**
-     * Gets the temporary link from createTemporary()
+     * Gets the temporary link from user registration.
      *
      * @return UserLink|null
      */
     function getTemporaryLink()
     {
         return $this->_temporaryLink;
-    }
-
-    /**
-     * Upgrades the user from temporary to a fully registered account.
-     *
-     * @param array $data user data
-     *
-     * @throws InvalidArgumentException when trying to upgrade a non-temporary account
-     *
-     * @return bool true if successful
-     */
-    public function upgradeTemporaryAccount($data)
-    {
-        if (!$this->isTemporary()) {
-            throw new InvalidArgumentException('Cannot upgrade a non-temporary account');
-        }
-
-        $updateArray = array_replace($data, [
-            'created_at' => U::unixToDb(time()),
-            'enabled' => true,
-        ]);
-
-        $success = false;
-
-        $this->grantAllPermissions();
-        $this->_isUpgrade = true;
-
-        if ($this->set($updateArray)) {
-            // remove temporary and unverified links
-            $app = $this->getApp();
-            $app['database']->getDefault()
-                ->delete('UserLinks')
-                ->where('user_id', $this->id())
-                ->where(function ($query) {
-                    return $query->where('type', UserLink::TEMPORARY)
-                                 ->orWhere('type', UserLink::VERIFY_EMAIL);
-                })
-                ->execute();
-            $this->_temporaryLink = false;
-
-            // send the user a welcome message
-            $this->sendEmail('welcome');
-
-            $success = true;
-        }
-
-        $this->_isUpgrade = false;
-        $this->enforcePermissions();
-
-        return $success;
     }
 
     ///////////////////////////////////

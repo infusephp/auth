@@ -31,11 +31,9 @@ class AbstractUserTest extends MockeryTestCase
         self::$ogUserId = Test::$app['user']->id();
 
         $db = Test::$app['database']->getDefault();
-        foreach (['test@example.com', 'test2@example.com', 'test3@example.com'] as $email) {
-            $db->delete('Users')
-                ->where('email', $email)
-                ->execute();
-        }
+        $db->delete('Users')
+            ->where('email', ['test@example.com', 'test2@example.com', 'test3@example.com'])
+            ->execute();
 
         Test::$app['auth']->setRequest(new Request([], [], [], [], ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_USER_AGENT' => 'infuse/1.0']))
             ->setResponse(new Response());
@@ -60,34 +58,31 @@ class AbstractUserTest extends MockeryTestCase
         }
     }
 
-    public function testRegisterUserFail()
+    function testCreateFail()
     {
-        $this->assertFalse(User::registerUser([]));
+        $user = new User();
+        $this->assertFalse($user->save());
     }
 
-    public function testRegisterUser()
+    function testCreate()
     {
-        self::$user = User::registerUser([
+        self::$user = new User();
+        $this->assertTrue(self::$user->create([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test@example.com',
             'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
-        ]);
+        ]));
 
-        $this->assertInstanceOf('App\Users\Models\User', self::$user);
-        $this->assertGreaterThan(0, self::$user->id());
-
-        self::$user2 = User::registerUser([
+        self::$user2 = new User();
+        $this->assertTrue(self::$user2->create([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test2@example.com',
             'password' => ['testpassword', 'testpassword'],
             'ip' => '127.0.0.1',
-        ], true);
-
-        $this->assertInstanceOf('App\Users\Models\User', self::$user2);
-        $this->assertGreaterThan(0, self::$user2->id());
+        ]));
     }
 
     public function testPermissions()
@@ -107,7 +102,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testEdit()
     {
@@ -116,7 +111,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testEditProtectedFieldFail()
     {
@@ -125,7 +120,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testEditPassword()
     {
@@ -175,7 +170,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testEditPasswordAdmin()
     {
@@ -187,7 +182,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testName()
     {
@@ -195,7 +190,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testIsTemporary()
     {
@@ -203,20 +198,22 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testIsVerified()
     {
+        $link = new UserLink();
+        $link->user_id = self::$user->id();
+        $link->type = UserLink::VERIFY_EMAIL;
+        $link->saveOrFail();
+
         $this->assertFalse(self::$user->isVerified(false));
         $this->assertTrue(self::$user->isVerified(true));
+        $this->assertTrue(self::$user2->isVerified());
 
-        $link = UserLink::where('user_id', self::$user->id())
-            ->where('type', UserLink::VERIFY_EMAIL)
-            ->first()
-            ->delete();
+        $link->delete();
 
         $this->assertTrue(self::$user->isVerified());
-        $this->assertTrue(self::$user2->isVerified());
     }
 
     public function testIsSignedIn()
@@ -238,7 +235,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testIsAdmin()
     {
@@ -246,7 +243,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testGroups()
     {
@@ -254,7 +251,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testIsMemberOf()
     {
@@ -266,7 +263,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testProfilePicture()
     {
@@ -274,7 +271,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testSendEmail()
     {
@@ -284,7 +281,7 @@ class AbstractUserTest extends MockeryTestCase
     }
 
     /**
-     * @depends testRegisterUser
+     * @depends testCreate
      */
     public function testDeleteConfirm()
     {
@@ -305,52 +302,5 @@ class AbstractUserTest extends MockeryTestCase
 
         $user->demoteToNormalUser();
         $this->assertFalse($user->isAdmin());
-    }
-
-    public function testRegisterUserTemporary()
-    {
-        $this->assertFalse(User::createTemporary([]));
-
-        $this->assertFalse(User::getTemporaryUser('test@example.com'));
-
-        self::$user = User::createTemporary([
-            'email' => 'test3@example.com',
-            'password' => '',
-            'first_name' => '',
-            'last_name' => '',
-            'ip' => '',
-            'enabled' => true,
-        ]);
-
-        $this->assertInstanceOf('App\Users\Models\User', self::$user);
-        $this->assertTrue(self::$user->isTemporary());
-
-        $user = User::getTemporaryUser('test3@example.com');
-        $this->assertInstanceOf('App\Users\Models\User', $user);
-        $this->assertEquals(self::$user->id(), $user->id());
-
-        $upgradedUser = User::registerUser([
-            'first_name' => 'Bob',
-            'last_name' => 'Loblaw',
-            'email' => 'test3@example.com',
-            'password' => ['testpassword', 'testpassword'],
-            'ip' => '127.0.0.1',
-        ]);
-
-        $this->assertInstanceOf('App\Users\Models\User', $upgradedUser);
-        $this->assertEquals(self::$user->id(), $upgradedUser->id());
-        $this->assertFalse(self::$user->refresh()->isTemporary());
-        $this->assertFalse(User::getTemporaryUser('test3@example.com'));
-    }
-
-    public function testUpgradeTemporaryAccountFail()
-    {
-        $this->expectException('InvalidArgumentException');
-
-        self::$user->upgradeTemporaryAccount([
-            'first_name' => 'Bob',
-            'last_name' => 'Loblaw',
-            'password' => ['testpassword', 'testpassword'],
-            'ip' => '127.0.0.1', ]);
     }
 }

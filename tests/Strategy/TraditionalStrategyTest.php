@@ -29,7 +29,7 @@ class TraditionalStrategyTest extends MockeryTestCase
             ->where('email', 'test@example.com')
             ->execute();
 
-        self::$user = User::registerUser([
+        self::$user = Test::$app['auth']->getUserRegistration()->registerUser([
             'first_name' => 'Bob',
             'last_name' => 'Loblaw',
             'email' => 'test@example.com',
@@ -45,17 +45,9 @@ class TraditionalStrategyTest extends MockeryTestCase
 
     public static function tearDownAfterClass()
     {
-        foreach ([self::$user] as $u) {
-            if ($u) {
-                $u->grantAllPermissions();
-                $u->delete();
-            }
+        if (self::$user) {
+            self::$user->grantAllPermissions()->delete();
         }
-    }
-
-    public function assertPreConditions()
-    {
-        $this->assertInstanceOf('App\Users\Models\User', self::$user);
     }
 
     public function assertPostConditions()

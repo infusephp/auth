@@ -15,6 +15,11 @@ use Infuse\Auth\Libs\RandomString;
 use Infuse\HasApp;
 use Pulsar\Model;
 
+/**
+ * @property int $user_id
+ * @property string $type
+ * @property string $link
+ */
 class UserLink extends Model
 {
     use HasApp;

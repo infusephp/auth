@@ -63,10 +63,7 @@ class UserInvites
         // register a new temporary account
         if (!$user) {
             $parameters['email'] = $email;
-            $user = $userClass::createTemporary($parameters);
-            if (!$user) {
-                throw new AuthException('Could not invite ' . $email);
-            }
+            $user = $this->auth->getUserRegistration()->createTemporaryUser($parameters);
         }
 
         $user->sendEmail('invite', $emailParameters);

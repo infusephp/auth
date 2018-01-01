@@ -64,6 +64,11 @@ class AuthManager
     private $response;
 
     /**
+     * @var UserRegistration
+     */
+    private $registrar;
+
+    /**
      * @var ResetPassword
      */
     private $reset;
@@ -437,6 +442,24 @@ class AuthManager
     }
 
     /////////////////////////
+    // REGISTRATION
+    /////////////////////////
+
+    /**
+     * Gets the user registration service.
+     *
+     * @return UserRegistration
+     */
+    function getUserRegistration()
+    {
+        if (!$this->registrar) {
+            $this->registrar = new UserRegistration($this);
+        }
+
+        return $this->registrar;
+    }
+
+    /////////////////////////
     // EMAIL VERIFICATION
     /////////////////////////
 
@@ -584,7 +607,7 @@ class AuthManager
     }
 
     /////////////////////////
-    // LOGIN
+    // INVITES
     /////////////////////////
 
     /**
