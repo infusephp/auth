@@ -510,7 +510,7 @@ class AuthManager
         }
 
         $userClass = $this->getUserClass();
-        $user = new $userClass($link->user_id);
+        $user = $userClass::find($link->user_id);
 
         // enable the user and delete the verify link
         $user->enable();

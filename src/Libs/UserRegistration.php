@@ -124,7 +124,7 @@ class UserRegistration
             $id[] = $driver->getCreatedID($user, $k);
         }
 
-        $user = new $userClass($id);
+        $user = $userClass::find($id);
 
         // create the temporary link
         $link = new UserLink();

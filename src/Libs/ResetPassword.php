@@ -58,7 +58,7 @@ class ResetPassword
 
         $userClass = $this->auth->getUserClass();
 
-        return new $userClass($link->user_id);
+        return $userClass::find($link->user_id);
     }
 
     /**
