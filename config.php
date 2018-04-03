@@ -34,7 +34,6 @@ return  [
     ],
     'services' => [
         'database' => ConnectionManager::class,
-        'errors' => ErrorStack::class,
         'model_driver' => ModelDriver::class,
         'auth' => Auth::class,
         'mailer' => MailerService::class,
