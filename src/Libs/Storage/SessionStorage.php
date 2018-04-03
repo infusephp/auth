@@ -124,12 +124,12 @@ class SessionStorage extends AbstractStorage
 
         $sessionCookie = session_get_cookie_params();
         $res->setCookie(session_name(),
-                        '',
-                        time() - 86400,
-                        $sessionCookie['path'],
-                        $sessionCookie['domain'],
-                        $sessionCookie['secure'],
-                        $sessionCookie['httponly']);
+            '',
+            time() - 86400,
+            $sessionCookie['path'],
+            $sessionCookie['domain'],
+            $sessionCookie['secure'],
+            $sessionCookie['httponly']);
 
         $req->destroySession();
 
@@ -238,8 +238,8 @@ class SessionStorage extends AbstractStorage
     private function sessionIsValid($sid)
     {
         return ActiveSession::where('id', $sid)
-                            ->where('valid', false)
-                            ->count() == 0;
+                ->where('valid', false)
+                ->count() == 0;
     }
 
     /**
@@ -295,6 +295,10 @@ class SessionStorage extends AbstractStorage
     {
         // retrieve and verify the remember me cookie
         $cookie = $this->getRememberMeCookie($req);
+        if (!$cookie) {
+            return false;
+        }
+
         $user = $cookie->verify($req, $this->auth);
         if (!$user) {
             $this->destroyRememberMeCookie($res);
@@ -307,8 +311,8 @@ class SessionStorage extends AbstractStorage
         // generate a new remember me cookie for the next time, using
         // the same series
         $new = new RememberMeCookie($user->email(),
-                                    $req->agent(),
-                                    $cookie->getSeries());
+            $req->agent(),
+            $cookie->getSeries());
         $this->sendRememberMeCookie($user, $new, $res);
 
         // mark this session as remembered (could be useful to know)
@@ -322,11 +326,14 @@ class SessionStorage extends AbstractStorage
      *
      * @param Request $req
      *
-     * @return RememberMeCookie
+     * @return RememberMeCookie|false
      */
     private function getRememberMeCookie(Request $req)
     {
         $encoded = $req->cookies($this->rememberMeCookieName());
+        if (!$encoded) {
+            return false;
+        }
 
         return RememberMeCookie::decode($encoded);
     }
@@ -343,12 +350,12 @@ class SessionStorage extends AbstractStorage
         // send the cookie with the same properties as the session cookie
         $sessionCookie = session_get_cookie_params();
         $res->setCookie($this->rememberMeCookieName(),
-                        $cookie->encode(),
-                        $cookie->getExpires(time()),
-                        $sessionCookie['path'],
-                        $sessionCookie['domain'],
-                        $sessionCookie['secure'],
-                        true);
+            $cookie->encode(),
+            $cookie->getExpires(time()),
+            $sessionCookie['path'],
+            $sessionCookie['domain'],
+            $sessionCookie['secure'],
+            true);
 
         // save the cookie in the DB
         $cookie->persist($user);
@@ -365,12 +372,12 @@ class SessionStorage extends AbstractStorage
     {
         $sessionCookie = session_get_cookie_params();
         $res->setCookie($this->rememberMeCookieName(),
-                        '',
-                        time() - 86400,
-                        $sessionCookie['path'],
-                        $sessionCookie['domain'],
-                        $sessionCookie['secure'],
-                        true);
+            '',
+            time() - 86400,
+            $sessionCookie['path'],
+            $sessionCookie['domain'],
+            $sessionCookie['secure'],
+            true);
 
         return $this;
     }
