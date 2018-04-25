@@ -79,7 +79,8 @@ class ResetPasswordTest extends MockeryTestCase
 
     public function testGetUserFromTokenInvalid()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
+        $this->expectExceptionMessage('This link has expired or is invalid.');
 
         $reset = $this->getSequence();
         $reset->getUserFromToken('blah');
@@ -101,7 +102,8 @@ class ResetPasswordTest extends MockeryTestCase
      */
     public function testGetUserFromTokenExpired()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
+        $this->expectExceptionMessage('This link has expired or is invalid.');
 
         $reset = $this->getSequence();
 
@@ -120,7 +122,8 @@ class ResetPasswordTest extends MockeryTestCase
             ->where('user_id', self::$user->id())
             ->execute();
 
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid email address.');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
+        $this->expectExceptionMessage('Please enter a valid email address.');
 
         $reset = $this->getSequence();
         $reset->step1('invalidemail', '127.0.0.1', 'Firefox');
@@ -128,7 +131,8 @@ class ResetPasswordTest extends MockeryTestCase
 
     public function testStep1NoEmailMatch()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'We could not find a match for that email address.');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
+        $this->expectExceptionMessage('We could not find a match for that email address.');
 
         $reset = $this->getSequence();
         $reset->step1('nomatch@example.com', '127.0.0.1', 'Firefox');
@@ -156,7 +160,8 @@ class ResetPasswordTest extends MockeryTestCase
 
     public function testStep2Invalid()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'This link has expired or is invalid.');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
+        $this->expectExceptionMessage('This link has expired or is invalid.');
 
         $reset = $this->getSequence();
         $reset->step2('blah', ['password', 'password'], '127.0.0.1');
@@ -164,7 +169,8 @@ class ResetPasswordTest extends MockeryTestCase
 
     public function testStep2BadPassword()
     {
-        $this->expectException('Infuse\Auth\Exception\AuthException', 'Please enter a valid password.');
+        $this->expectException('Infuse\Auth\Exception\AuthException');
+        $this->expectExceptionMessage('Password must meet the password requirements');
 
         Test::$app['database']->getDefault()
             ->delete('UserLinks')

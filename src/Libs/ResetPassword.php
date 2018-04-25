@@ -130,7 +130,8 @@ class ResetPassword
         $user->enforcePermissions();
 
         if (!$success) {
-            throw new AuthException('Please enter a valid password.');
+            $msg = implode(' ', $user->getErrors()->all());
+            throw new AuthException($msg);
         }
 
         $this->app['database']->getDefault()
