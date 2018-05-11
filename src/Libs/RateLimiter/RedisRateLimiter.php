@@ -75,9 +75,14 @@ class RedisRateLimiter implements LoginRateLimiterInterface
         $redis = $this->getRedis();
         $k = $this->getCounterKey($username);
 
-        $failedAttempts = (int) $redis->get($k);
+        try {
+            $failedAttempts = (int) $redis->get($k);
 
-        return max(0, $maxAttempts - $failedAttempts);
+            return max(0, $maxAttempts - $failedAttempts);
+        } catch (\RedisException $e) {
+            $this->app['logger']->error('Auth rate limiter call to redis failed', ['exception' => $e]);
+            return $maxAttempts;
+        }
     }
 
     function recordFailedLogin($username)
@@ -85,12 +90,16 @@ class RedisRateLimiter implements LoginRateLimiterInterface
         $redis = $this->getRedis();
         $k = $this->getCounterKey($username);
 
-        // increment a failed login counter in redis and update the expiration date
-        $redis->incr($k, 1);
+        try {
+            // increment a failed login counter in redis and update the expiration date
+            $redis->incr($k, 1);
 
-        $window = $this->getLockoutWindow($username);
-        $expiresIn = strtotime("+$window") - time();
-        $redis->expire($k, $expiresIn);
+            $window = $this->getLockoutWindow($username);
+            $expiresIn = strtotime("+$window") - time();
+            $redis->expire($k, $expiresIn);
+        } catch (\RedisException $e) {
+            // no need to log here because it would have been caught in getRemainingAttempts()
+        }
     }
 
     /**
