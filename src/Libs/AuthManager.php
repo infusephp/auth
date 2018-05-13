@@ -377,7 +377,7 @@ class AuthManager
     {
         $userClass = $this->getUserClass();
 
-        return new $userClass(self::GUEST_USER_ID);
+        return (new $userClass(self::GUEST_USER_ID))->refreshWith([]);
     }
 
     /**
