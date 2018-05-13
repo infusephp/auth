@@ -16,6 +16,7 @@ use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Models\PersistentSession;
 use Infuse\Request;
 use Infuse\Utility as U;
+use Pulsar\Exception\ModelException;
 
 class RememberMeCookie
 {
@@ -199,9 +200,14 @@ class RememberMeCookie
         }
 
         // look up the user with a matching email address
-        $userClass = $auth->getUserClass();
-        $user = $userClass::where('email', $this->email)
-                          ->first();
+        try {
+            $userClass = $auth->getUserClass();
+            $user = $userClass::where('email', $this->email)
+                ->first();
+        } catch (ModelException $e) {
+            // fail open when unable to look up the user
+            return false;
+        }
 
         if (!$user) {
             return false;
