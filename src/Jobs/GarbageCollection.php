@@ -34,8 +34,22 @@ class GarbageCollection
     {
         $res1 = $this->gcPersistent();
         $res2 = $this->gcUserLinks();
+        $res3 = $this->gcActive();
 
-        return $res1 && $res2;
+        return $res1 && $res2 && $res3;
+    }
+
+    /**
+     * Clears out expired active sessions.
+     *
+     * @return bool
+     */
+    private function gcActive()
+    {
+        return (bool) $this->app['database']->getDefault()
+            ->delete('ActiveSessions')
+            ->where('expires', time() - 3600, '<')
+            ->execute();
     }
 
     /**
