@@ -14,6 +14,7 @@ namespace Infuse\Auth\Libs\Storage;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Libs\RememberMeCookie;
 use Infuse\Auth\Models\ActiveSession;
+use infuse\QueryBuilder;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Utility;
@@ -144,7 +145,7 @@ class SessionStorage extends AbstractStorage
             }
         }
 
-        $this->destroyRememberMeCookie($res);
+        $this->destroyRememberMeCookie($req, $res);
 
         return true;
     }
@@ -254,7 +255,7 @@ class SessionStorage extends AbstractStorage
         $sessionCookie = session_get_cookie_params();
         $expires = time() + $sessionCookie['lifetime'];
 
-        $this->app['database']->getDefault()
+        $this->getDatabase()
             ->update('ActiveSessions')
             ->where('id', $sid)
             ->values([
@@ -275,12 +276,20 @@ class SessionStorage extends AbstractStorage
      */
     private function deleteSession($sid)
     {
-        $this->app['database']->getDefault()
+        $this->getDatabase()
             ->delete('ActiveSessions')
             ->where('id', $sid)
             ->execute();
 
         return true;
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    private function getDatabase()
+    {
+        return $this->app['database']->getDefault();
     }
 
     /**
@@ -301,7 +310,7 @@ class SessionStorage extends AbstractStorage
 
         $user = $cookie->verify($req, $this->auth);
         if (!$user) {
-            $this->destroyRememberMeCookie($res);
+            $this->destroyRememberMeCookie($req, $res);
 
             return false;
         }
@@ -364,12 +373,18 @@ class SessionStorage extends AbstractStorage
     /**
      * Destroys the remember me cookie.
      *
+     * @param Request $req
      * @param Response $res
      *
      * @return self
      */
-    private function destroyRememberMeCookie(Response $res)
+    private function destroyRememberMeCookie(Request $req, Response $res)
     {
+        $cookie = $this->getRememberMeCookie($req);
+        if ($cookie) {
+            $cookie->destroy();
+        }
+
         $sessionCookie = session_get_cookie_params();
         $res->setCookie($this->rememberMeCookieName(),
             '',

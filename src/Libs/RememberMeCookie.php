@@ -14,6 +14,7 @@ namespace Infuse\Auth\Libs;
 use Infuse\Application;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\Auth\Models\PersistentSession;
+use infuse\QueryBuilder;
 use Infuse\Request;
 use Infuse\Utility as U;
 use Pulsar\Exception\ModelException;
@@ -287,6 +288,17 @@ class RememberMeCookie
         }
 
         return $session;
+    }
+
+    /**
+     * Destroys the persisted cookie in the data store.
+     */
+    function destroy()
+    {
+        $seriesHash = $this->hash($this->series);
+        PersistentSession::where('email', $this->email)
+            ->where('series', $seriesHash)
+            ->delete();
     }
 
     /**

@@ -23,6 +23,7 @@ use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
 use InvalidArgumentException;
+use JAQB\QueryBuilder;
 
 class AuthManager
 {
@@ -229,6 +230,14 @@ class AuthManager
         return $this->response;
     }
 
+    /**
+     * @return QueryBuilder
+     */
+    private function getDatabase()
+    {
+        return $this->app['database']->getDefault();
+    }
+
     /////////////////////////
     // LOGIN
     /////////////////////////
@@ -425,7 +434,7 @@ class AuthManager
      */
     public function signOutAllSessions(UserInterface $user)
     {
-        $db = $this->app['database']->getDefault();
+        $db = $this->getDatabase();
 
         // invalidate any active sessions
         $db->update('ActiveSessions')
@@ -478,7 +487,7 @@ class AuthManager
         ];
 
         // delete previous verify links
-        $this->app['database']->getDefault()
+        $this->getDatabase()
             ->delete('UserLinks')
             ->where($params)
             ->execute();
