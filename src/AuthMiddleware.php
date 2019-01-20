@@ -12,7 +12,7 @@
 namespace Infuse\Auth;
 
 use Infuse\HasApp;
-use Pulsar\ACLModel;
+use Pulsar\ACLModelRequester;
 
 class AuthMiddleware
 {
@@ -27,7 +27,7 @@ class AuthMiddleware
         $user = $auth->getAuthenticatedUser();
 
         // use the authenticated user as the requester for model permissions
-        ACLModel::setRequester($user);
+        ACLModelRequester::set($user);
         $this->app['requester'] = $user;
 
         return $next($req, $res);

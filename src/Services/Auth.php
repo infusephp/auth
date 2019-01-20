@@ -12,7 +12,7 @@
 namespace Infuse\Auth\Services;
 
 use Infuse\Auth\Libs\AuthManager;
-use Pulsar\ACLModel;
+use Pulsar\ACLModelRequester;
 
 class Auth
 {
@@ -26,7 +26,7 @@ class Auth
             $app['user'] = $user;
 
             // use the super user as the requester for model permissions
-            ACLModel::setRequester($user);
+            ACLModelRequester::set($user);
             $app['requester'] = $user;
         }
     }

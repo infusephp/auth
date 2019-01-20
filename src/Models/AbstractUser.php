@@ -11,11 +11,9 @@
 
 namespace Infuse\Auth\Models;
 
-use Infuse\Application;
 use Infuse\Auth\Interfaces\UserInterface;
 use Infuse\HasApp;
 use Infuse\Utility as U;
-use InvalidArgumentException;
 use Pulsar\ACLModel;
 use Pulsar\Model;
 use Pulsar\ModelEvent;
