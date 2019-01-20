@@ -15,8 +15,11 @@ class RenameUserLinkType extends AbstractMigration
     public function change()
     {
         $this->table('UserLinks')
-             ->renameColumn('link_type', 'type')
-             ->changeColumn('type', 'string')
-             ->update();
+            ->renameColumn('link_type', 'type')
+            ->update();
+
+        $this->table('UserLinks')
+            ->changeColumn('type', 'string')
+            ->update();
     }
 }

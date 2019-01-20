@@ -14,7 +14,7 @@ class UserLoginHistoryType extends AbstractMigration
 {
     public function up()
     {
-        $this->table('UserLoginHistories')->changeColumn('type', 'string', ['length' => 50]);
+        $this->table('UserLoginHistories')->changeColumn('type', 'string', ['length' => 50])->save();
 
         $rows = $this->fetchAll('SELECT * FROM UserLoginHistories');
 
@@ -23,7 +23,7 @@ class UserLoginHistoryType extends AbstractMigration
             if ($type == 0) {
                 $type = 'web';
             } elseif ($type == 1) {
-                $type == 'persistent';
+                $type = 'persistent';
             } elseif ($type == 2) {
                 $type = 'oauth';
             } elseif ($type == 3) {
