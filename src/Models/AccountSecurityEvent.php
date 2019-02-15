@@ -16,6 +16,7 @@ use Pulsar\Model;
 class AccountSecurityEvent extends Model
 {
     const LOGIN = 'user.login';
+    const LOGOUT = 'user.logout';
     const CHANGE_PASSWORD = 'user.change_password';
     const RESET_PASSWORD_REQUEST = 'user.request_password_reset';
 

@@ -292,11 +292,24 @@ class AuthManager
      */
     public function logout()
     {
+        $user = $this->app['user'];
+
         $result = $this->getStorage()
                        ->signOut($this->request, $this->response);
 
         if (!$result) {
             throw new AuthException('Could not sign user out.');
+        }
+
+        // record the logout event
+        if ($user) {
+            $event = new AccountSecurityEvent();
+            $event->user_id = $user->id();
+            $event->type = AccountSecurityEvent::LOGOUT;
+            $event->ip = $this->request->ip();
+            $event->user_agent = $this->request->agent();
+            $event->auth_strategy = 'web';
+            $event->save();
         }
 
         $this->signInUser($this->getGuestUser());

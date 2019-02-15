@@ -17,7 +17,6 @@ use Infuse\Services\QueueDriver;
 use Infuse\Services\Redis;
 use JAQB\Services\ConnectionManager;
 use Pulsar\Driver\DatabaseDriver;
-use Pulsar\Services\ErrorStack;
 use Pulsar\Services\ModelDriver;
 
 /* This configuration is used to run the tests */
