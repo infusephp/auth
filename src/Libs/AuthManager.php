@@ -302,7 +302,7 @@ class AuthManager
         }
 
         // record the logout event
-        if ($user) {
+        if ($user && $user->id() > 0) {
             $event = new AccountSecurityEvent();
             $event->user_id = $user->id();
             $event->type = AccountSecurityEvent::LOGOUT;
