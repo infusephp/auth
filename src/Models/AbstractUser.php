@@ -139,10 +139,10 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         }
 
         // verify the given current password, when required
-        $app = $this->getApp();
-        if ($passwordRequired && !$this->can('skip-password-required', $app['user'])) {
+        $auth = $this->getApp()['auth'];
+        if ($passwordRequired && !$this->can('skip-password-required', $auth->getCurrentUser())) {
             $password = array_value($data, 'current_password');
-            $strategy = $app['auth']->getStrategy('traditional');
+            $strategy = $auth->getStrategy('traditional');
             if (!$strategy->verifyPassword($this, $password)) {
                 $this->getErrors()->add('invalid_password');
 
@@ -187,7 +187,8 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         $auth->signOutAllSessions($user);
         $user->markSignedOut();
 
-        if ($app['user'] && $app['user']->id() == $user->id()) {
+        $currentUser = $auth->getCurrentUser();
+        if ($currentUser->id() == $user->id()) {
             $auth->logout();
         }
 
@@ -516,14 +517,15 @@ abstract class AbstractUser extends ACLModel implements UserInterface
         }
 
         // the current user can only delete their own account
-        $app = $this->getApp();
-        if ($app['user']->id() != $this->id()) {
+        $auth = $this->getApp()['auth'];
+        $user = $auth->getCurrentUser();
+        if ($user->id() != $this->id()) {
             return false;
         }
 
         // Verify the supplied the password.
-        $verified = $app['auth']->getStrategy('traditional')
-                                ->verifyPassword($this, $password);
+        $verified = $auth->getStrategy('traditional')
+            ->verifyPassword($this, $password);
         if (!$verified) {
             return false;
         }

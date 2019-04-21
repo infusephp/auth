@@ -58,7 +58,7 @@ class TestListener implements PHPUnitTestListener
 
         $user->create($params);
         $user->markSignedIn();
-        Test::$app['user'] = $user;
+        Test::$app['auth']->setCurrentUser($user);
     }
 
     public function addError(PHPUnitTest $test, Exception $e, $time)
@@ -87,7 +87,7 @@ class TestListener implements PHPUnitTestListener
 
     public function startTest(PHPUnitTest $test)
     {
-        Test::$app['user']->demoteToNormalUser();
+        Test::$app['auth']->getCurrentUser()->demoteToNormalUser();
     }
 
     public function endTest(PHPUnitTest $test, $time)

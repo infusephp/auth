@@ -124,6 +124,20 @@ class AuthManagerTest extends MockeryTestCase
         $this->assertEquals($res, $auth->getResponse());
     }
 
+    function testGetCurrentUser()
+    {
+        $auth = $this->getAuth();
+        $user = $auth->getCurrentUser();
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertFalse($user->isSignedIn());
+        $this->assertEquals($user, Test::$app['user']);
+
+        $user = new User(1234);
+        $auth->setCurrentUser($user);
+        $this->assertEquals($user, $auth->getCurrentUser());
+        $this->assertEquals($user, Test::$app['user']);
+    }
+
     public function testGetUserClass()
     {
         $auth = $this->getAuth();

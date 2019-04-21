@@ -11,19 +11,26 @@
 
 namespace Infuse\Auth\Services;
 
+use Infuse\Application;
 use Infuse\Auth\Libs\AuthManager;
 use Pulsar\ACLModelRequester;
 
 class Auth
 {
-    public function __construct($app)
+    /**
+     * @var AuthManager
+     */
+    private $auth;
+
+    public function __construct(Application $app)
     {
         // CLI requests have a super user
         if (defined('STDIN')) {
-            $userClass = $this->getUserClass($app);
+            $auth = $this->getAuthManager($app);
+            $userClass = $auth->getUserClass();
             $user = new $userClass();
             $user->promoteToSuperUser();
-            $app['user'] = $user;
+            $auth->setCurrentUser($user);
 
             // use the super user as the requester for model permissions
             ACLModelRequester::set($user);
@@ -31,38 +38,37 @@ class Auth
         }
     }
 
-    public function __invoke($app)
+    public function __invoke(Application $app)
     {
-        $auth = new AuthManager();
-        $auth->setApp($app);
+        return $this->getAuthManager($app);
+    }
+
+    private function getAuthManager(Application $app): AuthManager
+    {
+        if ($this->auth) {
+            return $this->auth;
+        }
+
+        $this->auth = new AuthManager();
+        $this->auth->setApp($app);
 
         // register authentication strategies
         $strategies = $app['config']->get('auth.strategies', []);
         foreach ($strategies as $id => $class) {
-            $auth->registerStrategy($id, $class);
+            $this->auth->registerStrategy($id, $class);
         }
 
         if ($class = $app['config']->get('auth.2fa_strategy')) {
-            $strategy = new $class($auth);
-            $auth->setTwoFactorStrategy($strategy);
+            $strategy = new $class($this->auth);
+            $this->auth->setTwoFactorStrategy($strategy);
         }
 
         // specify storage type
         if ($class = $app['config']->get('auth.storage')) {
-            $storage = new $class($auth);
-            $auth->setStorage($storage);
+            $storage = new $class($this->auth);
+            $this->auth->setStorage($storage);
         }
 
-        return $auth;
-    }
-
-    /**
-     * Gets the user model class.
-     *
-     * @return string
-     */
-    private function getUserClass($app)
-    {
-        return $app['config']->get('users.model', AuthManager::DEFAULT_USER_MODEL);
+        return $this->auth;
     }
 }

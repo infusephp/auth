@@ -65,6 +65,11 @@ class AuthManager
     private $response;
 
     /**
+     * @var UserInterface
+     */
+    private $currentUser;
+
+    /**
      * @var UserRegistration
      */
     private $registrar;
@@ -231,6 +236,38 @@ class AuthManager
     }
 
     /**
+     * Sets the current user for this request.
+     *
+     * @param UserInterface $user
+     *
+     * @return $this
+     */
+    function setCurrentUser(UserInterface $user)
+    {
+        $this->currentUser = $user;
+
+        // accessing the current user from the
+        // DI container is deprecated
+        $this->app['user'] = $user;
+
+        return $this;
+    }
+
+    /**
+     * Gets the current user for this request.
+     */
+    function getCurrentUser(): UserInterface
+    {
+        if (!$this->currentUser) {
+            $this->setCurrentUser($this->getGuestUser());
+        }
+
+        // accessing the current user from the
+        // DI container is deprecated
+        return $this->app['user'];
+    }
+
+    /**
      * @return QueryBuilder
      */
     private function getDatabase()
@@ -278,7 +315,7 @@ class AuthManager
             $user = $this->signInUser($this->getGuestUser());
         }
 
-        $this->app['user'] = $user;
+        $this->setCurrentUser($user);
 
         return $user;
     }
@@ -292,7 +329,7 @@ class AuthManager
      */
     public function logout()
     {
-        $user = $this->app['user'];
+        $user = $this->getCurrentUser();
 
         $result = $this->getStorage()
                        ->signOut($this->request, $this->response);
@@ -351,7 +388,7 @@ class AuthManager
         // be completely signed in until they verify using 2FA
         $twoFactor = $this->getTwoFactorStrategy();
         if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
-            $this->app['user'] = $user;
+            $this->setCurrentUser($user);
 
             return $user->markSignedOut();
         }
@@ -385,7 +422,7 @@ class AuthManager
             $user->markSignedOut();
         }
 
-        $this->app['user'] = $user;
+        $this->setCurrentUser($user);
 
         return $user;
     }
