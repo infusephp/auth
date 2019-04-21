@@ -259,7 +259,9 @@ class AuthManager
     function getCurrentUser(): UserInterface
     {
         if (!$this->currentUser) {
-            $this->setCurrentUser($this->getGuestUser());
+            // this will determine the user from the session
+            // and set it as the current user
+            $this->getAuthenticatedUser();
         }
 
         // accessing the current user from the
@@ -329,7 +331,7 @@ class AuthManager
      */
     public function logout()
     {
-        $user = $this->getCurrentUser();
+        $currentUser = $this->currentUser;
 
         $result = $this->getStorage()
                        ->signOut($this->request, $this->response);
@@ -339,9 +341,9 @@ class AuthManager
         }
 
         // record the logout event
-        if ($user && $user->id() > 0) {
+        if ($currentUser && $currentUser->id() > 0) {
             $event = new AccountSecurityEvent();
-            $event->user_id = $user->id();
+            $event->user_id = $currentUser->id();
             $event->type = AccountSecurityEvent::LOGOUT;
             $event->ip = $this->request->ip();
             $event->user_agent = $this->request->agent();

@@ -24,11 +24,9 @@ class AuthMiddleware
         $auth = $this->app['auth'];
         $auth->setRequest($req)->setResponse($res);
 
-        $user = $auth->getAuthenticatedUser();
-
-        // use the authenticated user as the requester for model permissions
-        ACLModelRequester::set($user);
-        $this->app['requester'] = $user;
+        ACLModelRequester::setCallable(function() use ($auth) {
+            return $auth->getAuthenticatedUser();
+        });
 
         return $next($req, $res);
     }
