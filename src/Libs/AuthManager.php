@@ -312,12 +312,12 @@ class AuthManager
             if ($twoFactor && !$user->isTwoFactorVerified() && $twoFactor->needsVerification($user)) {
                 $user->markSignedOut();
             }
+
+            $this->setCurrentUser($user);
         } else {
             // if no current user then sign in a guest
             $user = $this->signInUser($this->getGuestUser());
         }
-
-        $this->setCurrentUser($user);
 
         return $user;
     }

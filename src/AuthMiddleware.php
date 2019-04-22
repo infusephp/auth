@@ -25,7 +25,7 @@ class AuthMiddleware
         $auth->setRequest($req)->setResponse($res);
 
         ACLModelRequester::setCallable(function() use ($auth) {
-            return $auth->getAuthenticatedUser();
+            return $auth->getCurrentUser();
         });
 
         return $next($req, $res);

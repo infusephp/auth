@@ -14,6 +14,7 @@ use Infuse\Response;
 use Infuse\Test;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Pulsar\ACLModelRequester;
+use App\Users\Models\User;
 
 class AuthMiddlewareTest extends MockeryTestCase
 {
@@ -32,6 +33,8 @@ class AuthMiddlewareTest extends MockeryTestCase
     public function testService()
     {
         ACLModelRequester::clear();
+        Test::$app['auth']->setCurrentUser(new User(-1));
+
         $middleware = new AuthMiddleware();
         $middleware->setApp(Test::$app);
 
